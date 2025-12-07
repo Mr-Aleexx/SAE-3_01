@@ -24,4 +24,3 @@ make build
 make run
 ```
 Try to run make build once, it's safer
-# SAE-3_01
