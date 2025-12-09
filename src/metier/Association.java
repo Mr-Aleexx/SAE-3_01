@@ -17,6 +17,12 @@ public class Association
 	public Stereotype getStereotype2(){return this.stereotype2;}
 
 	public void setTypeAsso(String typeAsso){this.typeAsso = typeAsso;}
-	public void setStereotype1(Stereotype s){}
-	public void setStereotype2(){}
+	public void setStereotype1(Stereotype stereotype1){this.stereotype1 = stereotype1;}
+	public void setStereotype2(Stereotype stereotype2){this.stereotype2 = stereotype2;}
+
+	
+	
+	//Faire les tests pour les set parce que oui
+	//Faire la Classe "" qui va creer des associations 
+	//Faire la verrification des extends et implements (mettre dans Lien)
 }

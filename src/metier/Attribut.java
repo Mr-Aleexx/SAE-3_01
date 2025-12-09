@@ -14,20 +14,25 @@ public class Attribut
 	private String  type;
 	private String  nom;
 
-	public Attribut()
+	public Attribut( String visibilite, boolean statique, boolean lectureUnique, String type, String nom )
 	{
-		this.visibilite    = "";
-		this.statique      = false;
-		this.lectureUnique = false;
-		this.type          = null;
-		this.nom           = null;
+		this.visibilite    = visibilite;
+		this.statique      = statique;
+		this.lectureUnique = lectureUnique;
+		this.type          = type;
+		this.nom           = nom;
 	}
 
-	public String  getVisibilite   () {return this.visibilite;   }
-	public boolean estStatique     () {return this.statique;     }
-	public boolean estLectureUnique() {return this.lectureUnique;}
-	public String  getType         () {return this.type;         }
-	public String  getNom          () {return this.nom;          }
+	public Attribut()
+	{
+		this( "", false, false, null, null );
+	}
+
+	public String  getVisibilite   () { return this.visibilite;    }
+	public boolean estStatique     () { return this.statique;      }
+	public boolean estLectureUnique() { return this.lectureUnique; }
+	public String  getType         () { return this.type;          }
+	public String  getNom          () { return this.nom;           }
 
 	public void setVisibilite   (String visibilite    ) { this.visibilite    = visibilite;    }
 	public void setStatique     (boolean statique     ) { this.statique      = statique;      }

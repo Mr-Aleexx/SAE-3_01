@@ -4,7 +4,7 @@ build:
 	javac $(SOURCES) -d bin
 
 run: build
-	java -cp bin Controller
+	java -cp bin Controleur
 
 clean:
 	rm -rf bin/*
