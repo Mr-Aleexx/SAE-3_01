@@ -18,7 +18,8 @@ public class AnalyseurJava
 	{
 		Scanner       sc, scLigne;
 		int           cptLigne, cpt;
-		boolean       estPremiereMethode = false;
+		List<Boolean> dansMethode;
+		boolean       estPremiereMethode;
 		Stereotype    stereotypeRet, stereotypeInterne;
 		Attribut      attribut;
 		Methode       methode;
@@ -32,6 +33,8 @@ public class AnalyseurJava
 		try 
 		{
 			sc = new Scanner( new FileInputStream ( fichier ), "UTF8" );
+
+			estPremiereMethode = false;
 			
 			while ( sc.hasNextLine() )
 			{
@@ -63,6 +66,7 @@ public class AnalyseurJava
 			sc = new Scanner( new FileInputStream ( fichier ), "UTF8" );
 			
 			stereotypeInterne = stereotypeRet = null;
+			dansMethode = new ArrayList<Boolean>();
 
 			while ( sc.hasNextLine() )
 			{
@@ -86,7 +90,7 @@ public class AnalyseurJava
 					// Attributs
 					if ( cpt > plage1.get(i) && cpt < plage2.get(i) )
 					{
-						if ( ! ligne.trim().replace( "{", "" ).equals("") )
+						if ( ligne.contains( ";" ) )
 						{
 							attribut = AnalyseurJava.initAttribut( ligne );
 
@@ -96,25 +100,28 @@ public class AnalyseurJava
 					}
 
 					//Methodes
-					if ( i == plage1.size() - 1 ) // Dernier i de la liste
+					if ( i == plage1.size() - 1 && cpt >= plage2.get(i) ||   //Si dernier stereotype
+					     cpt >= plage2.get(i) && cpt < plage1.get(i+1)    )  //Si ce n'est pas le dernier
 					{
-						if ( cpt >= plage2.get(i) )
+						if ( ligne.contains( "(" ) && dansMethode.isEmpty() )
 						{
-							methode = AnalyseurJava.initMethode( ligne );
-							
-							if ( i == 0 ) stereotypeRet    .ajouterMethode( methode );
-							else          stereotypeInterne.ajouterMethode( methode );
+							if ( i == 0 )
+							{
+								methode = AnalyseurJava.initMethode( ligne, stereotypeRet.getNom() );
+								stereotypeRet.ajouterMethode( methode );
+							}
+							else
+							{
+								methode = AnalyseurJava.initMethode( ligne, stereotypeInterne.getNom() );
+								stereotypeInterne.ajouterMethode( methode );
+							}
 						}
-					}
-					else
-					{
-						if ( cpt >= plage2.get(i) && cpt < plage1.get(i+1) )
-						{
-							methode = AnalyseurJava.initMethode( ligne );
-							
-							if ( i == 0 ) stereotypeRet    .ajouterMethode( methode );
-							else          stereotypeInterne.ajouterMethode( methode );
-						}
+
+						// Gestion des declaration de classes en local
+						if ( ligne.contains( "{" ) ) dansMethode.add( true );
+						if ( ligne.contains( "}" ) && ! dansMethode.isEmpty() )
+							dansMethode.remove(0);
+						
 					}
 					
 				}
@@ -181,7 +188,6 @@ public class AnalyseurJava
 
 	private static Attribut initAttribut(String ligne)
 	{
-		boolean traiteVisibilite = true;
 		String  visibilite       = "package";
 		boolean statique         = false;
 		boolean lectureUnique    = false;
@@ -227,54 +233,81 @@ public class AnalyseurJava
 		return new Attribut( visibilite, statique, lectureUnique, type, nom );
 	}
 
-	private static Methode initMethode( String ligne )
+	private static Methode initMethode( String ligne, String nomStereotype )
 	{
-		String  visibilite;
-		boolean statique;
-		boolean lectureUnique;
-		boolean abstraite;
+		String  visibilite    = "package";
+		boolean statique      = false;
+		boolean lectureUnique = false;
+		boolean abstraite     = false;
 		String  type;
-		String  nom;
+		String  nom           = "";
 		
-		boolean traiteStatiqueFinal;
+		boolean traiteStatiqueFinalAbstract;
+		int     index;
 
 		Scanner sc = new Scanner( ligne );
 		sc.useDelimiter("\\s+");
+
+		String  mot = sc.next();
+
+		for ( String visi : AnalyseurJava.ENS_VISI )
+			if( mot.equals(visi) ) visibilite = visi;
 		
-		String  mot = "";
+		
 		while ( sc.hasNext() )
 		{
-			traiteStatiqueFinal = false;
+			traiteStatiqueFinalAbstract = false;
 			
 			mot = sc.next();
-			
-			for ( String visi : AnalyseurJava.ENS_VISI )
-				if( mot.equals(visi) ) visibilite = visi;
 
-			if( mot.equals( "static"  ) )
+			if( mot.equals( "static"   ) )
 			{
-				statique            = true;
-				traiteStatiqueFinal = true;
+				statique                    = true;
+				traiteStatiqueFinalAbstract = true;
 			}
-			if( mot.equals( "final"   ) )
+			if( mot.equals( "final"    ) )
 			{
-				lectureUnique       = true;
-				traiteStatiqueFinal = true;
+				lectureUnique               = true;
+				traiteStatiqueFinalAbstract = true;
 			}
-			if( mot.equals( "abstract") ) 
-        	{
-            	abstraite           = true;
-            	traiteStatiqueFinal = true;
-        	}
 
-			if( ! traiteStatiqueFinal ) break;
+			if( mot.equals( "abstract" ) )
+			{
+				abstraite                   = true;
+				traiteStatiqueFinalAbstract = true;
+			}
+
+			if( ! traiteStatiqueFinalAbstract ) break;
 		}
-
-		type = mot;
-		nom  = sc.next().replace( ";" , "" );
-
-		return new Methode();
 		
+		// Gestion du constructeur
+		index = mot.indexOf( "(" );
+		if ( index != -1 ) mot = mot.substring( 0, index );
+
+		if ( nomStereotype.equals( mot ) )
+		{
+			type = "Constructeur";
+
+			nom = mot.replace( "" , "" );
+		}
+		else
+		{
+			type = mot;
+			
+			mot  = sc.next();
+
+			index = mot.indexOf( "(" );
+			if ( index != -1 ) nom = mot.substring( 0, index );
+		}
+		
+
+		Methode m =  new Methode( visibilite, statique, lectureUnique, abstraite, type, nom );
+
+		//Partie Parametres
+
+		System.out.println( visibilite +","+ statique +","+ lectureUnique +","+ abstraite + "," + type +","+ nom );
+		
+		return m ;
 	}
 
 }
