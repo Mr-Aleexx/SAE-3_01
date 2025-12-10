@@ -1,7 +1,7 @@
 package ressources;
 
 public class PointRetK{
-	private int x;
+	private final int x;
 	private int y;
 	private String nom;
 

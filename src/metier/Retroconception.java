@@ -21,6 +21,9 @@ public class Retroconception
 	public void ouvrirDossier(String cheminDossier)
 	{
 		this.lstStereotype = AnalyseurJava.analyserDossier(cheminDossier);
+
+		for ( Stereotype s : this.lstStereotype )
+			System.out.println( s.toString() );
 	}
 
 	/**
@@ -29,10 +32,7 @@ public class Retroconception
 	 */
 	public void ouvrirFichier(String fichier)
 	{
-		this.lstStereotype.add( AnalyseurJava.analyserFichier(fichier) );
-		
-		for ( Stereotype s : this.lstStereotype )
-			System.out.println( s.toString() );
+		System.out.println( AnalyseurJava.analyserFichier(fichier).toString() );
 	}
 
 	public Stereotype getSter() { return this.lstStereotype.get(0); } ///~~~~~~~~~~~~~
@@ -43,6 +43,7 @@ public class Retroconception
 	public void creationAssociation()
 	{
 		List<Association> lstAssociationTmp = new ArrayList<>();
+		List<Integer> lstIndex = new ArrayList<>();
 		
 		for (Stereotype stereotype1 : this.lstStereotype) 
 		{
@@ -52,7 +53,7 @@ public class Retroconception
 				{
 					if (attribut.getType().equals(stereotype2.getNom()))
 					{
-						lstAssociationTmp.add(new Association(stereotype1, stereotype2, "1"));
+						lstAssociationTmp.add(new Association(stereotype1, stereotype2, "1..1"));
 					}
 					else if(attribut.getType().contains("<") && attribut.getType().contains(">"))
 					{
@@ -67,29 +68,31 @@ public class Retroconception
 			}
 		}
 
-		for (Association association1 : lstAssociationTmp) 
-		{
-			for (Association association2 : lstAssociationTmp) 
+
+		for (int i = 0; i < lstAssociationTmp.size(); i++) 
+    	{
+			if (lstIndex.contains(i)) continue;
+			
+			Association association1 = lstAssociationTmp.get(i);
+			String lien = "unidirectionnelle";
+			String mult1 = association1.getMultiplicite();
+			String mult2 = mult1; 
+			
+			for (int j = i + 1; j < lstAssociationTmp.size(); j++) 
 			{
-				String truc = "";
+				Association association2 = lstAssociationTmp.get(j);
 				
-				if (association1.getStereotype1().getNom().equals(association2.getStereotype2().getNom()) &&
-					association2.getStereotype1().getNom().equals(association1.getStereotype2().getNom()))
+				if (verifAssociation(association1, association2))
 				{
-					truc = "bi";
+					lien = "bidirectionnelle";
+					mult2 = association2.getMultiplicite();
+					lstIndex.add(j);
+					break;
 				}
-				else
-				{
-					truc = "uni";
-				}
-
-				this.lstAssociations.add(new Association(association1.getStereotype1(), association1.getStereotype2(), truc, "", ""));
-
-
 			}
-		}
-
-
+			
+			this.lstAssociations.add(new Association(association1.getStereotype1(), association1.getStereotype2(), lien, mult1, mult2));
+    	}
 	}
 
 	private String extraireTypeGenerique(String type) 
@@ -99,5 +102,13 @@ public class Retroconception
 			return type.substring(type.indexOf("<") + 1, type.indexOf(">"));
 		}
 		return type;  	
+	}
+
+	private boolean verifAssociation(Association association1, Association association2){
+		if (association1.getStereotype1().getNom().equals(association1.getStereotype2().getNom()))
+			return false;
+		
+		return association1.getStereotype1().getNom().equals(association2.getStereotype2().getNom()) &&
+			   association2.getStereotype1().getNom().equals(association1.getStereotype2().getNom());
 	}
 }

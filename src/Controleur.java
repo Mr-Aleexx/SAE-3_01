@@ -1,4 +1,5 @@
 import metier.Retroconception;
+
 public class Controleur
 {
 	private Retroconception metier;
@@ -29,8 +30,11 @@ public class Controleur
 	{
 		Controleur ctrl = new Controleur();
 
-		//ctrl.ouvrirFichier("./ressources/PointRetK.java");
+		//ctrl.ouvrirFichier("./tests/Commentaires.java");
 
-		ctrl.ouvrirDossier("./ressources");
+		
+		
+		ctrl.ouvrirDossier("./tests");
 	}
+	
 }

@@ -20,7 +20,7 @@ public class AnalyseurJava
 	public static Stereotype analyserFichier(String fichier)
 	{
 		Scanner       sc;
-		int           nbLigne, cpt;
+		int           nbLigne, numLigne;
 		List<Boolean> dansMethode;
 		boolean       estPremiereMethode, estDansCommentaire, estCommentaire;
 		Stereotype    stereotypeRet = null;
@@ -51,7 +51,7 @@ public class AnalyseurJava
 				ligne      = sc.nextLine();
 				
 				// Gestion des commentaires // et /* */ au debut de la ligne
-				debutLigne     = ligne.trim(); //pourquoi debut ligne est la ligne de base ??
+				debutLigne     = ligne.trim();
 				estCommentaire = false;
 				
 				if ( debutLigne.length() >= 2 )
@@ -72,7 +72,6 @@ public class AnalyseurJava
 
 				if ( ! estDansCommentaire && ! estCommentaire )
 				{
-					System.out.println( debutLigne );
 					//Définie la/les lignes du/des nom stéréotype(s) du fichier
 					for ( String ster : AnalyseurJava.ENS_STER )
 						if ( ligne.contains( ster )  )
@@ -82,8 +81,7 @@ public class AnalyseurJava
 						}
 					
 					// Vérifie si la ligne est la première méthode du stéreotype
-					if ( ligne.contains( "(" ) && ( ligne.contains( "abstract" ) || ! ligne.contains( ";" ) )
-						&& ! estPremiereMethode )
+					if ( AnalyseurJava.premiereMethodeDetecte( ligne ) && ! estPremiereMethode )
 					{
 						plage2.add( nbLigne );
 						estPremiereMethode = true;
@@ -100,7 +98,7 @@ public class AnalyseurJava
 		/* Deuxième Lecture :
 		    - Création du stereotype
 		*/
-		cpt = 0;
+		numLigne = 0;
 
 		try
 		{
@@ -139,24 +137,25 @@ public class AnalyseurJava
 					for ( int i = 0; i < plage1.size(); i++ )
 					{
 						// Création du stérétotype retour et des stéréotypes Internes et de l'ajout et du liens entre eux
-						if ( cpt == plage1.get(i) )
+						if ( numLigne == plage1.get(i) )
 						{
-							if ( i == 0 ) stereotypeRet = AnalyseurJava.initStereotype( ligne );
+							if ( i == 0 )
+								stereotypeRet = (Stereotype)AnalyseurJava.initAll( "Stereotype" , "" , ligne );
 							else
 							{
 								if ( stereotypeInterne != null )
 									stereotypeRet.ajouterStereotypeInterne( stereotypeInterne );
 								
-								stereotypeInterne = AnalyseurJava.initStereotype( ligne );
+								stereotypeInterne = (Stereotype)AnalyseurJava.initAll( "Stereotype" , "" , ligne );
 							}
 						}
 
 						// Création des attributs
-						if ( cpt > plage1.get(i) && cpt < plage2.get(i) )
+						if ( numLigne > plage1.get(i) && numLigne < plage2.get(i) )
 						{
 							if ( ligne.contains( ";" ) )
 							{
-								attribut = AnalyseurJava.initAttribut( ligne );
+								attribut = (Attribut)AnalyseurJava.initAll( "Attribut" , "" , ligne );
 
 								if ( i == 0 ) stereotypeRet    .ajouterAttribut( attribut );
 								else          stereotypeInterne.ajouterAttribut( attribut );
@@ -165,20 +164,20 @@ public class AnalyseurJava
 
 						// Création des Methodes
 						//    - Adaptation de la plage des méthodes
-						if ( i   == plage1.size() - 1 && cpt >= plage2.get(i)   ||   //Si dernier stereotype
-							cpt >= plage2.get(i)     && cpt <  plage1.get(i+1)   )  //Si ce n'est pas le dernier
+						if ( i   == plage1.get( plage1.size() - 1 ) && numLigne >= plage2.get(i)   ||   //Si dernier stereotype
+							 numLigne >= plage2.get(i)     && numLigne <  plage1.get(i+1)   )  //Si ce n'est pas le dernier
 						{
 							// Verifie si il y a pas une methode locale dans la methode en cour
 							if ( ligne.contains( "(" ) && dansMethode.isEmpty() )
 							{
 								if ( i == 0 )
 								{
-									methode = AnalyseurJava.initMethode( ligne, stereotypeRet.getNom() );
+									methode = (Methode)AnalyseurJava.initAll( "Methode" , stereotypeRet.getNom() , ligne );
 									stereotypeRet.ajouterMethode( methode );
 								}
 								else
 								{
-									methode = AnalyseurJava.initMethode( ligne, stereotypeInterne.getNom() );
+									methode = (Methode)AnalyseurJava.initAll( "Methode" , stereotypeInterne.getNom() , ligne );
 									stereotypeInterne.ajouterMethode( methode );
 								}
 							}
@@ -191,14 +190,14 @@ public class AnalyseurJava
 				}
 				
 				//Compte le nombre de ligne parcourue
-				cpt++;
+				numLigne++;
 			}
 			sc.close();
 		}
 		catch (FileNotFoundException e) {}
 
 		return stereotypeRet;
-	}
+	}	
 
 	
 	/**
@@ -214,106 +213,29 @@ public class AnalyseurJava
 		File[] lstFichier = dossier.listFiles();
 
 		for ( File fichier : lstFichier )
+		{
+			System.out.println( fichier );
 			if ( fichier.getName().contains(".java") )
 				lstStereotypes.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
+		}
+			
 
 		return lstStereotypes;
 	}
 
-
-	private static Stereotype initStereotype( String ligne )
+	private static Object initAll( String typeInit, String nomStereotype, String ligne )
 	{
 		String  visibilite    = "package";
 		boolean statique      = false;
 		boolean lectureUnique = false;
 		boolean abstraite     = false;
 		String  type          = "";
-		String  nom;
-
-		Scanner sc = new Scanner( ligne );
-		sc.useDelimiter("\\s+");
-		
-		String  mot = "";
-		while ( sc.hasNext() )
-		{
-			mot = sc.next();
-			
-			for ( String visi : AnalyseurJava.ENS_VISI )
-				if( mot.equals(visi) ) visibilite = visi;
-
-			if( mot.equals( "static"  ) ) statique      = true;
-			if( mot.equals( "final"   ) ) lectureUnique = true;
-			if( mot.equals( "abstract") ) abstraite     = true;
-
-			for ( String ster : AnalyseurJava.ENS_STER )
-				if( mot.equals(ster) ) type = ster;
-		}
-		nom = mot.replace( "{", "");
-
-		sc.close();
-		
-		return new Stereotype( visibilite, statique, lectureUnique, abstraite, type, nom );
-	}
-
-	// Creer un attribut
-	private static Attribut initAttribut(String ligne)
-	{
-		String  visibilite       = "package";
-		boolean statique         = false;
-		boolean lectureUnique    = false;
-		String  type             = "";
-		String  nom;
-		
-		boolean traiteStatiqueFinal;
-
-		Scanner sc = new Scanner( ligne );
-		sc.useDelimiter("\\s+");
-
-		String  mot = sc.next();
-
-		for ( String visi : AnalyseurJava.ENS_VISI )
-			if( mot.equals(visi) ) visibilite = visi;
-		
-		
-		while ( sc.hasNext() )
-		{
-			traiteStatiqueFinal = false;
-			
-			mot = sc.next();
-
-			if( mot.equals( "static"  ) )
-			{
-				statique            = true;
-				traiteStatiqueFinal = true;
-			}
-			if( mot.equals( "final"   ) )
-			{
-				lectureUnique       = true;
-				traiteStatiqueFinal = true;
-			}
-
-			if( ! traiteStatiqueFinal ) break;
-		}
-
-		type = mot;
-		nom  = sc.next().replace( ";" , "" );
-		
-		sc.close();
-
-		return new Attribut( visibilite, statique, lectureUnique, type, nom );
-	}
-
-	private static Methode initMethode( String ligne, String nomStereotype )
-	{
-		String  visibilite    = "package";
-		boolean statique      = false;
-		boolean lectureUnique = false;
-		boolean abstraite     = false;
-		String  type;
 		String  nom           = "";
-		
-		boolean traiteStatiqueFinalAbstract;
-		int     index;
+		String  mere          = null;
+
+		boolean aGeneralization;
+		int     index, indexAvt, indexAps;
+		String  parametre = "";
 
 		Scanner sc = new Scanner( ligne );
 		sc.useDelimiter("\\s+");
@@ -322,98 +244,154 @@ public class AnalyseurJava
 
 		for ( String visi : AnalyseurJava.ENS_VISI )
 			if( mot.equals(visi) ) visibilite = visi;
-		
-		
+
 		while ( sc.hasNext() )
 		{
-			traiteStatiqueFinalAbstract = false;
+			aGeneralization = false;
 			
 			mot = sc.next();
 
-			if( mot.equals( "static"   ) )
+			if( mot.equals( "static"   ) ) statique      = aGeneralization = true;
+			if( mot.equals( "final"    ) ) lectureUnique = aGeneralization = true;
+			if( mot.equals( "abstract" ) ) abstraite     = aGeneralization = true;
+
+			if( ! aGeneralization ) break;
+		}
+
+		switch ( typeInit )
+		{
+			case "Stereotype" ->
 			{
-				statique                    = true;
-				traiteStatiqueFinalAbstract = true;
+				for ( String ster : AnalyseurJava.ENS_STER )
+					if( mot.equals(ster) ) type = ster;
+				
+				mot = sc.next().replace( "{", "");
+				
+				nom = mot;
+
+				while ( sc.hasNext() )
+				{
+					aGeneralization = false;
+					
+					mot = sc.next();
+
+					if( mot.equals( "extends"   ) )
+					{
+						mot = sc.next();
+						mere = mot;
+					}
+					if( mot.equals( "implements") ) 
+					{
+						String detecteImplements = ligne.substring( ligne.indexOf("implements"),ligne.length() );
+						Scanner scImplements = new Scanner( detecteImplements );
+						scImplements.useDelimiter("\\,");
+						
+						// while ( scImplements.hasNext() )
+						// {
+
+						// }
+						// break;
+					}
+
+					if( ! aGeneralization ) break;
+				}
+
+				if ( sc.hasNext() ) mot = sc.next();
+
+				if ( mot.equals( "extends" ) )
+				{
+					mere = sc.next().replace( "{", "");
+					if ( sc.hasNext() ) mot = sc.next();
+					
+					if ( mot.equals( "implements" ) ) mot = "mabite";
+				}
+				
+				sc.close();
+
+				return new Stereotype( visibilite, statique, lectureUnique, abstraite, type, nom, mere );
 			}
-			if( mot.equals( "final"    ) )
+			case "Attribut" ->
 			{
-				lectureUnique               = true;
-				traiteStatiqueFinalAbstract = true;
-			}
+				type = mot;
+				nom  = sc.next().replace( ";" , "" );
 
-			if( mot.equals( "abstract" ) )
+				sc.close();
+
+				return new Attribut( visibilite, statique, lectureUnique, type, nom );
+			}
+			case "Methode" ->
 			{
-				abstraite                   = true;
-				traiteStatiqueFinalAbstract = true;
+				// Recuperation du nom de la methode
+				index = mot.indexOf( "(" );
+				if ( index != -1 ) mot = mot.substring( 0, index );
+				
+				// Si c'est le controleur
+				if ( nomStereotype.equals( mot ) )
+				{
+					type = null;
+					nom  = mot;
+				}
+				else
+				{
+					type = mot;
+					
+					mot  = sc.next();
+
+					index = mot.indexOf( "(" );
+					if ( index != -1 ) nom = mot.substring( 0, index );
+				}
+				
+
+				Methode m =  new Methode( visibilite, statique, lectureUnique, abstraite, type, nom );
+
+				indexAvt = ligne.indexOf( "(" );
+				indexAps = ligne.indexOf( ")" );
+				if ( indexAvt != -1 && indexAps != -1 )
+					parametre = ligne.substring( indexAvt+1, indexAps );
+
+				// Si sans paramètre
+				if ( parametre.equals("") ) return m;
+
+				//Cas ou 1 seul parametre
+				if ( ! parametre.contains( "," ) )
+				{
+					sc = new Scanner( parametre );
+					sc.useDelimiter("\\s+");
+
+					type = sc.next();
+					nom  = sc.next();
+
+					m.ajouterParametres( new Parametre(type, nom) );
+
+					return m;
+				}
+
+				//Cas ou plusieurs parametres
+
+				Scanner scParametre = new Scanner( parametre );
+				scParametre.useDelimiter("\\,");
+
+				while ( scParametre.hasNext() )
+				{
+					mot = scParametre.next();
+
+					sc = new Scanner( mot );
+					sc.useDelimiter("\\s+");
+
+					type = sc.next();
+					nom  = sc.next();
+
+					m.ajouterParametres( new Parametre(type, nom) );
+				}
+				
+				return m ;
 			}
-
-			if( ! traiteStatiqueFinalAbstract ) break;
+			default -> { return null; }
 		}
-		
-		// Recuperation du nom
-		index = mot.indexOf( "(" );
-		if ( index != -1 ) mot = mot.substring( 0, index );
-		
-		// Si c'est le controleur
-		if ( nomStereotype.equals( mot ) )
-		{
-			type = null;
-			nom  = mot;
-		}
-		else
-		{
-			type = mot;
-			
-			mot  = sc.next();
-
-			index = mot.indexOf( "(" );
-			if ( index != -1 ) nom = mot.substring( 0, index );
-		}
-		
-
-		Methode m =  new Methode( visibilite, statique, lectureUnique, abstraite, type, nom );
-
-		// Si sans paramètre
-		if ( ligne.contains( "()" ) ) return m;
-
-		//Partie Parametres
-
-		index = ligne.indexOf( "(" ) + 1; //On enleve la premiere parenthèse
-		String parametre = ligne.substring( index , ligne.length() -1 ); // On enleve la deuxieme parenthèse
-
-		//Cas ou 1 seul parametre
-		if ( ! ligne.contains( "," ) )
-		{
-			sc = new Scanner( parametre );
-			sc.useDelimiter("\\s+");
-
-			type = sc.next();
-			nom  = sc.next().replace( ")", "" );
-
-			m.ajouterParametres( new Parametre(type, nom) );
-
-			return m;
-		}
-
-		//Cas ou plusieurs parametres
-
-		Scanner scParametre = new Scanner( parametre );
-		scParametre.useDelimiter("\\,");
-
-		while ( scParametre.hasNext() )
-		{
-			mot = scParametre.next();
-
-			sc = new Scanner( mot );
-			sc.useDelimiter("\\s+");
-
-			type = sc.next();
-			nom  = sc.next().replace( ")", "" );
-
-			m.ajouterParametres( new Parametre(type, nom) );
-		}
-		
-		return m ;
 	}
 
+	private static boolean premiereMethodeDetecte(String ligne)
+	{
+		return ligne.contains( "(" ) && ( ligne.contains( "abstract" ) || ( ! ligne.contains( ";" ) && ! ligne.contains("=") ) );
+	}
 }

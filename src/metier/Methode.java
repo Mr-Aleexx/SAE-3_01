@@ -54,4 +54,22 @@ public class Methode
 			default          -> ' ';
 		};
 	}
+
+	public String toString()
+	{
+		String sRet = "";
+
+		sRet = this.getSymbole() + " " + this.nom + " (";
+
+		for (int cpt = 0; cpt < this.parametres.size(); cpt++)
+		{
+			sRet += this.parametres.get(cpt).nom () + " : " + this.parametres.get(cpt).type(); 
+			if(cpt != this.parametres.size()-1)
+				sRet += ", ";
+		}
+
+		sRet += ")" + ((this.lectureUnique) ? " {Gelé}" : "");
+
+		return sRet;
+	}
 }

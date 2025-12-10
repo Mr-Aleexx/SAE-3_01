@@ -9,6 +9,20 @@ public abstract class Abstract {
 		return nom;
 	}
 
+	public final String abstrait()
+	{
+		return "immagine";
+	}
+
 	public abstract double getAire();
 	public abstract double getPerimetre();
+
+
+	//private final class Reel extends Abstract
+	//{
+	//	public Reel()
+	//	{
+	//		super("world");
+	//	}
+	//}
 }

@@ -36,12 +36,12 @@ public class Commentaires {
 
 	sqfhskmfgljdskglmsd*/private int c;
 	//commentaire toi même
-	public Commentaires(int a, int b){//{} // {
+	public Commentaires(int a, int b){//(blabblaksjlkqf){} // { public Commentaires(int a, int b)
 		this.a = a;
 		this.b = b/*;/* */;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {//public static void main(String[] args) {
 		System.out.println(/*affichage*/"sans commentaire");
 	}
 }

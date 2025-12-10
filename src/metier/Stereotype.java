@@ -6,7 +6,6 @@ import java.util.List;
 public class Stereotype
 {
 	private static final String SOULIGNER     = "\033[4m";
-	private static final String GRAS          = "\033[1m";
 	private static final String REINITIALISER = "\033[0m";
 	
 	private String           visibilite;           //public, private, protected ou package
@@ -18,6 +17,8 @@ public class Stereotype
 	private List<Attribut>   attributs;
 	private List<Methode>    methodes;
 	private List<Stereotype> stereotypesInterne;   //Classes dans la classe
+	private String           mere;
+	private List<String>     lstImplementations;
 
 	/**
 	 * Représentation d'une classe Java
@@ -29,7 +30,7 @@ public class Stereotype
 	 * @param type Type de la classe
 	 * @param nom Nom de la classe
 	 */
-	public Stereotype(String visi, boolean statique, boolean lectureUnique, boolean abstraite, String type, String nom)
+	public Stereotype(String visi, boolean statique, boolean lectureUnique, boolean abstraite, String type, String nom, String mere)
 	{
 		this.visibilite         = visi;
 		this.statique           = statique;
@@ -40,11 +41,8 @@ public class Stereotype
 		this.attributs          = new ArrayList<Attribut>  ();
 		this.methodes           = new ArrayList<Methode>   ();
 		this.stereotypesInterne = new ArrayList<Stereotype>();
-	}
-
-	public Stereotype()
-	{
-		this( "", false, false, false, null, null );
+		this.mere               = mere;
+		this.lstImplementations = new ArrayList<String>();
 	}
 
 	// Getter
@@ -57,6 +55,8 @@ public class Stereotype
 	public List<Attribut>   getAttributs         () { return this.attributs         ; }
 	public List<Methode>    getMethodes          () { return this.methodes          ; }
 	public List<Stereotype> getStereotypesInterne() { return this.stereotypesInterne; }
+	public String           getMere              () { return this.mere              ; }
+	public List<String>     getLstImplementations() { return this.lstImplementations; }
 
 	// Setter
 	public void setVisibilite        (String           visibilite         ) { this.visibilite         = visibilite         ; }
@@ -68,28 +68,35 @@ public class Stereotype
 	public void setAttributs         (List<Attribut>   attributs          ) { this.attributs          = attributs          ; }
 	public void setMethodes          (List<Methode>    methodes           ) { this.methodes           = methodes           ; }
 	public void setStereotypesInterne(List<Stereotype> stereotypesInternes) { this.stereotypesInterne = stereotypesInternes; }
+	public void setMere              (String           mere               ) { this.mere               = mere               ; }
+	public void setLstImplementations(List<String>     lstImplementations ) { this.lstImplementations = lstImplementations ; }
 
 	public void ajouterAttribut         (Attribut   attribut         ) { this.attributs         .add(attribut         );}
 	public void ajouterMethode          (Methode    methode          ) { this.methodes          .add(methode          );}
 	public void ajouterStereotypeInterne(Stereotype stereotypeInterne) { this.stereotypesInterne.add(stereotypeInterne);}
+	public void ajouterImplementations  (String     implementation   ) { this.lstImplementations.add(implementation   );}
 
 	public String toString()
 	{
 		
 		int    nbCharTempo;
-		int    nbCharPlusLong = 0;
+		int    nbCharPlusLong = this.nom.length() + ((this.lectureUnique) ? +7 : +0);  //Taille du nom de la classe + gelé si elle l'est
 		
 		String separation     = "";
+		String sTemp          = "";
 		String sRet           = "";
 
 		//Prévérification de taille
 		for (Attribut attrib : this.attributs)
 		{
-			nbCharTempo = 2;                             //Symbole de visibilité + espace
-			nbCharTempo += attrib.getNom().length();     //Taille du nom
+			nbCharTempo = 2;                                    //Symbole de visibilité + espace
+			nbCharTempo += attrib.getNom().length() + 1;        //Taille du nom + espace
 			
 			if(attrib.getType() != null)
-				nbCharTempo += attrib.getType().length();   //Taille du type
+				nbCharTempo += attrib.getType().length() + 1;   //Taille du type + deux points
+
+			if(attrib.estLectureUnique())
+				nbCharTempo += 7;                               //Taille du {Gelé} + espace
 
 			if(nbCharTempo > nbCharPlusLong)
 				nbCharPlusLong = nbCharTempo;
@@ -97,123 +104,76 @@ public class Stereotype
 
 		for (Methode meth : this.methodes)
 		{
-			nbCharTempo = 2;                        //Symbole de visibilité + espace
-			nbCharTempo += meth.getNom().length();  //Taille du nom
+			nbCharTempo = 2;                                   //Symbole de visibilité + espace
+			nbCharTempo += meth.getNom().length() + 2;         //Taille du nom + espace + parenthèse
 
 			if(meth.getParametre().size() != 0)
 				for (Parametre param : meth.getParametre())
-					nbCharPlusLong += param.nom().length() + param.type().length();  //Taille du nom + type
+					nbCharTempo += param.nom().length() + param.type().length() + 4;   //Taille du nom + type + espaces + deux points
+
+			nbCharTempo += 2; //Parenthèse fermante + espace
+
+			if(meth.estLectureUnique())
+				nbCharTempo += 7;                             //Taille du {Gelé} + espace
 
 			if(meth.getType() != null)
-				nbCharTempo += meth.getType().length();   //Taille du type
+				nbCharTempo += meth.getType().length() + 1;   //Taille du type + deux points
 
 			if(nbCharTempo > nbCharPlusLong)
 				nbCharPlusLong = nbCharTempo;
+
 		}
 
-
-		separation = String.format ( "%" + nbCharPlusLong + "s", "" ).replace ( " ", "-" );
+		separation = String.format ( "%" + (nbCharPlusLong+1) + "s", "" ).replace ( " ", "-" );
 
 		sRet = separation + "\n";
 
 		if(this.lectureUnique)
-			sRet += Stereotype.GRAS;
+			sRet += String.format ( "%"  + nbCharPlusLong/2 + "s", this.nom ) + ((this.lectureUnique) ? " {Gelé}" : "");
+		else
+			sRet += String.format ( "%-" + (nbCharPlusLong-this.nom.length())/2 + "s", " "  ) + this.nom;
 
-		sRet += String.format ( "%" + (nbCharPlusLong+nbCharPlusLong/10) /2 + "s", this.nom ) + "\n"
-		         + Stereotype.REINITIALISER
-		         + separation + "\n";
-		
+		sRet += "\n" + separation + "\n";
+
 		for (Attribut attrib : this.attributs)
 		{
-			if(attrib.estLectureUnique())
-				sRet += Stereotype.GRAS;
 			
 			if(attrib.estStatique())
 				sRet += Stereotype.SOULIGNER;
+			else
+				sRet += Stereotype.REINITIALISER;
 
 			sRet += attrib.getSymbole() + " " + attrib.toString() + Stereotype.REINITIALISER + "\n" ;
 		}
 
 		sRet += separation + "\n";
 
+
 		for (Methode meth : this.methodes)
 		{
-			if(meth.estLectureUnique())
-				sRet += Stereotype.GRAS;
+			sTemp = "";
 			
 			if(meth.estStatique())
 				sRet += Stereotype.SOULIGNER;
+			else
+				sRet += Stereotype.REINITIALISER;
 			
-			sRet += meth.getSymbole() + " " + meth.getNom() + " (";
+			sTemp += meth.toString();
 
-			for (int cpt = 0; cpt < meth.getParametre().size(); cpt++)
+			sTemp += Stereotype.REINITIALISER;
+
+
+			if (meth.getType() != null)
 			{
-				sRet += meth.getParametre().get(cpt).nom () + " : " + meth.getParametre().get(cpt).type();
-
-				if(cpt != meth.getParametre().size()-1)
-					sRet += ", ";
+				sTemp = String.format("%-" + (nbCharPlusLong-3) + "s %1s", sTemp, ":" + meth.getType() );
 			}
-
-			sRet += ")";
-
-			sRet += (meth.getType() != null) ? ":" + meth.getType() : ""; 
-
-			sRet += Stereotype.REINITIALISER + "\n";
+			
+			sRet += sTemp + "\n";
 		}
 
 		sRet += separation + "\n";
 
 		return sRet;
 	}
-
-	// public static void main(String[] args)
-	// {
-	// 	Stereotype classe = new Stereotype();
-	// 	Attribut att1 = new Attribut();
-	// 	Attribut att2 = new Attribut();
-	// 	Methode  methC = new Methode();
-	// 	Methode  meth1 = new Methode();
-	// 	Methode  meth2 = new Methode();
-
-	// 	Parametre param1 = new Parametre("int", "ValParam");
-	// 	Parametre param2 = new Parametre("String", "ParamNom");
-
-	// 	classe.setNom("Classe");
-	// 	classe.setLectureUnique(true);
-
-	// 	att1.setVisibilite("private");
-	// 	att1.setNom("attribut1");
-	// 	att1.setType("String");
-
-	// 	att2.setVisibilite("public");
-	// 	att2.setNom("attribut2");
-	// 	att2.setType("Point");
-	// 	att2.setStatique(true);
-	// 	att2.setLectureUnique(true);
-
-	// 	classe.ajouterAttribut(att1);
-	// 	classe.ajouterAttribut(att2);
-
-	// 	methC.setVisibilite("public");
-	// 	methC.setNom("Classe");
-	// 	methC.ajouterParametres(param1);
-	// 	methC.ajouterParametres(param2);
-
-	// 	meth1.setVisibilite("private");
-	// 	meth1.setNom("testerMethode");
-	// 	meth1.setType("Point");
-
-	// 	meth2.setVisibilite("public");
-	// 	meth2.setNom("random");
-	// 	meth2.setStatique(true);
-	// 	meth2.ajouterParametres(param1);
-
-	// 	classe.ajouterMethode(methC);
-	// 	classe.ajouterMethode(meth2);
-	// 	classe.ajouterMethode(meth1);
-
-	// 	System.out.println(classe);
-	// }
-
 
 }

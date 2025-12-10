@@ -55,6 +55,6 @@ public class Attribut
 
 	public String toString()
 	{
-		return this.nom + " :" + this.type;
+		return this.nom + " :" + this.type + ((this.lectureUnique) ? " {Gelé}" : "");
 	}
 }

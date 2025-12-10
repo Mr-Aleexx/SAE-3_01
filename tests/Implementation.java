@@ -1,15 +1,28 @@
-public class Implementation implements Comparable {
+import java.util.ArrayList;
 
-    public static String alpha;
-    private static boolean beta;
-    protected static String gamma;
-    public ArrayList<String> delta;
+public interface Implementation
+{
+    String alpha = "lapha";
 
-    public Implementation(Arraylist delta) {
-        this.delta = new ArrayList<String>();
+    public boolean beta  = true;
+    static String  gamma = "gamatoto";
+    final float    delta = 5.5f;
+
+    static boolean ahBon()
+    {
+        return true;
     }
 
-    public static void main(String[] args) {
-        
+    default void jouer(ArrayList<String> delta)
+    {
+        delta = new ArrayList<String>();
     }
+
+    static final record nom (String hg){}
+
+    //public interface InterInterne
+    //{
+    //    int codeInterne = 454554;
+    //}
+//
 }
