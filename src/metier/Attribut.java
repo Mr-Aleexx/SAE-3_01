@@ -1,5 +1,4 @@
 package metier;
-
 public class Attribut
 {
 	private String  visibilite;
@@ -8,6 +7,14 @@ public class Attribut
 	private String  type;
 	private String  nom;
 
+	/**
+	 * Représentation des attributs d'une classe
+	 * @param visibilite 
+	 * @param statique Si la classe est statique ou non
+	 * @param lectureUnique Si la classe est en lecture unique ou non
+	 * @param type Le type de la classe
+	 * @param nom Le nom de la classe
+	 */
 	public Attribut( String visibilite, boolean statique, boolean lectureUnique, String type, String nom )
 	{
 		this.visibilite    = visibilite;
@@ -29,6 +36,11 @@ public class Attribut
 	public void setType         (String type          ) { this.type          = type;          }
 	public void setNom          (String nom           ) { this.nom           = nom;           }
 	
+
+	/**
+	 * Représentation de la visibilité d'une classe par un charactère
+	 * @return Caractère représenté
+	 */
 	public char getSymbole()
 	{
 		return switch (this.visibilite)

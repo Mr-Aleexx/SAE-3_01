@@ -19,6 +19,16 @@ public class Stereotype
 	private List<Methode>    methodes;
 	private List<Stereotype> stereotypesInterne;   //Classes dans la classe
 
+	/**
+	 * Représentation d'une classe Java
+	 * En plus des paramètres, elle comprends les attributs de la classe, les méthodes, et les sous classes
+	 * @param visi Visibilité de la classe (public, private)
+	 * @param statique Si la classe est statique ou non 
+	 * @param lectureUnique Final ou non
+	 * @param abstraite Abstraite ou non
+	 * @param type Type de la classe
+	 * @param nom Nom de la classe
+	 */
 	public Stereotype(String visi, boolean statique, boolean lectureUnique, boolean abstraite, String type, String nom)
 	{
 		this.visibilite         = visi;

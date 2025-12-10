@@ -10,23 +10,29 @@ public class Retroconception
 	
 	public Retroconception()
 	{
-		this.lstStereotype = new ArrayList<Stereotype>();
+		this.lstStereotype   = new ArrayList<Stereotype> ();
 		this.lstAssociations = new ArrayList<Association>();
 	}
 	
+	/**
+	 * Ouvre un dossier avec son chemin passé en paramètre
+	 * @param cheminDossier Chemoin vers le dossier
+	 */
 	public void ouvrirDossier(String cheminDossier)
 	{
 		this.lstStereotype = AnalyseurJava.analyserDossier(cheminDossier);
 	}
 
+	/**
+	 * I have no idea of what this is supposed to do
+	 * @param fichier Contenu du fichier
+	 */
 	public void ouvrirFichier(String fichier)
 	{
 		this.lstStereotype.add( AnalyseurJava.analyserFichier(fichier) );
 		
-		System.out.println(lstStereotype.get(0).toString());
-
 		for ( Stereotype s : this.lstStereotype )
-			System.out.println( s == null );
+			System.out.println( s.toString() );
 	}
 
 	public Stereotype getSter() { return this.lstStereotype.get(0); } ///~~~~~~~~~~~~~

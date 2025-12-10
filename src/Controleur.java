@@ -29,8 +29,8 @@ public class Controleur
 	{
 		Controleur ctrl = new Controleur();
 
-		ctrl.ouvrirFichier("./ressources/PointRetK.java");
+		//ctrl.ouvrirFichier("./ressources/PointRetK.java");
 
-		//ctrl.ouvrirDossier("./ressource");
+		ctrl.ouvrirDossier("./ressources");
 	}
 }

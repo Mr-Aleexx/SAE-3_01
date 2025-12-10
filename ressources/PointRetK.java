@@ -15,8 +15,12 @@ public class PointRetK{
 		this.y = y;
 		this.nom = nom;
 	}
+	// public int getZ()
+	/* 
+		public int getH()
+	
 
-	public int getX(){
+	*/public int getX(){
 		 return x;
 	}
 	public int getY(){
