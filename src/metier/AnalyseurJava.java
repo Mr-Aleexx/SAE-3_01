@@ -125,9 +125,11 @@ public class AnalyseurJava
 					}
 					
 				}
-
+				
 				cpt++;
 			}
+			if ( stereotypeRet != null )
+					System.out.println( stereotypeRet.toString() );
 			sc.close();
 		}
 		catch (FileNotFoundException e) {}
@@ -179,9 +181,7 @@ public class AnalyseurJava
 				if( mot.equals(ster) ) type = ster;  //ligne de base : mot.equals(type)
 		}
 		
-		nom = mot;
-
-		System.out.println( visibilite +","+ statique +","+ lectureUnique +","+ abstraite + "," + type +","+ nom );
+		nom = mot.replace( "{", " ");
 		
 		return new Stereotype( visibilite, statique, lectureUnique, abstraite, type, nom );
 	}
@@ -227,8 +227,6 @@ public class AnalyseurJava
 
 		type = mot;
 		nom  = sc.next().replace( ";" , "" );
-
-		System.out.println( visibilite +","+ statique +","+ lectureUnique +","+ type +","+ nom );
 		
 		return new Attribut( visibilite, statique, lectureUnique, type, nom );
 	}
@@ -303,9 +301,45 @@ public class AnalyseurJava
 
 		Methode m =  new Methode( visibilite, statique, lectureUnique, abstraite, type, nom );
 
+		// Si sans paramètre
+		if ( ligne.contains( "()" ) ) return m;
+
 		//Partie Parametres
 
-		System.out.println( visibilite +","+ statique +","+ lectureUnique +","+ abstraite + "," + type +","+ nom );
+		index = ligne.indexOf( "(" ) + 1; //On enleve avant la parenthèse
+		String parametre = ligne.substring( index , ligne.length() -1 );
+
+		//Cas ou 1 seul parametre
+		if ( ! ligne.contains( "," ) )
+		{
+			sc = new Scanner( parametre );
+			sc.useDelimiter("\\s+");
+
+			type = sc.next();
+			nom  = sc.next().replace( ")", "" );
+
+			m.ajouterParametres( new Parametre(type, nom) );
+
+			return m;
+		}
+
+		//Cas ou plusieurs parametres
+
+		Scanner scParametre = new Scanner( parametre );
+		scParametre.useDelimiter("\\,");
+
+		while ( scParametre.hasNext() )
+		{
+			mot = scParametre.next();
+
+			sc = new Scanner( mot );
+			sc.useDelimiter("\\s+");
+
+			type = sc.next();
+			nom  = sc.next().replace( ")", "" );
+
+			m.ajouterParametres( new Parametre(type, nom) );
+		}
 		
 		return m ;
 	}

@@ -38,7 +38,7 @@ public class Controleur
 		// s.ajouterMethode( new Methode( "package", true, false, false, "boolean", "fairepipi" ) );
 		// System.out.println( s.toString() );
 
-		ctrl.ouvrirFichier("./ressources/Point.java");
+		ctrl.ouvrirFichier("./ressources/PointRetK.java");
 
 		ctrl.ouvrirDossier("./ressource");
 
