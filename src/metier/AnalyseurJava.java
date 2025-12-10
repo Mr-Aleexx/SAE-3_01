@@ -164,7 +164,7 @@ public class AnalyseurJava
 
 						// Création des Methodes
 						//    - Adaptation de la plage des méthodes
-						if ( i   == plage1.get( plage1.size() - 1 ) && numLigne >= plage2.get(i)   ||   //Si dernier stereotype
+						if ( i == plage1.size() - 1 && numLigne >= plage2.get(i)   ||   //Si dernier stereotype
 							 numLigne >= plage2.get(i)     && numLigne <  plage1.get(i+1)   )  //Si ce n'est pas le dernier
 						{
 							// Verifie si il y a pas une methode locale dans la methode en cour
@@ -213,12 +213,8 @@ public class AnalyseurJava
 		File[] lstFichier = dossier.listFiles();
 
 		for ( File fichier : lstFichier )
-		{
-			System.out.println( fichier );
 			if ( fichier.getName().contains(".java") )
 				lstStereotypes.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
-		}
-			
 
 		return lstStereotypes;
 	}
