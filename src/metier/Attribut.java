@@ -2,15 +2,9 @@ package metier;
 
 public class Attribut
 {
-	private final String SOULIGNER     = "\033[4m";
-	private final String GRAS          = "\033[1m";
-	private final String REINITIALISER = "\033[0m";
-	
-	// private static final char[] tabVisibilite = new char[] {'+', '-', '#', '~'};
-	
-	private String  visibilite;        //Public, private ou protected
-	private boolean statique;          //Static ou non 
-	private boolean lectureUnique;     //Final ou non
+	private String  visibilite;
+	private boolean statique;
+	private boolean lectureUnique;
 	private String  type;
 	private String  nom;
 
@@ -21,11 +15,6 @@ public class Attribut
 		this.lectureUnique = lectureUnique;
 		this.type          = type;
 		this.nom           = nom;
-	}
-
-	public Attribut()
-	{
-		this( "", false, false, null, null );
 	}
 
 	public String  getVisibilite   () { return this.visibilite;    }

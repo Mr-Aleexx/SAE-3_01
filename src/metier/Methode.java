@@ -5,20 +5,14 @@ import java.util.List;
 
 public class Methode
 {
-	private final String SOULIGNER     = "\033[4m";
-	private final String GRAS          = "\033[1m";
-	private final String REINITIALISER = "\033[0m";
-	
-	// private static final char[] tabVisibilite = new char[] {'+', '-', '#','~'};
-	
-	private String          visibilite;      //Public, private ou protected
-	private boolean         statique;        //Static ou non 
-	private boolean         lectureUnique;   //Final ou non
+	private String          visibilite;
+	private boolean         statique;
+	private boolean         lectureUnique;
 	private boolean         abstraite;
 	private boolean         syncronize;
 	private String          type;
 	private String          nom;
-	private List<Parametre> parametres;      //Parametres de la methode avec un type et un nom
+	private List<Parametre> parametres;
 
 	public Methode( String visibilite, boolean statique, boolean lectureUnique, boolean abstraite, String type, String nom )
 	{
@@ -29,11 +23,6 @@ public class Methode
 		this.type          = type;
 		this.nom           = nom;
 		this.parametres    = new ArrayList<Parametre>();
-	}
-
-	public Methode()
-	{
-		this ( "", false, false, false, null, null );
 	}
 
 	public String          getVisibilite   () { return this.visibilite;    }

@@ -9,28 +9,31 @@ import java.util.Scanner;
 
 public class AnalyseurJava
 {
-	private String nomFichier;
-
 	private static final String[] ENS_VISI = new String[] { "public", "private", "protected"       };
 	private static final String[] ENS_STER = new String[] { "class", "interface", "enum", "record" };
 
 	public static Stereotype analyserFichier(String fichier)
 	{
-		Scanner       sc, scLigne;
-		int           cptLigne, cpt;
+		Scanner       sc;
+		int           nbLigne, cpt;
 		List<Boolean> dansMethode;
-		boolean       estPremiereMethode;
+		boolean       estPremiereMethode, estDansCommentaire;
 		Stereotype    stereotypeRet, stereotypeInterne;
 		Attribut      attribut;
 		Methode       methode;
-		String        visibilite, ligne;
+		String        ligne, debutLigne;
 		
 		List<Integer> plage1 = new ArrayList<Integer>();
 		List<Integer> plage2 = new ArrayList<Integer>();
-		
-		cptLigne = cpt = 0;
-		// Lecture 1
-		try 
+
+		/* Première Lecture :
+		    - Compte le nombre de ligne du fichier
+		    - Compte le nombre de classe interne au fichier
+		    - Définis les zones du fichiers ( stereotype, attributs, méthode )
+		*/
+		nbLigne = 0;
+		estDansCommentaire = false;
+		try
 		{
 			sc = new Scanner( new FileInputStream ( fichier ), "UTF8" );
 
@@ -38,28 +41,57 @@ public class AnalyseurJava
 			
 			while ( sc.hasNextLine() )
 			{
-				ligne = sc.nextLine();
+				ligne      = sc.nextLine();
 				
-				if ( ligne.contains( "class" ) )
+				// Gestion des commentaires // et /* */ au debut de la ligne
+				debutLigne = ligne.trim();
+				
+				if ( debutLigne.length() >= 2 )
 				{
-					plage1.add( cptLigne );
-					estPremiereMethode = false;
+					System.out.println( debutLigne );
+					if ( debutLigne.substring(0, 2).equals( "/*" ) ) estDansCommentaire = true;
+
+					if ( debutLigne.contains( "*/" ) && estDansCommentaire )
+					{
+						// On enleve les */
+						ligne = ligne.substring( ligne.indexOf( "*/" ) +2, ligne.length() );
+						estDansCommentaire = false;
+					}
+
+					estDansCommentaire = estDansCommentaire || debutLigne.substring(0, 2).equals( "//" );
 				}
+
+				if ( ! estDansCommentaire )
+				{
+					//Définie la/les lignes du/des nom stéréotype(s) du fichier
+					for ( String ster : AnalyseurJava.ENS_STER )
+						if ( ligne.contains( ster )  )
+						{
+							plage1.add( nbLigne );
+							estPremiereMethode = false;
+						}
 					
-				
-				if (   ligne.contains( "(" ) &&
-				     ! ligne.contains( ";" ) &&
-				     ! estPremiereMethode     )
-				{
-					plage2.add( cptLigne );
-					estPremiereMethode = true;
+					// Vérifie si la ligne est la première méthode du stéreotype
+					if ( ligne.contains( "(" ) && ( ligne.contains( "abstract" ) || ! ligne.contains( ";" ) )
+						&& ! estPremiereMethode )
+					{
+						plage2.add( nbLigne );
+						estPremiereMethode = true;
+					}
 				}
 				
-				cptLigne++;
+				
+				//Compte le nombre de ligne du fichier
+				nbLigne++;
 			}
 			sc.close();
 		}
 		catch (FileNotFoundException e) {}
+
+		/* Deuxième Lecture :
+		    - Création du stereotype
+		*/
+		cpt = 0;
 
 		try
 		{
@@ -68,13 +100,15 @@ public class AnalyseurJava
 			stereotypeInterne = stereotypeRet = null;
 			dansMethode = new ArrayList<Boolean>();
 
+			// Parcours ligne a ligne en comptant le nombre de ligne pour lié les plages à la ligne en cour
 			while ( sc.hasNextLine() )
 			{
 				ligne = sc.nextLine();
 				
+				// Parcours des différents stereotype du fichier
 				for ( int i = 0; i < plage1.size(); i++ )
 				{
-					// Création du stérétotype retour et des sous stéréotype ainsi que de l'ajout des sous stéretotype
+					// Création du stérétotype retour et des stéréotypes Internes et de l'ajout et du liens entre eux
 					if ( cpt == plage1.get(i) )
 					{
 						if ( i == 0 ) stereotypeRet = AnalyseurJava.initStereotype( ligne );
@@ -87,7 +121,7 @@ public class AnalyseurJava
 						}
 					}
 
-					// Attributs
+					// Création des attributs
 					if ( cpt > plage1.get(i) && cpt < plage2.get(i) )
 					{
 						if ( ligne.contains( ";" ) )
@@ -99,10 +133,12 @@ public class AnalyseurJava
 						}
 					}
 
-					//Methodes
-					if ( i == plage1.size() - 1 && cpt >= plage2.get(i) ||   //Si dernier stereotype
-					     cpt >= plage2.get(i) && cpt < plage1.get(i+1)    )  //Si ce n'est pas le dernier
+					// Création des Methodes
+					//    - Adaptation de la plage des méthodes
+					if ( i   == plage1.size() - 1 && cpt >= plage2.get(i)   ||   //Si dernier stereotype
+					     cpt >= plage2.get(i)     && cpt <  plage1.get(i+1)   )  //Si ce n'est pas le dernier
 					{
+						// Verifie si il y a pas une methode locale dans la methode en cour
 						if ( ligne.contains( "(" ) && dansMethode.isEmpty() )
 						{
 							if ( i == 0 )
@@ -117,19 +153,14 @@ public class AnalyseurJava
 							}
 						}
 
-						// Gestion des declaration de classes en local
-						if ( ligne.contains( "{" ) ) dansMethode.add( true );
-						if ( ligne.contains( "}" ) && ! dansMethode.isEmpty() )
-							dansMethode.remove(0);
-						
+						// Permet de gerer les méthodes locales
+						if ( ligne.contains( "{" )                            ) dansMethode.add( true );
+						if ( ligne.contains( "}" ) && ! dansMethode.isEmpty() ) dansMethode.remove(0);
 					}
-					
 				}
-				
+				//Compte le nombre de ligne parcourue
 				cpt++;
 			}
-			if ( stereotypeRet != null )
-					System.out.println( stereotypeRet.toString() );
 			sc.close();
 		}
 		catch (FileNotFoundException e) {}
@@ -137,22 +168,22 @@ public class AnalyseurJava
 		return null;
 	}
 
+	// Permet d'annalyser tous les fichiers .java d'un dossier
 	public static ArrayList<Stereotype> analyserDossier(String dossierChemin)
 	{
-		
 		File dossier = new File(dossierChemin);
-		ArrayList<Stereotype> arraySteo = new ArrayList<Stereotype>();
+		ArrayList<Stereotype> lstStereotypes = new ArrayList<Stereotype>();
 
 		File[] lstFichier = dossier.listFiles();
-		for (File fichier : lstFichier) 
-		{
-			if (fichier.getName().contains(".java"))
-				arraySteo.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
-		}
 
-		return arraySteo;
+		for ( File fichier : lstFichier )
+			if ( fichier.getName().contains(".java") )
+				lstStereotypes.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
+
+		return lstStereotypes;
 	}
 
+	// Creer le stereotype
 	private static Stereotype initStereotype( String ligne )
 	{
 		String  visibilite    = "package";
@@ -178,14 +209,16 @@ public class AnalyseurJava
 			if( mot.equals( "abstract") ) abstraite     = true;
 
 			for ( String ster : AnalyseurJava.ENS_STER )
-				if( mot.equals(ster) ) type = ster;  //ligne de base : mot.equals(type)
+				if( mot.equals(ster) ) type = ster;
 		}
-		
-		nom = mot.replace( "{", " ");
+		nom = mot.replace( "{", "");
+
+		sc.close();
 		
 		return new Stereotype( visibilite, statique, lectureUnique, abstraite, type, nom );
 	}
 
+	// Creer un attribut
 	private static Attribut initAttribut(String ligne)
 	{
 		String  visibilite       = "package";
@@ -228,6 +261,8 @@ public class AnalyseurJava
 		type = mot;
 		nom  = sc.next().replace( ";" , "" );
 		
+		sc.close();
+
 		return new Attribut( visibilite, statique, lectureUnique, type, nom );
 	}
 
@@ -278,15 +313,15 @@ public class AnalyseurJava
 			if( ! traiteStatiqueFinalAbstract ) break;
 		}
 		
-		// Gestion du constructeur
+		// Recuperation du nom
 		index = mot.indexOf( "(" );
 		if ( index != -1 ) mot = mot.substring( 0, index );
-
+		
+		// Si c'est le controleur
 		if ( nomStereotype.equals( mot ) )
 		{
-			type = "Constructeur";
-
-			nom = mot.replace( "" , "" );
+			type = null;
+			nom  = mot;
 		}
 		else
 		{
@@ -306,8 +341,8 @@ public class AnalyseurJava
 
 		//Partie Parametres
 
-		index = ligne.indexOf( "(" ) + 1; //On enleve avant la parenthèse
-		String parametre = ligne.substring( index , ligne.length() -1 );
+		index = ligne.indexOf( "(" ) + 1; //On enleve la premiere parenthèse
+		String parametre = ligne.substring( index , ligne.length() -1 ); // On enleve la deuxieme parenthèse
 
 		//Cas ou 1 seul parametre
 		if ( ! ligne.contains( "," ) )

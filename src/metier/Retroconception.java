@@ -6,10 +6,12 @@ import java.util.List;
 public class Retroconception
 {
 	private List<Stereotype> lstStereotype;
+	private List<Association> lstAssociations;
 	
 	public Retroconception()
 	{
 		this.lstStereotype = new ArrayList<Stereotype>();
+		this.lstAssociations = new ArrayList<Association>();
 	}
 	
 	public void ouvrirDossier(String cheminDossier)
@@ -19,8 +21,12 @@ public class Retroconception
 
 	public void ouvrirFichier(String fichier)
 	{
-		
 		this.lstStereotype.add( AnalyseurJava.analyserFichier(fichier) );
+		
+		System.out.println(lstStereotype.get(0).toString());
+
+		for ( Stereotype s : this.lstStereotype )
+			System.out.println( s == null );
 	}
 
 	public Stereotype getSter() { return this.lstStereotype.get(0); } ///~~~~~~~~~~~~~
@@ -28,20 +34,64 @@ public class Retroconception
 	
 	
 	
-	public static void creationAssociation()
+	public void creationAssociation()
 	{
+		List<Association> lstAssociationTmp = new ArrayList<>();
+		
+		for (Stereotype stereotype1 : this.lstStereotype) 
+		{
+			for (Attribut attribut : stereotype1.getAttributs()) 
+			{
+				for (Stereotype stereotype2 : this.lstStereotype)
+				{
+					if (attribut.getType().equals(stereotype2.getNom()))
+					{
+						lstAssociationTmp.add(new Association(stereotype1, stereotype2, "1"));
+					}
+					else if(attribut.getType().contains("<") && attribut.getType().contains(">"))
+					{
+						String typeExtrait = extraireTypeGenerique(attribut.getType());
+
+						if (typeExtrait.equals(stereotype2.getNom()))
+						{
+							lstAssociationTmp.add(new Association(stereotype1, stereotype2, "0..*"));
+						}
+					} 
+				}
+			}
+		}
+
+		for (Association association1 : lstAssociationTmp) 
+		{
+			for (Association association2 : lstAssociationTmp) 
+			{
+				String truc = "";
+				
+				if (association1.getStereotype1().getNom().equals(association2.getStereotype2().getNom()) &&
+					association2.getStereotype1().getNom().equals(association1.getStereotype2().getNom()))
+				{
+					truc = "bi";
+				}
+				else
+				{
+					truc = "uni";
+				}
+
+				this.lstAssociations.add(new Association(association1.getStereotype1(), association1.getStereotype2(), truc, "", ""));
+
+
+			}
+		}
+
 
 	}
 
-	public String toString()
+	private String extraireTypeGenerique(String type) 
 	{
-		String sRet = "";
-
-		for ( Stereotype s : this.lstStereotype )
+		if (type.contains("<") && type.contains(">")) 
 		{
-			sRet += s.toString();
+			return type.substring(type.indexOf("<") + 1, type.indexOf(">"));
 		}
-
-		return sRet;
+		return type;  	
 	}
 }

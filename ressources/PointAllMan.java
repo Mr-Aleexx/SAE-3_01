@@ -1,20 +1,18 @@
 package ressources;
 
-package ressources;
-
 public class PointAllMan
 {
 	private int x;
 	private int y;
 	private String nom;
 
-	public Point( int x, int y )
+	public PointAllMan( int x, int y )
 	{
 		this.x = x;
 		this.y = y;
 	}
 
-	public Point(int x, int y, String nom)
+	public PointAllMan(int x, int y, String nom)
 	{
 		this.x = x;
 		this.y = y;

@@ -156,54 +156,54 @@ public class Stereotype
 		return sRet;
 	}
 
-	public static void main(String[] args)
-	{
-		Stereotype classe = new Stereotype();
-		Attribut att1 = new Attribut();
-		Attribut att2 = new Attribut();
-		Methode  methC = new Methode();
-		Methode  meth1 = new Methode();
-		Methode  meth2 = new Methode();
+	// public static void main(String[] args)
+	// {
+	// 	Stereotype classe = new Stereotype();
+	// 	Attribut att1 = new Attribut();
+	// 	Attribut att2 = new Attribut();
+	// 	Methode  methC = new Methode();
+	// 	Methode  meth1 = new Methode();
+	// 	Methode  meth2 = new Methode();
 
-		Parametre param1 = new Parametre("int", "ValParam");
-		Parametre param2 = new Parametre("String", "ParamNom");
+	// 	Parametre param1 = new Parametre("int", "ValParam");
+	// 	Parametre param2 = new Parametre("String", "ParamNom");
 
-		classe.setNom("Classe");
-		classe.setLectureUnique(true);
+	// 	classe.setNom("Classe");
+	// 	classe.setLectureUnique(true);
 
-		att1.setVisibilite("private");
-		att1.setNom("attribut1");
-		att1.setType("String");
+	// 	att1.setVisibilite("private");
+	// 	att1.setNom("attribut1");
+	// 	att1.setType("String");
 
-		att2.setVisibilite("public");
-		att2.setNom("attribut2");
-		att2.setType("Point");
-		att2.setStatique(true);
-		att2.setLectureUnique(true);
+	// 	att2.setVisibilite("public");
+	// 	att2.setNom("attribut2");
+	// 	att2.setType("Point");
+	// 	att2.setStatique(true);
+	// 	att2.setLectureUnique(true);
 
-		classe.ajouterAttribut(att1);
-		classe.ajouterAttribut(att2);
+	// 	classe.ajouterAttribut(att1);
+	// 	classe.ajouterAttribut(att2);
 
-		methC.setVisibilite("public");
-		methC.setNom("Classe");
-		methC.ajouterParametres(param1);
-		methC.ajouterParametres(param2);
+	// 	methC.setVisibilite("public");
+	// 	methC.setNom("Classe");
+	// 	methC.ajouterParametres(param1);
+	// 	methC.ajouterParametres(param2);
 
-		meth1.setVisibilite("private");
-		meth1.setNom("testerMethode");
-		meth1.setType("Point");
+	// 	meth1.setVisibilite("private");
+	// 	meth1.setNom("testerMethode");
+	// 	meth1.setType("Point");
 
-		meth2.setVisibilite("public");
-		meth2.setNom("random");
-		meth2.setStatique(true);
-		meth2.ajouterParametres(param1);
+	// 	meth2.setVisibilite("public");
+	// 	meth2.setNom("random");
+	// 	meth2.setStatique(true);
+	// 	meth2.ajouterParametres(param1);
 
-		classe.ajouterMethode(methC);
-		classe.ajouterMethode(meth2);
-		classe.ajouterMethode(meth1);
+	// 	classe.ajouterMethode(methC);
+	// 	classe.ajouterMethode(meth2);
+	// 	classe.ajouterMethode(meth1);
 
-		System.out.println(classe);
-	}
+	// 	System.out.println(classe);
+	// }
 
 
 }

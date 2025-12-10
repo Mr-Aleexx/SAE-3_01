@@ -5,18 +5,17 @@ public class PointRetK{
 	private int y;
 	private String nom;
 
-	public Point( int x, int y ){
+	public PointRetK( int x, int y ){
 		this.x = x;
 		this.y = y;
 	}
 
-	public Point(int x, int y, String nom){
+	public PointRetK(int x, int y, String nom){
 		this.x = x;
 		this.y = y;
 		this.nom = nom;
 	}
 
-	// Getter
 	public int getX(){
 		 return x;
 	}
@@ -25,7 +24,6 @@ public class PointRetK{
 	}
 	public String getNom() { return this.nom; }
 
-	// Setter
 	public void setX( int x ) 
 	{ this.x = x; 
 	}
