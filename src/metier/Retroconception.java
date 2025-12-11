@@ -1,11 +1,11 @@
-package metier;
+package src.metier;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Retroconception
 {
-	private List<Stereotype> lstStereotype;
+	private List<Stereotype>  lstStereotype;
 	private List<Association> lstAssociations;
 	
 	public Retroconception()
@@ -32,12 +32,27 @@ public class Retroconception
 	 */
 	public void ouvrirFichier(String fichier)
 	{
-		System.out.println( AnalyseurJava.analyserFichier(fichier).toString() );
+		//System.out.println( AnalyseurJava.analyserFichier(fichier).toString() );
+	}
+	
+	public Integer getIndiceStereotype(int x, int y)
+	{
+		for (int cpt = 0; cpt < this.lstStereotype.size(); cpt++)
+			if (this.lstStereotype.get(cpt).possede(x, y))
+				return cpt;
+		
+		return null;
 	}
 
-	public Stereotype getSter() { return this.lstStereotype.get(0); } ///~~~~~~~~~~~~~
-	
-	
+
+	public void deplacerStereotype(int idTache, int x, int y)
+	{
+		if (idTache >= 0 && idTache < this.lstStereotype.size())
+		{
+			this.lstStereotype.get(idTache).getPos().deplacerX(x);
+			this.lstStereotype.get(idTache).getPos().deplacerY(y);
+		}
+	}
 	
 	
 	public void creationAssociation()
@@ -110,5 +125,9 @@ public class Retroconception
 		
 		return association1.getStereotype1().getNom().equals(association2.getStereotype2().getNom()) &&
 			   association2.getStereotype1().getNom().equals(association1.getStereotype2().getNom());
+	}
+
+	public List<Association> getLsAssociations() {
+		return getLsAssociations();
 	}
 }

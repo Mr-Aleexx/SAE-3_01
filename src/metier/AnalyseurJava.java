@@ -1,4 +1,6 @@
-package metier;
+package src.metier;
+
+import  src.Controleur;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,7 +47,6 @@ public class AnalyseurJava
 
 			estPremiereMethode = false;
 			
-			
 			while ( sc.hasNextLine() )
 			{
 				ligne      = sc.nextLine();
@@ -56,18 +57,8 @@ public class AnalyseurJava
 				
 				if ( debutLigne.length() >= 2 )
 				{
-					
-					if ( debutLigne.substring(0, 2).equals( "/*" ) ) estDansCommentaire = true;
-
-					if ( debutLigne.contains( "*/" ) && estDansCommentaire )
-					{
-						// On enleve les */
-						ligne = ligne.substring( ligne.indexOf( "*/" ) +2, ligne.length() );
-						estDansCommentaire = false;
-					}
-
-					if ( debutLigne.substring(0, 2).equals( "//" ) )
-						estCommentaire = true;
+					estDansCommentaire = AnalyseurJava.estDansCommentaire( ligne, debutLigne, estDansCommentaire);
+					estCommentaire     = AnalyseurJava.estCommentaire( debutLigne );
 				}
 
 				if ( ! estDansCommentaire && ! estCommentaire )
@@ -80,7 +71,7 @@ public class AnalyseurJava
 							estPremiereMethode = false;
 						}
 					
-					// Vérifie si la ligne est la première méthode du stéreotype
+					// Définie le début des méthode du stéreotype
 					if ( AnalyseurJava.premiereMethodeDetecte( ligne ) && ! estPremiereMethode )
 					{
 						plage2.add( nbLigne );
@@ -106,6 +97,7 @@ public class AnalyseurJava
 			
 			stereotypeInterne = null;
 			dansMethode = new ArrayList<Boolean>();
+			estDansCommentaire = false;
 
 			// Parcours ligne a ligne en comptant le nombre de ligne pour lié les plages à la ligne en cour
 			while ( sc.hasNextLine() )
@@ -113,24 +105,15 @@ public class AnalyseurJava
 				ligne = sc.nextLine();
 
 				// Gestion des commentaires // et /* */ au debut de la ligne
-				debutLigne     = ligne.trim(); //pourquoi debut ligne est la ligne de base ??
+				debutLigne     = ligne.trim();
 				estCommentaire = false;
 				
 				if ( debutLigne.length() >= 2 )
 				{
-					
-					if ( debutLigne.substring(0, 2).equals( "/*" ) ) estDansCommentaire = true;
-
-					if ( debutLigne.contains( "*/" ) && estDansCommentaire )
-					{
-						// On enleve les */
-						ligne = ligne.substring( ligne.indexOf( "*/" ) +2, ligne.length() );
-						estDansCommentaire = false;
-					}
-
-					if ( debutLigne.substring(0, 2).equals( "//" ) )
-						estCommentaire = true;
+					estDansCommentaire = AnalyseurJava.estDansCommentaire(ligne, debutLigne, estDansCommentaire);
+					estCommentaire     = AnalyseurJava.estCommentaire( debutLigne );
 				}
+				
 				if ( ! estDansCommentaire && ! estCommentaire )
 				{
 					// Parcours des différents stereotype du fichier
@@ -150,41 +133,52 @@ public class AnalyseurJava
 							}
 						}
 
-						// Création des attributs
-						if ( numLigne > plage1.get(i) && numLigne < plage2.get(i) )
+						// PROTECTION: Vérifier que plage2 a un élément pour cet index
+						if ( i < plage2.size() )
 						{
-							if ( ligne.contains( ";" ) )
+							// Création des attributs
+							if ( numLigne > plage1.get(i) && numLigne < plage2.get(i) )
 							{
-								attribut = (Attribut)AnalyseurJava.initAll( "Attribut" , "" , ligne );
-
-								if ( i == 0 ) stereotypeRet    .ajouterAttribut( attribut );
-								else          stereotypeInterne.ajouterAttribut( attribut );
-							}
-						}
-
-						// Création des Methodes
-						//    - Adaptation de la plage des méthodes
-						if ( i == plage1.size() - 1    && numLigne >= plage2.get(i)   ||   //Si dernier stereotype
-							 numLigne >= plage2.get(i) && numLigne <  plage1.get(i+1)   )  //Si ce n'est pas le dernier
-						{
-							// Verifie si il y a pas une methode locale dans la methode en cour
-							if ( ligne.contains( "(" ) && dansMethode.isEmpty() )
-							{
-								if ( i == 0 )
+								if ( ligne.contains( ";" ) )
 								{
-									methode = (Methode)AnalyseurJava.initAll( "Methode" , stereotypeRet.getNom() , ligne );
-									stereotypeRet.ajouterMethode( methode );
-								}
-								else
-								{
-									methode = (Methode)AnalyseurJava.initAll( "Methode" , stereotypeInterne.getNom() , ligne );
-									stereotypeInterne.ajouterMethode( methode );
+									attribut = (Attribut)AnalyseurJava.initAll( "Attribut" , "" , ligne );
+
+									if ( i == 0 ) stereotypeRet    .ajouterAttribut( attribut );
+									else          stereotypeInterne.ajouterAttribut( attribut );
 								}
 							}
 
-							// Permet de gerer les méthodes locales
-							if ( ligne.contains( "{" )                            ) dansMethode.add( true );
-							if ( ligne.contains( "}" ) && ! dansMethode.isEmpty() ) dansMethode.remove(0);
+							// Création des Methodes
+							boolean dansZoneMethode = false;
+							
+							// Si c'est le dernier stereotype
+							if ( i == plage1.size() - 1 )
+								dansZoneMethode = ( numLigne >= plage2.get(i) );
+							// Sinon, vérifier qu'on est avant le prochain stereotype
+							else if ( i + 1 < plage1.size() )
+								dansZoneMethode = ( numLigne >= plage2.get(i) && numLigne < plage1.get(i + 1) );
+							
+							if ( dansZoneMethode )
+							{
+								// Verifie si il y a pas une methode locale dans la methode en cour
+								if ( ligne.contains( "(" ) && dansMethode.isEmpty() )
+								{
+									if ( i == 0 )
+									{
+										methode = (Methode)AnalyseurJava.initAll( "Methode" , stereotypeRet.getNom() , ligne );
+										stereotypeRet.ajouterMethode( methode );
+									}
+									else
+									{
+										methode = (Methode)AnalyseurJava.initAll( "Methode" , stereotypeInterne.getNom() , ligne );
+										stereotypeInterne.ajouterMethode( methode );
+									}
+								}
+
+								// Permet de gerer les méthodes locales
+								if ( ligne.contains( "{" ) ) dansMethode.add( true );
+								if ( ligne.contains( "}" ) && ! dansMethode.isEmpty() ) dansMethode.remove(0);
+							}
 						}
 					}
 				}
@@ -192,13 +186,37 @@ public class AnalyseurJava
 				//Compte le nombre de ligne parcourue
 				numLigne++;
 			}
+			
+			// N'oubliez pas d'ajouter le dernier stereotype interne s'il existe
+			if ( stereotypeInterne != null )
+				stereotypeRet.ajouterStereotypeInterne( stereotypeInterne );
+			
 			sc.close();
 		}
 		catch (FileNotFoundException e) {}
 
 		return stereotypeRet;
-	}	
+	}
 
+	private static boolean estDansCommentaire( String ligne, String debutLigne, boolean estDansCommentaire )
+	{
+		
+		if ( debutLigne.substring(0, 2).equals( "/*" ) ) estDansCommentaire = true;
+		
+		if ( debutLigne.contains( "*/" ) && estDansCommentaire )
+		{
+			// On enleve les */
+			ligne = ligne.substring( ligne.indexOf( "*/" ) +2, ligne.length() );
+			estDansCommentaire = false;
+		}
+
+		return estDansCommentaire;
+	}
+
+	private static boolean estCommentaire( String debutLigne )
+	{
+		return debutLigne.substring(0, 2).equals( "//" );
+	}
 	
 	/**
 	 * Retourne la liste des stéréotypes analysés dans un dossier

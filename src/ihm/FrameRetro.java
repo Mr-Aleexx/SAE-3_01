@@ -1,21 +1,26 @@
-package ihm;
+package src.ihm;
 
 import java.awt.*;
 import javax.swing.*;
-//import Controleur;
 
-public class FramePrincipale extends JFrame
+import src.Controleur;
+
+public class FrameRetro extends JFrame
 {
-	//private Controleur ctrl;
+	private Controleur ctrl;
+	private PanelUML panelUML;
 
-	public FramePrincipale(/*Controleur ctrl*/)
+	public FrameRetro(Controleur ctrl)
 	{
-		//this.ctrl = ctrl;
 
 		this.setTitle("UML Generator");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(1000, 700);
 		this.setLayout(new BorderLayout());
+		
+		//this.ctrl = ctrl;
+		this.panelUML = new PanelUML();
+		this.add(this.panelUML, BorderLayout.CENTER);
 
 		JMenuBar menubMaBarre = new BarreMenu(/*this.ctrl*/);
 		this.setJMenuBar(menubMaBarre);
@@ -24,6 +29,6 @@ public class FramePrincipale extends JFrame
 	}
 
 	public static void main(String[] args) {
-		new FramePrincipale();
+		new FrameRetro(/*new Controleur()*/);
 	}
 }

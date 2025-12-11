@@ -1,4 +1,4 @@
-package metier;
+package src.metier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public class Methode
 		String sRet = this.getSymbole() + " " +
 		              String.format( "%-" + longueurNom + "s", this.nom + " (" + parametre + ")" ) ;
 
-		sRet += ": d" + this.type + ((this.lectureUnique) ? " {Gelé}" : "");
+		sRet += " :" + this.type + ((this.lectureUnique) ? " {Gelé}" : "");
 
 		return sRet;
 	}

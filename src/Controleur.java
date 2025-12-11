@@ -1,5 +1,6 @@
+package src;
 
-import metier.Retroconception;
+import src.metier.Retroconception;
 
 public class Controleur
 {
@@ -11,6 +12,16 @@ public class Controleur
 		this.metier = new Retroconception();
 	}
 
+	//public Integer              getIndiceStereotpe(int x, int y) { return this.metier.getIndiceStereotpe(x, y); }
+	//public int                  getNbStereotype   ()             { return this.ensStereotype.size       ();     }
+	//public Stereotype           getStereotype     (int id)       { return this.metier.getStereotype     (id);   }
+	//public int                  getNbStereotype   ()             { return this.metier.getNbStereotype   ();     }
+
+	public void deplacerStereo(int id, int x, int y)
+	{
+		//this.metier.deplacerStereo(id, x, y);
+	}
+
 	public void ouvrirDossier(String cheminDossier)
 	{
 		this.metier.ouvrirDossier(cheminDossier);
@@ -19,6 +30,13 @@ public class Controleur
 	public void ouvrirFichier(String cheminFichier)
 	{
 		this.metier.ouvrirFichier(cheminFichier);
+	}
+
+	public String getErreur()
+	{ 
+		return "";
+		//return this.metier.getErreur();
+		
 	}
 	
 

@@ -18,11 +18,11 @@ public abstract class Abstract {
 	public abstract double getPerimetre();
 
 
-	//private final class Reel extends Abstract
-	//{
-	//	public Reel()
-	//	{
-	//		super("world");
-	//	}
-	//}
+	private final class Reel extends Abstract
+	{
+		public Reel()
+		{
+			super("world");
+		}
+	}
 }

@@ -1,4 +1,4 @@
-package metier;
+package src.metier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,10 @@ public class Stereotype
 	private List<Stereotype> stereotypesInterne;   //Classes dans la classe
 	private String           mere;
 	private List<String>     lstImplementations;
+
+	private Position         position;
+
+	
 
 	/**
 	 * Représentation d'une classe Java
@@ -43,6 +47,8 @@ public class Stereotype
 		this.stereotypesInterne = new ArrayList<Stereotype>();
 		this.mere               = mere;
 		this.lstImplementations = new ArrayList<String>();
+
+		this.position           = new Position();
 	}
 
 	// Getter
@@ -57,6 +63,7 @@ public class Stereotype
 	public List<Stereotype> getStereotypesInterne() { return this.stereotypesInterne; }
 	public String           getMere              () { return this.mere              ; }
 	public List<String>     getLstImplementations() { return this.lstImplementations; }
+	public Position         getPos               () { return this.position          ; }
 
 	// Setter
 	public void setVisibilite        (String           visibilite         ) { this.visibilite         = visibilite         ; }
@@ -76,6 +83,14 @@ public class Stereotype
 	public void ajouterStereotypeInterne(Stereotype stereotypeInterne) { this.stereotypesInterne.add(stereotypeInterne);}
 	public void ajouterImplementations  (String     implementation   ) { this.lstImplementations.add(implementation   );}
 
+	public boolean possede(int x, int y)
+	{
+		return x >= this.position.getCentreX() - ( this.position.getTailleX() / 2                         ) &&
+		       x <= this.position.getCentreX() + ( this.position.getTailleX() / 2                         ) &&
+
+		       y >= this.position.getCentreY() - ( this.position.getTailleY() / 2                         ) &&
+		       y <= this.position.getCentreY() + ( this.position.getTailleY() + this.position.getTailleY() / 2 );
+	}
 	// public String toString()
 	// {
 		
@@ -244,10 +259,11 @@ public class Stereotype
 
 		// Test du ncCharPlusLong
 		if ( typeAttributPlusLong + nomAttributPlusLong > typeMethodePlusLong + nomMethodePlusLong )
-			nbCharPlusLong = typeAttributPlusLong + nomAttributPlusLong;
+			nbCharPlusLong = typeAttributPlusLong + nomAttributPlusLong +2;
 		else
 			nbCharPlusLong = typeMethodePlusLong + nomMethodePlusLong;
 		
+		System.out.println( nbCharPlusLong );
 		
 		separation = String.format ( "%" + (nbCharPlusLong+1) + "s", "" ).replace ( " ", "-" );
 
