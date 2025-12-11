@@ -270,7 +270,7 @@ public class Stereotype
 			else
 				sRet += Stereotype.REINITIALISER;
 
-			sRet += String.format( "%-" + nomAttributPlusLong + "s" , attrib.getSymbole() + " " + attrib.getNom()  ) +
+			sRet += String.format( "%-" + nomAttributPlusLong + "s" , attrib.getSymbole() + " " + attrib.getNom() ) +
 			        ":" + attrib.getType() + Stereotype.REINITIALISER + "\n" ;
 		}
 
