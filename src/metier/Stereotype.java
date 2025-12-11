@@ -83,7 +83,7 @@ public class Stereotype
 	// 	int    nbCharPlusLong = this.nom.length() + ((this.lectureUnique) ? +7 : +0);  //Taille du nom de la classe + gelé si elle l'est
 		
 	// 	String separation     = "";
-	// 	String sTemp          = "";
+	// 	String sMeth          = "";
 	// 	String sRet           = "";
 
 	// 	//Prévérification de taille
@@ -151,24 +151,24 @@ public class Stereotype
 
 	// 	for (Methode meth : this.methodes)
 	// 	{
-	// 		sTemp = "";
+	// 		sMeth = "";
 			
 	// 		if(meth.estStatique())
 	// 			sRet += Stereotype.SOULIGNER;
 	// 		else
 	// 			sRet += Stereotype.REINITIALISER;
 			
-	// 		sTemp += meth.toString();
+	// 		sMeth += meth.toString();
 
-	// 		sTemp += Stereotype.REINITIALISER;
+	// 		sMeth += Stereotype.REINITIALISER;
 
 
 	// 		if (meth.getType() != null)
 	// 		{
-	// 			sTemp = String.format("%-" + (nbCharPlusLong-3) + "s %1s", sTemp, ":" + meth.getType() );
+	// 			sMeth = String.format("%-" + (nbCharPlusLong-3) + "s %1s", sMeth, ":" + meth.getType() );
 	// 		}
 			
-	// 		sRet += sTemp + "\n";
+	// 		sRet += sMeth + "\n";
 	// 	}
 
 	// 	sRet += separation + "\n";
@@ -187,14 +187,13 @@ public class Stereotype
 		int    nomMethodePlusLong   = 0;
 		
 		String separation     = "";
-		String sTemp          = "";
+		String sMeth          = "";
 		String sRet           = "";
 
 		//Prévérification de taille
 		for (Attribut attrib : this.attributs)
 		{
-			tmp = 2;                                    //Symbole de visibilité + espace
-			tmp += attrib.getNom().length() + 1;        //Taille du nom + espace
+			tmp = attrib.getNom().length();        //Taille du nom
 			
 			if( tmp > nomAttributPlusLong )
 				nomAttributPlusLong = tmp;
@@ -202,33 +201,32 @@ public class Stereotype
 			if(attrib.getType() != null && typeAttributPlusLong < attrib.getType().length() )
 			{
 				typeAttributPlusLong = attrib.getType().length();
-				if(attrib.estLectureUnique()) typeAttributPlusLong += 7;                     //Taille du {Gelé} + espace
+				if(attrib.estLectureUnique()) typeAttributPlusLong += 7;           //Taille du {Gelé} + espace
 			}
 		}
 
 		for (Methode meth : this.methodes)
 		{
-			// Nom
-			tmp = 2;                                   //Symbole de visibilité + espace
-			tmp += meth.getNom().length() + 2;         //Taille du nom + espace + parenthèse
+			tmp = meth.getNom().length() + 2;         //Taille du nom + espace + parenthèse
 
-			if(meth.getParametre().size() != 0)
+			if( ! meth.getParametre().isEmpty() )
 			{
 				for (Parametre param : meth.getParametre())
 					tmp += param.nom().length() + param.type().length() + 5;   //Taille du nom + type + espaces + deux points
 				
 				tmp -= 2; //Enleve les espaces et deux points de la derniere itéartion
 			}
-			tmp += 2; //Parenthèse fermante + espace
+			tmp += 1; //Parenthèse fermante
 
 			if( tmp > nomMethodePlusLong )
 				nomMethodePlusLong = tmp;
 
 
 			// Type
-			if(meth.estLectureUnique()) tmp = 7;                      //Taille du {Gelé} + espace
-			else                        tmp = 0;
-
+			tmp = meth.estLectureUnique() ? +7 : +0;                      //Taille du {Gelé} + espace
+			
+			// if(meth.estLectureUnique()) tmp += 7;                      //Taille du {Gelé} + espace
+	
 			if( meth.getType() != null )
 			{
 				if ( typeMethodePlusLong < meth.getType().length() + tmp )
@@ -264,14 +262,12 @@ public class Stereotype
 
 		for (Attribut attrib : this.attributs)
 		{
-			
+			sRet += attrib.toString( nomAttributPlusLong ) + Stereotype.REINITIALISER + "\n" ;
+
 			if(attrib.estStatique())
 				sRet += Stereotype.SOULIGNER;
 			else
 				sRet += Stereotype.REINITIALISER;
-
-			sRet += String.format( "%-" + nomAttributPlusLong + "s" , attrib.getSymbole() + " " + attrib.getNom() ) +
-			        ":" + attrib.getType() + Stereotype.REINITIALISER + "\n" ;
 		}
 
 		sRet += separation + "\n";
@@ -279,21 +275,16 @@ public class Stereotype
 
 		for (Methode meth : this.methodes)
 		{
-			sTemp = "";
-
-			sTemp += meth.toString();
-
-			if (meth.getType() != null)
-				sTemp = String.format("%-" + nomMethodePlusLong + "s", sTemp )  + ":" + meth.getType();
+			sMeth = meth.toString( nomMethodePlusLong );
 			
 			if(meth.estStatique())
 				sRet += Stereotype.SOULIGNER;
 			else
 				sRet += Stereotype.REINITIALISER;
 
-			sTemp += Stereotype.REINITIALISER;
+			sMeth += Stereotype.REINITIALISER;
 			
-			sRet += sTemp + "\n";
+			sRet += sMeth + "\n";
 		}
 
 		sRet += separation + "\n";

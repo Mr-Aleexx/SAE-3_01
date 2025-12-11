@@ -1,8 +1,8 @@
 package ihm;
 
-import javax.swing.*;
 import java.awt.*;
-//import src.Controleur;
+import javax.swing.*;
+//import Controleur;
 
 public class FramePrincipale extends JFrame
 {
@@ -19,5 +19,11 @@ public class FramePrincipale extends JFrame
 
 		JMenuBar menubMaBarre = new BarreMenu(/*this.ctrl*/);
 		this.setJMenuBar(menubMaBarre);
+
+		this.setVisible(true);
+	}
+
+	public static void main(String[] args) {
+		new FramePrincipale();
 	}
 }

@@ -53,8 +53,9 @@ public class Attribut
 		};
 	}
 
-	public String toString()
+	public String toString( int longueurNom )
 	{
-		return this.nom + " :" + this.type + ((this.lectureUnique) ? " {Gelé}" : "");
+		return this.getSymbole() + " " + String.format( "%-" + longueurNom + "s" , this.nom) + " :" + this.type +
+		       ((this.lectureUnique) ? " {Gelé}" : "");
 	}
 }

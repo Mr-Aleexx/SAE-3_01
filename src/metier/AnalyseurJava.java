@@ -164,8 +164,8 @@ public class AnalyseurJava
 
 						// Création des Methodes
 						//    - Adaptation de la plage des méthodes
-						if ( i == plage1.size() - 1 && numLigne >= plage2.get(i)   ||   //Si dernier stereotype
-							 numLigne >= plage2.get(i)     && numLigne <  plage1.get(i+1)   )  //Si ce n'est pas le dernier
+						if ( i == plage1.size() - 1    && numLigne >= plage2.get(i)   ||   //Si dernier stereotype
+							 numLigne >= plage2.get(i) && numLigne <  plage1.get(i+1)   )  //Si ce n'est pas le dernier
 						{
 							// Verifie si il y a pas une methode locale dans la methode en cour
 							if ( ligne.contains( "(" ) && dansMethode.isEmpty() )

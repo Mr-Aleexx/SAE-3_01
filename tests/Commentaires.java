@@ -41,6 +41,14 @@ public class Commentaires {
 		this.b = b/*;/* */;
 	}
 
+	public static foo(int a, int b) {
+		return a;
+	}
+
+	public static foo2(int a, int b) {
+		return a;
+	}
+
 	public static void main(String[] args) {//public static void main(String[] args) {
 		System.out.println(/*affichage*/"sans commentaire");
 	}

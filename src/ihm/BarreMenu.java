@@ -1,18 +1,17 @@
 package ihm;
 
-import javax.swing.*;
-
 import java.awt.event.*;
+import javax.swing.*;
 
 public class BarreMenu extends JMenuBar implements ActionListener
 {
 	private JMenuItem menuiOuvrir;
+	private JMenuItem menuiSauveg;
 	
 	
 	public BarreMenu(/*Controleur ctrl*/) 
 	{
 		this.initMenu();
-
 		this.ajouterEcouteurs();
 	}
 
@@ -21,21 +20,25 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		JMenu menuFichier = new JMenu("Fichier");
 
 		this.menuiOuvrir = new JMenuItem("Ouvrir");
+		this.menuiSauveg = new JMenuItem("Sauvegarder");
 
 		menuFichier.add(this.menuiOuvrir);
+		menuFichier.add(this.menuiSauveg);
 
 		this.add(menuFichier);
 	}
 
 	private void ajouterEcouteurs()
 	{
-		
+		this.menuiOuvrir.addActionListener(this);
+		this.menuiSauveg.addActionListener(this);
 	}
+
 
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
+		if (e.getSource() == this.menuiOuvrir){}
+		if (e.getSource() == this.menuiSauveg){}
 	}
 }

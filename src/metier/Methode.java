@@ -55,20 +55,21 @@ public class Methode
 		};
 	}
 
-	public String toString()
+	public String toString( int longueurNom )
 	{
-		String sRet = "";
-
-		sRet = this.getSymbole() + " " + this.nom + " (";
+		String parametre = "";
 
 		for (int cpt = 0; cpt < this.parametres.size(); cpt++)
 		{
-			sRet += this.parametres.get(cpt).nom () + " : " + this.parametres.get(cpt).type(); 
+			parametre += this.parametres.get(cpt).nom () + " : " + this.parametres.get(cpt).type(); 
 			if(cpt != this.parametres.size()-1)
-				sRet += ", ";
+				parametre += ", ";
 		}
+		
+		String sRet = this.getSymbole() + " " +
+		              String.format( "%-" + longueurNom + "s", this.nom + " (" + parametre + ")" ) ;
 
-		sRet += ")" + ((this.lectureUnique) ? " {Gelé}" : "");
+		sRet += ": d" + this.type + ((this.lectureUnique) ? " {Gelé}" : "");
 
 		return sRet;
 	}

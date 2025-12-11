@@ -8,8 +8,7 @@ public class PointAllMan
 
 	public PointAllMan( int x, int y )
 	{
-		this.x = x;
-		this.y = y;
+		this.x = x;this.y = y;
 	}
 
 	public PointAllMan(int x, int y, String nom)
@@ -28,9 +27,5 @@ public class PointAllMan
 	public void setX( int x ) { this.x = x; }
 	public void setY( int y ) { this.y = y; }
 	public void setNom(String nom) { this.nom = nom;}
-
-	
-	
-	
 
 }

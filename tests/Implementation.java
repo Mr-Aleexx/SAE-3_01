@@ -20,9 +20,9 @@ public interface Implementation
 
     static final record nom (String hg){}
 
-    //public interface InterInterne
-    //{
-    //    int codeInterne = 454554;
-    //}
+    public interface InterInterne
+    {
+        int codeInterne = 454554;
+    }
 //
 }
