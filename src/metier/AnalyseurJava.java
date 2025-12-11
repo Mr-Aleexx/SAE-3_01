@@ -257,13 +257,15 @@ public class AnalyseurJava
 		String  mot = sc.next();
 
 		for ( String visi : AnalyseurJava.ENS_VISI )
-			if( mot.equals(visi) ) visibilite = visi;
+			if( mot.equals(visi) )visibilite = visi;
 
+		aGeneralization = false;
 		while ( sc.hasNext() )
 		{
-			aGeneralization = false;
+			if ( aGeneralization || ! visibilite.equals("package") )
+				mot = sc.next();
 			
-			mot = sc.next();
+			aGeneralization = false;
 
 			if( mot.equals( "static"   ) ) statique      = aGeneralization = true;
 			if( mot.equals( "final"    ) ) lectureUnique = aGeneralization = true;
@@ -277,7 +279,7 @@ public class AnalyseurJava
 			case "Stereotype" ->
 			{
 				for ( String ster : AnalyseurJava.ENS_STER )
-					if( mot.equals(ster) ) type = ster;
+					if( mot.equals(ster) )type = ster;
 				
 				mot = sc.next().replace( "{", "");
 				

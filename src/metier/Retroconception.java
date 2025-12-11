@@ -12,6 +12,7 @@ public class Retroconception
 	{
 		this.lstStereotype   = new ArrayList<Stereotype> ();
 		this.lstAssociations = new ArrayList<Association>();
+		creationAssociation();
 	}
 	
 	/**
@@ -32,7 +33,7 @@ public class Retroconception
 	 */
 	public void ouvrirFichier(String fichier)
 	{
-		//System.out.println( AnalyseurJava.analyserFichier(fichier).toString() );
+		System.out.println( AnalyseurJava.analyserFichier(fichier).toString() );
 	}
 	
 	public Integer getIndiceStereotype(int x, int y)
@@ -105,7 +106,6 @@ public class Retroconception
 					break;
 				}
 			}
-			
 			this.lstAssociations.add(new Association(association1.getStereotype1(), association1.getStereotype2(), lien, mult1, mult2));
     	}
 	}
@@ -129,5 +129,11 @@ public class Retroconception
 
 	public List<Association> getLsAssociations() {
 		return getLsAssociations();
+	}
+
+	public void printLstAssociation() {
+		for (int i = 0 ; i < this.lstAssociations.size() ; i++) {
+			System.out.println(this.lstAssociations.get(i));
+		}
 	}
 }

@@ -45,8 +45,9 @@ public class Association
 	public void setStereotype2( Stereotype stereotype2 ) { this.stereotype2 = stereotype2; }
 
 	
-	
-	//Faire les tests pour les set parce que oui
-	//Faire la Classe "" qui va creer des associations 
-	//Faire la verrification des extends et implements (mettre dans Lien)
+	public String toString() {
+		String res = "";
+		res += String.format("%s de %s%s vers %s%s", this.typeAsso, this.stereotype1, this.multiplicite1, this.stereotype2, this.multiplicite2);
+		return res;
+	}
 }

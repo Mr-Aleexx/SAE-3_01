@@ -66,10 +66,13 @@ public class Methode
 				parametre += ", ";
 		}
 		
-		String sRet = this.getSymbole() + " " +
-		              String.format( "%-" + longueurNom + "s", this.nom + " (" + parametre + ")" ) ;
+		String sRet = this.getSymbole() + " ";
 
-		sRet += " :" + this.type + ((this.lectureUnique) ? " {Gelé}" : "");
+		if( this.type == null || this.type.equals( "void" ) )
+			sRet += this.nom + " (" + parametre + ")";
+		else
+			sRet += String.format( "%-" + longueurNom + "s", this.nom + " (" + parametre + ")" ) +
+			        " :" + this.type + ((this.lectureUnique) ? " {Gelé}" : ""); ;
 
 		return sRet;
 	}

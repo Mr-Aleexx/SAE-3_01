@@ -40,7 +40,7 @@ public class PanelUML extends JPanel
 
 	public void paintComponent(Graphics g)
 	{
-		Stereotype S;
+		Stereotype s;
 		int xRect, yRect, tailleXRect, tailleYRect;
 		int tailleXCarre, xCarre, yCarre;
 		int textRectX, textRectY, textCarreX, textCarreY;
@@ -49,12 +49,12 @@ public class PanelUML extends JPanel
 
 		super.paintComponent(g);
 
-		// Dessiner l'ensemble des Tâches
-		for (int cpt = 0; cpt < this.ctrl.getNbTaches(); cpt++)
+		// Dessiner l'ensemble des Stereotype
+		for (int cpt = 0; cpt < this.ctrl.getNbStereotype(); cpt++)
 		{
 			s = this.ctrl.getTache(cpt);
 
-			// Création du positionnement des tâches:
+			// Création du positionnement des Stereotypes:
 			xRect       = s.getPos().getCentreX() - s.getPos().getTailleX() / 2;
 			yRect       = s.getPos().getCentreY() - s.getPos().getTailleY() / 2;
 			tailleXRect = s.getPos().getTailleX();
@@ -69,9 +69,9 @@ public class PanelUML extends JPanel
 			FontMetrics fm = g2.getFontMetrics();
 
 			textRectX  = xRect  + ( tailleXRect  - fm.stringWidth( s.getNom() )            ) / 2;
-			textRectY  = yRect  + ( tailleYRect  + fm.getAscent()                          ) / 2;
+			textRectY  = yRect  + ( tailleYRect  + fm.getAscent  ()                        ) / 2;
 			textCarreX = xCarre + ( tailleXCarre - fm.stringWidth("" + s.affichageMax() )  ) / 2;
-			textCarreY = yCarre + ( tailleYRect  + fm.getAscent()                          ) / 2;
+			textCarreY = yCarre + ( tailleYRect  + fm.getAscent  ()                        ) / 2;
 
 			// Construction de la tâche graphiquement:
 			g2.drawRect( xRect , yRect , tailleXRect , tailleYRect );
@@ -86,6 +86,11 @@ public class PanelUML extends JPanel
 			// Construction des liens entre les tâches:
 			this.construireLiens( g2, s, xRect, yRect, tailleXRect, tailleYRect );
 		}
+	}
+
+	public void construireInformations(Graphics2D g2, Stereotype s, int textX, int textY, int tailleX)
+	{
+		
 	}
 
 

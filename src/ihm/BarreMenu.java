@@ -8,10 +8,14 @@ public class BarreMenu extends JMenuBar implements ActionListener
 {
 	private JMenuItem menuiOuvrir;
 	private JMenuItem menuiSauveg;
+	private Controleur ctrl;
+
+	private JFrame    frame;
 	
 	
-	public BarreMenu(/*Controleur ctrl*/) 
+	public BarreMenu(Controleur ctrl) 
 	{
+		this.ctrl = ctrl;
 		this.initMenu();
 		this.ajouterEcouteurs();
 	}
@@ -56,16 +60,16 @@ public class BarreMenu extends JMenuBar implements ActionListener
 
 		int result = fileChooser.showOpenDialog(this.getParent());
 
-		/*if (result == JFileChooser.APPROVE_OPTION)
+		if (result == JFileChooser.APPROVE_OPTION)
 		{
 			File selectedFile = fileChooser.getSelectedFile();
-			if (selectedFile.getName().endsWith(".java")) 
+			if (selectedFile.isDirectory()) 
 			{
 				this.ctrl.ouvrirDossier(selectedFile.getAbsolutePath());
 
 			}
 			else
 				JOptionPane.showMessageDialog(frame, Erreur.FORMAT_FICHIER_INVALIDE.getMessage(), "Format de fichier invalide", JOptionPane.ERROR_MESSAGE);
-		}*/
+		}
 	}
 }

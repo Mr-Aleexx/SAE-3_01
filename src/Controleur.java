@@ -10,6 +10,7 @@ public class Controleur
 	public Controleur()
 	{
 		this.metier = new Retroconception();
+		metier.printLstAssociation();
 	}
 
 	//public Integer              getIndiceStereotpe(int x, int y) { return this.metier.getIndiceStereotpe(x, y); }
@@ -38,7 +39,6 @@ public class Controleur
 		//return this.metier.getErreur();
 		
 	}
-	
 
 	public String toString()
 	{
@@ -49,9 +49,9 @@ public class Controleur
 	{
 		Controleur ctrl = new Controleur();
 
-		//ctrl.ouvrirFichier("./tests/Commentaires.java");
+		ctrl.ouvrirFichier("./tests/Tests.java");
 		
-		ctrl.ouvrirDossier("./tests");
+		//ctrl.ouvrirDossier("./tests");
 	}
 	
 }
