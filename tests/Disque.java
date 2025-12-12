@@ -1,6 +1,6 @@
 package ressources;
 
-public class Disque extends Point implements Comparable, AlexandreTBo, alex_goat_cr7
+public class Disque
 { 
 	private Point  centre;
 	private double rayon;
@@ -28,5 +28,4 @@ public class Disque extends Point implements Comparable, AlexandreTBo, alex_goat
 	// Setter
 	public void setPoint() { this.centre = centre; }
 	public void setRayon() { this.rayon  = rayon ; }
-	
 }
