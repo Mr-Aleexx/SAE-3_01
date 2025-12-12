@@ -1,10 +1,10 @@
 SOURCES := $(shell find src -name "*.java")
 
 build:
-	javac $(SOURCES) -d bin
+	javac $(SOURCES) -d class
 
 run: build
-	java -cp bin src.Controleur
+	java -cp class src.Controleur
 
 clean:
-	rm -rf bin/*
+	rm -rf class/*
