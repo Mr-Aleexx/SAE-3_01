@@ -1,6 +1,5 @@
 package src.metier;
 
-
 /**
  * Représentation d'une association 
  * 
@@ -42,11 +41,4 @@ public class Association
 	public void setTypeAsso( String typeAsso ) { this.typeAsso = typeAsso; }
 	public void setClasse1 ( Classe classe1  ) { this.classe1  = classe1;  }
 	public void setClasse2 ( Classe classe2  ) { this.classe2  = classe2;  }
-
-	
-	public String toString()
-	{
-		return this.typeAsso +  ((this.typeAsso.equals("unidirectionnelle")) ? " de " : " entre ") + this.classe1.getNom() + this.multiplicite1
-		                     +  ((this.typeAsso.equals("unidirectionnelle")) ? " vers " : " et " ) + this.classe2.getNom() + this.multiplicite2;
-	}
 }

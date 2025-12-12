@@ -1,137 +1,173 @@
 package src.ihm;
 
 import src.Controleur;
-import src.metier.Association;
-import src.metier.Attribut;
 import src.metier.Classe;
+import src.metier.Attribut;
 import src.metier.Methode;
+import src.metier.Parametre;
+import src.metier.Association;
 
 public class IHMCUI
 {
+	private static final String SOULIGNER     = "\033[4m";
+	private static final String REINITIALISER = "\033[0m";
+
 	private Controleur ctrl;
 
 	public IHMCUI(Controleur ctrl)
 	{
 		this.ctrl = ctrl;
-		
 	}
 
-	public static String afficher()
+	public String afficher()
 	{
 		String sRet = "";
+		String strClasse = "";
 
-		int tmp;
+		int    longeurMaxTmp;
 
 		int    nbCharPlusLong;
-		int    typeAttributPlusLong = 0;
-		int    nomAttributPlusLong  = 0;
-		int    typeMethodePlusLong  = 0;
-		int    nomMethodePlusLong   = 0;
+		int    typeAttributPlusLong;
+		int    nomAttributPlusLong;
+		int    typeMethodePlusLong;
+		int    nomMethodePlusLong;
 		
 		String separation;
 		String sMeth;
 
+		String  stereotype = null;
+		String  nom; 
+		boolean lectureUnique;
+
+		System.out.print("Taille de la list :  ");
+		System.out.println(this.ctrl.getLstClasses().size());
 		//Prévérification de taille
-		for (Attribut attrib : )
+
+		
+		for ( Classe classe : this.ctrl.getLstClasses() )
 		{
-			tmp = attrib.getNom().length();        //Taille du nom et du symbole
+		
+			typeAttributPlusLong = 0;
+			nomAttributPlusLong  = 0;
+			typeMethodePlusLong  = 0;
+			nomMethodePlusLong   = 0;
+
+			stereotype    = classe.getStereotype();
+			nom           = classe.getNom();
+			lectureUnique = classe.estLectureUnique();
+
+			nbCharPlusLong = nom.length();
+
 			
-			if( tmp > nomAttributPlusLong )
-				nomAttributPlusLong = tmp;
-
-			if( typeAttributPlusLong < attrib.getType().length() )
+			for (Attribut attrib : classe.getAttributs())
 			{
-				typeAttributPlusLong = attrib.getType().length();
-				if(attrib.estLectureUnique()) typeAttributPlusLong += 9;           //Taille du {Gelé} + espace
-			}
-		}
-
-		for (Methode meth : this.methodes)
-		{
-			tmp = meth.getNom().length() + 2;         //Taille du nom + espace + parenthèse
-
-			if( ! meth.getParametre().isEmpty() )
-			{
-				for (Parametre param : meth.getParametre())
-					tmp += param.nom().length() + param.type().length() + 5;   //Taille du nom + type + espaces + deux points
+				longeurMaxTmp = attrib.getNom().length();        //Taille du nom et du symbole
 				
-				tmp -= 2; //Enleve les espaces et deux points de la derniere itéartion
+				if( longeurMaxTmp > nomAttributPlusLong )
+					nomAttributPlusLong = longeurMaxTmp;
+
+				if( typeAttributPlusLong < attrib.getType().length() )
+				{
+					typeAttributPlusLong = attrib.getType().length();
+					if(attrib.estLectureUnique()) typeAttributPlusLong += 9;           //Taille du {Gelé} + espace
+				}
 			}
-			tmp += 1; //Parenthèse fermante
 
-			if( tmp > nomMethodePlusLong )
-				nomMethodePlusLong = tmp;
-
-			// Type
-			tmp = meth.estLectureUnique() ? +7 : +0;                      //Taille du {Gelé} + espaces
-	
-			if( meth.getType() != null && ! meth.getType().equals( "void" ) )
+			for (Methode meth : classe.getMethodes())
 			{
-				if ( typeMethodePlusLong < meth.getType().length() + tmp )
-					typeMethodePlusLong = meth.getType().length() + tmp;
+				longeurMaxTmp = meth.getNom().length() + 2;         //Taille du nom + espace + parenthèse
+
+				if( ! meth.getParametre().isEmpty() )
+				{
+					for (Parametre param : meth.getParametre())
+						longeurMaxTmp += param.nom().length() + param.type().length() + 5;   //Taille du nom + type + espaces + deux points
+					
+					longeurMaxTmp -= 2; //Enleve les espaces et deux points de la derniere itéartion
+				}
+				longeurMaxTmp += 1; //Parenthèse fermante
+
+				if( longeurMaxTmp > nomMethodePlusLong )
+					nomMethodePlusLong = longeurMaxTmp;
+
+				// Type
+				longeurMaxTmp = meth.estLectureUnique() ? +7 : +0;                      //Taille du {Gelé} + espaces
+		
+				if( meth.getType() != null && ! meth.getType().equals( "void" ) )
+				{
+					if ( typeMethodePlusLong < meth.getType().length() + longeurMaxTmp )
+					  	typeMethodePlusLong = meth.getType().length() + longeurMaxTmp;
+				}
+
+				if( longeurMaxTmp > typeMethodePlusLong )
+					typeMethodePlusLong = longeurMaxTmp;
 			}
 
-			if( tmp > typeMethodePlusLong )
-				typeMethodePlusLong = tmp;
-		}
-
-		// Test du ncCharPlusLong
-		if ( typeAttributPlusLong + nomAttributPlusLong > typeMethodePlusLong + nomMethodePlusLong )
-			nbCharPlusLong = typeAttributPlusLong + nomAttributPlusLong; // Symbole + : + espaces
-		else
-			nbCharPlusLong = typeMethodePlusLong + nomMethodePlusLong;
-		
-		nbCharPlusLong += 4;
-
-		if ( typeMethodePlusLong == 0 ) nbCharPlusLong -= 2;
-
-		separation = String.format ( "%" + (nbCharPlusLong+1) + "s", "" ).replace ( " ", "-" );
-
-		sRet = separation + "\n";
-
-		if ( this.stereotype != null )
-		{
-			int taille = ( nbCharPlusLong - this.stereotype.length() - 4 ) /2;
-			sRet += String.format( "%" + taille + "s" , " " ) + "<<" + this.stereotype + ">>" + "\n";
-		}
-
-		if(this.lectureUnique)
-			sRet += String.format ( "%"  + nbCharPlusLong/2 + "s", this.nom ) + ((this.lectureUnique) ? " {Gelé}" : "");
-		else
-			sRet += String.format ( "%" + (nbCharPlusLong-this.nom.length())/2 + "s", " "  ) + this.nom;
-
-		sRet += "\n" + separation + "\n";
-
-		for (Attribut attrib : this.attributs)
-		{
-			if(attrib.estStatique())
-				sRet += Classe.SOULIGNER;
+			// Test du ncCharPlusLong
+			if ( typeAttributPlusLong + nomAttributPlusLong > typeMethodePlusLong + nomMethodePlusLong )
+				nbCharPlusLong = typeAttributPlusLong + nomAttributPlusLong; // Symbole + : + espaces
 			else
-				sRet += Classe.REINITIALISER;
+				nbCharPlusLong = typeMethodePlusLong + nomMethodePlusLong;
 
-			sRet += attrib.toString( nomAttributPlusLong ) + Classe.REINITIALISER + "\n" ;
-		}
+			if ( nbCharPlusLong == 0 )
+			{
+				nbCharPlusLong = classe.getNom().length();
+			}
 
-		sRet += separation + "\n";
-
-
-		for (Methode meth : this.methodes)
-		{
-			if(meth.estStatique())
-				sRet += Classe.SOULIGNER;
-			else
-				sRet += Classe.REINITIALISER;
-
-			sMeth = meth.toString( nomMethodePlusLong );
-
-			sMeth += Classe.REINITIALISER;
 			
-			sRet += sMeth + "\n";
+			nbCharPlusLong += 4;
+
+			if ( typeMethodePlusLong == 0 ) nbCharPlusLong -= 2;
+
+			separation = String.format ( "%" + (nbCharPlusLong+1) + "s", "" ).replace ( " ", "-" );
+
+			strClasse = separation + "\n";
+
+			if ( stereotype != null )
+			{
+				int taille = ( nbCharPlusLong - stereotype.length() - 4 ) /2;
+				strClasse += String.format( "%" + taille + "s" , " " ) + "<<" + stereotype + ">>" + "\n";
+			}
+
+			if(lectureUnique)
+				strClasse += String.format ( "%"  + nbCharPlusLong/2 + "s", nom ) + ((lectureUnique) ? " {Gelé}" : "");
+			else
+				strClasse += String.format ( "%" + (nbCharPlusLong-nom.length())/2 + "s", " "  ) + nom;
+
+			strClasse += "\n" + separation + "\n";
+
+			for (Attribut attrib : classe.getAttributs())
+			{
+				if(attrib.estStatique())
+					strClasse += IHMCUI.SOULIGNER;
+				else
+					strClasse += IHMCUI.REINITIALISER;
+
+				strClasse += this.afficherAttribut(attrib, nomAttributPlusLong ) + IHMCUI.REINITIALISER + "\n" ;
+			}
+
+		
+			strClasse += separation + "\n";
+
+
+			for (Methode meth : classe.getMethodes())
+			{
+				if(meth.estStatique())
+					strClasse += IHMCUI.SOULIGNER;
+				else
+					strClasse += IHMCUI.REINITIALISER;
+
+				sMeth = this.afficherMethode(meth);
+
+				sMeth += IHMCUI.REINITIALISER;
+				
+				strClasse += sMeth + "\n";
+			}
+
+			strClasse += separation + "\n";
+
+			sRet += strClasse + "\n\n";
 		}
 
-		sRet += separation + "\n";
-		
-		////////////////////////////////////////////
 
 		for ( Classe classe : this.ctrl.getLstClasses() )
 			sRet += classe.toString() + "\n";
@@ -139,13 +175,13 @@ public class IHMCUI
 		sRet += "Associations:\n";
 
 		for (int i = 0 ; i < this.ctrl.getLstAssociations().size() ; i++)
-			sRet += "Association " + (i + 1) + ": " + this.ctrl.getLstAssociations().get(i).afficherAssociations() + "\n";
+			sRet += "Association " + (i + 1) + ": " + this.afficherAssociations(this.ctrl.getLstAssociations().get(i)) + "\n";
 
-		sRet += "Heritage:\n";
+		sRet += "\nHeritage:\n";
 		for ( Classe classe : this.ctrl.getLstClasses() )
-			if( classe.getMere() != null ) sRet += classe.getNom() + " hérite de " + classe.getMere();
+			if( classe.getMere() != null ) sRet += classe.getNom() + " hérite de " + classe.getMere() + "\n";
 
-		sRet += "\nImplements:\n";
+		sRet += "\nImplementation:\n";
 		for ( Classe classe : this.ctrl.getLstClasses() )
 			if( ! classe.getLstImplementations().isEmpty() )
 			{
@@ -158,10 +194,51 @@ public class IHMCUI
 		return sRet;
 	}
 
-	private String afficherAssociations(Association asso)
+	private String afficherAssociations(Association association)
 	{
-		return asso.getTypeAsso() +  ((asso.getTypeAsso().equals("unidirectionnelle")) ? " de " : " entre ") + asso.getClasse1().getNom() + asso.getMultiplicite1()
-		                     +  ((asso.getTypeAsso().equals("unidirectionnelle")) ? " vers " : " et " ) + asso.getClasse2().getNom() + asso.getMultiplicite2();
+        if (association.getTypeAsso().equals("unidirectionnelle"))
+		{
+            return association.getTypeAsso() + " de " 
+                + association.getClasse1().getNom() + "(" + association.getMultiplicite2() + ") vers "
+                + association.getClasse2().getNom() + "(" + association.getMultiplicite1() + ")";
+        } 
+		else
+		{
+            return association.getTypeAsso() + " entre " 
+                + association.getClasse1().getNom() + "(" + association.getMultiplicite1() + ") et "
+                + association.getClasse2().getNom() + "(" + association.getMultiplicite2() + ")";
+        }
+		
 	}
 
+	private String afficherAttribut( Attribut attribut, int longueurNom )
+	{
+		return attribut.getSymbole() + " " + String.format( "%-" + longueurNom + "s" , attribut.getNom()) + " :" + attribut.getType() +
+		       ((attribut.estLectureUnique()) ? " {Gelé}" : "");
+	}
+
+	private String afficherMethode( Methode methode )
+	{
+		String parametre = "";
+
+		if ( ! methode.getParametre().isEmpty() )
+		{
+			for (Parametre p : methode.getParametre())
+			{
+				parametre += p.toString() + ", ";
+			}
+			// Enleve le ", " en trop
+			parametre = parametre.substring( 0, parametre.length() -2 );
+		}
+		
+		String sRet = methode.getSymbole() + " ";
+
+		if( methode.getType() == null || this.type.equals( "void" ) )
+			sRet += this.nom + " (" + parametre + ")";
+		else
+			sRet += String.format( "%-" + longueurNom + "s", this.nom + " (" + parametre + ")" ) +
+			        " :" + this.type + ((this.lectureUnique) ? " {Gelé}" : ""); ;
+
+		return sRet;
+	}
 }

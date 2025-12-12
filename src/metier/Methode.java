@@ -54,29 +54,4 @@ public class Methode
 			default          -> ' ';
 		};
 	}
-
-	public String toString( int longueurNom )
-	{
-		String parametre = "";
-
-		if ( ! this.parametres.isEmpty() )
-		{
-			for (Parametre p : this.parametres)
-			{
-				parametre += p.toString() + ", ";
-			}
-			// Enleve le ", " en trop
-			parametre = parametre.substring( 0, parametre.length() -2 );
-		}
-		
-		String sRet = this.getSymbole() + " ";
-
-		if( this.type == null || this.type.equals( "void" ) )
-			sRet += this.nom + " (" + parametre + ")";
-		else
-			sRet += String.format( "%-" + longueurNom + "s", this.nom + " (" + parametre + ")" ) +
-			        " :" + this.type + ((this.lectureUnique) ? " {Gelé}" : ""); ;
-
-		return sRet;
-	}
 }

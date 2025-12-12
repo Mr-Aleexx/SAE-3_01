@@ -1,26 +1,48 @@
 # SAE-3_01
 
+![image](images/CUI_Image.png)
+
 ## Presentation
 
-Placeholder
+Outil de représentation de diagrammes UML
 
-## Folder Structure
+Une fois lancé, dans un dossier ou sur un fichier
+
+Le code génère une représentation en UML CUI des classes avec 
+
+- Les associations
+- Les implementations 
+- Les héritages
+
+
+## Structures des dossiers
 
 The workspace contains two folders by default, where:
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+- `src`  Dossier des codes java
+- `lib`  Dossier des librairies
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+Le fichiers class seront générés dans un dossier `class`
 
-## Dependecies
+## Dépendances
 
-- `Make` : To run with the Makefile
-- `Java` : Obviously
+- `Make` : Pour lancer le MakeFile 
+- `Java` : Evidemment
 
-## How to run it
+## Comment démarrer
+Sur Linux
+```sh
+chmod u+x start.sh
+./start.sh
+```
+Sur Windows
+```sh
+./start.bat
+```
+Avec le Makefile
 ```sh
 make build
 make run
 ```
+
 Try to run make build once, it's safer

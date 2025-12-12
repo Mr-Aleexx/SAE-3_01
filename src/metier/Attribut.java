@@ -35,7 +35,6 @@ public class Attribut
 	public void setLectureUnique(boolean lectureUnique) { this.lectureUnique = lectureUnique; }
 	public void setType         (String type          ) { this.type          = type;          }
 	public void setNom          (String nom           ) { this.nom           = nom;           }
-	
 
 	/**
 	 * Représentation de la visibilité d'une classe par un charactère
@@ -51,11 +50,5 @@ public class Attribut
 			case "package"   -> '~';
 			default          -> ' ';
 		};
-	}
-
-	public String toString( int longueurNom )
-	{
-		return this.getSymbole() + " " + String.format( "%-" + longueurNom + "s" , this.nom) + " :" + this.type +
-		       ((this.lectureUnique) ? " {Gelé}" : "");
 	}
 }

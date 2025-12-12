@@ -3,8 +3,7 @@ package src.metier;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class Classe 
+public class Classe
 {
 	private static final String SOULIGNER     = "\033[4m";
 	private static final String REINITIALISER = "\033[0m";
@@ -21,8 +20,6 @@ public class Classe
 	private List<Classe>     ClassesInterne;   //Classes dans la classe
 	private String           mere;
 	private List<String>     lstImplementations;
-
-	
 
 	/**
 	 * Représentation d'une classe Java
@@ -80,123 +77,4 @@ public class Classe
 	public void ajouterMethode          (Methode    methode          ) { this.methodes          .add(methode       );}
 	public void ajouterClasseInterne    (Classe     ClasseInterne    ) { this.ClassesInterne    .add(ClasseInterne );}
 	public void ajouterImplementations  (String     implementation   ) { this.lstImplementations.add(implementation);}
-
-
-	public String toString()
-	{
-		int tmp;
-
-		int    nbCharPlusLong;
-		int    typeAttributPlusLong = 0;
-		int    nomAttributPlusLong  = 0;
-		int    typeMethodePlusLong  = 0;
-		int    nomMethodePlusLong   = 0;
-		
-		String separation;
-		String sMeth;
-		String sRet;
-
-		//Prévérification de taille
-		for (Attribut attrib : this.attributs)
-		{
-			tmp = attrib.getNom().length();        //Taille du nom et du symbole
-			
-			if( tmp > nomAttributPlusLong )
-				nomAttributPlusLong = tmp;
-
-			if( typeAttributPlusLong < attrib.getType().length() )
-			{
-				typeAttributPlusLong = attrib.getType().length();
-				if(attrib.estLectureUnique()) typeAttributPlusLong += 9;           //Taille du {Gelé} + espace
-			}
-		}
-
-		for (Methode meth : this.methodes)
-		{
-			tmp = meth.getNom().length() + 2;         //Taille du nom + espace + parenthèse
-
-			if( ! meth.getParametre().isEmpty() )
-			{
-				for (Parametre param : meth.getParametre())
-					tmp += param.nom().length() + param.type().length() + 5;   //Taille du nom + type + espaces + deux points
-				
-				tmp -= 2; //Enleve les espaces et deux points de la derniere itéartion
-			}
-			tmp += 1; //Parenthèse fermante
-
-			if( tmp > nomMethodePlusLong )
-				nomMethodePlusLong = tmp;
-
-			// Type
-			tmp = meth.estLectureUnique() ? +7 : +0;                      //Taille du {Gelé} + espaces
-	
-			if( meth.getType() != null && ! meth.getType().equals( "void" ) )
-			{
-				if ( typeMethodePlusLong < meth.getType().length() + tmp )
-					typeMethodePlusLong = meth.getType().length() + tmp;
-			}
-
-			if( tmp > typeMethodePlusLong )
-				typeMethodePlusLong = tmp;
-		}
-
-		// Test du ncCharPlusLong
-		if ( typeAttributPlusLong + nomAttributPlusLong > typeMethodePlusLong + nomMethodePlusLong )
-			nbCharPlusLong = typeAttributPlusLong + nomAttributPlusLong; // Symbole + : + espaces
-		else
-			nbCharPlusLong = typeMethodePlusLong + nomMethodePlusLong;
-		
-		nbCharPlusLong += 4;
-
-		if ( typeMethodePlusLong == 0 ) nbCharPlusLong -= 2;
-
-		separation = String.format ( "%" + (nbCharPlusLong+1) + "s", "" ).replace ( " ", "-" );
-
-		sRet = separation + "\n";
-
-		if ( this.stereotype != null )
-		{
-			int taille = ( nbCharPlusLong - this.stereotype.length() - 4 ) /2;
-			sRet += String.format( "%" + taille + "s" , " " ) + "<<" + this.stereotype + ">>" + "\n";
-		}
-
-		if(this.lectureUnique)
-			sRet += String.format ( "%"  + nbCharPlusLong/2 + "s", this.nom ) + ((this.lectureUnique) ? " {Gelé}" : "");
-		else
-			sRet += String.format ( "%" + (nbCharPlusLong-this.nom.length())/2 + "s", " "  ) + this.nom;
-
-		sRet += "\n" + separation + "\n";
-
-		for (Attribut attrib : this.attributs)
-		{
-			if(attrib.estStatique())
-				sRet += Classe.SOULIGNER;
-			else
-				sRet += Classe.REINITIALISER;
-
-			sRet += attrib.toString( nomAttributPlusLong ) + Classe.REINITIALISER + "\n" ;
-		}
-
-		sRet += separation + "\n";
-
-
-		for (Methode meth : this.methodes)
-		{
-			if(meth.estStatique())
-				sRet += Classe.SOULIGNER;
-			else
-				sRet += Classe.REINITIALISER;
-
-			sMeth = meth.toString( nomMethodePlusLong );
-
-			sMeth += Classe.REINITIALISER;
-			
-			sRet += sMeth + "\n";
-		}
-
-		sRet += separation + "\n";
-
-		return sRet;
-	}
-
 }

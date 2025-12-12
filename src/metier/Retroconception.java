@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Retroconception
 {
-	private List<Classe>  lstClasses;
+	private List<Classe>      lstClasses;
 	private List<Association> lstAssociations;
 	
 	public Retroconception()
@@ -25,15 +25,15 @@ public class Retroconception
 	public void ouvrirDossier(String cheminDossier)
 	{
 		File dossier = new File(cheminDossier);
-		ArrayList<Classe> lstClasses = new ArrayList<Classe>();
 		
 		File[] lstFichier = dossier.listFiles();
 		
 		for (File fichier : lstFichier)
-			if (fichier.getName().contains(".java"))
-				lstClasses.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
+			if (fichier.getName().contains(".java") )
+				this.lstClasses.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
+
 			
-		this.creationAssociation();		
+		this.creationAssociation();
 	}
 
 	/**
@@ -56,28 +56,28 @@ public class Retroconception
 	{
 		List<Association> lstAssociationTmp = new ArrayList<>();
 		
-		for (Classe Classe1 : this.lstClasses) 
+		for (Classe classe1 : this.lstClasses) 
 		{
-			for (Attribut attribut : Classe1.getAttributs()) 
+			for (Attribut attribut : classe1.getAttributs()) 
 			{
-				for (Classe Classe2 : this.lstClasses)
-				{
-					if(!Classe1.getNom().equals(Classe2.getNom()))
-					{
-						if (attribut.getType().equals(Classe2.getNom()))
-						{
-							lstAssociationTmp.add(new Association(Classe1, Classe2, "(1..1)"));
-						}
-						else if(attribut.getType().contains("<") && attribut.getType().contains(">"))
-						{
-							String typeExtrait = extraireTypeGenerique(attribut.getType());
+				
+				String type = attribut.getType();
+           		boolean estEntre = type.contains("<") && type.contains(">");
 
-							if (typeExtrait.equals(Classe2.getNom()))
-							{
-								lstAssociationTmp.add(new Association(Classe1, Classe2, "(0..*)"));
-							}
-						}
-					}
+				if (estEntre) 
+				{
+					type = type.substring(type.indexOf("<") + 1, type.indexOf(">"));
+				}
+				
+				for (Classe classe2 : this.lstClasses)
+				{
+					if (classe1 == classe2) continue;
+					
+					if (type.equals(classe2.getNom())) 
+					{
+						String mult = estEntre ? "0..*" : "1..1";
+						lstAssociationTmp.add(new Association(classe1, classe2, mult));
+            		}
 				}
 			}
 		}
@@ -87,51 +87,41 @@ public class Retroconception
 
 	private void creationTypeAsso(List<Association> lstAssociationTmp) 
 	{
-		List<Integer> lstIndex = new ArrayList<>();
-		
-		for (int i = 0; i < lstAssociationTmp.size(); i++) 
-		{
-			if (lstIndex.contains(i)) continue;
-			
-			Association association1 = lstAssociationTmp.get(i);
-			String lien = "unidirectionnelle";
-			String mult1 = association1.getMultiplicite();
-			String mult2 = null;
-			
-			for (int j = i + 1; j < lstAssociationTmp.size(); j++)
-			{
-				Association association2 = lstAssociationTmp.get(j);
+		boolean[] used = new boolean[lstAssociationTmp.size()];
 
-				if (verifAssociation(association1, association2))
-				{
-					lien = "bidirectionnelle";
-					mult2 = association2.getMultiplicite();
-					lstIndex.add(j);
+		for (int i = 0; i < lstAssociationTmp.size(); i++) {
+			if (used[i]) continue;
+
+			Association association1 = lstAssociationTmp.get(i);
+			Association association2 = null;
+
+			for (int j = i + 1; j < lstAssociationTmp.size(); j++) {
+				if (used[j]) continue;
+				
+				Association candidate = lstAssociationTmp.get(j);
+
+				if (association1.getClasse1()== candidate.getClasse2() &&
+					association1.getClasse2()== candidate.getClasse1()) {
+
+					association2 = candidate;
+					used[j] = true;
 					break;
 				}
 			}
-			if (mult2 == null) 
-				mult2 = "(1..1)";
-				
-			this.lstAssociations.add(new Association(association1.getClasse1(), association1.getClasse2(), lien, mult1, mult2));
-		}
-	}
 
-	private String extraireTypeGenerique(String type) 
-	{
-		if (type.contains("<") && type.contains(">")) 
-		{
-			return type.substring(type.indexOf("<") + 1, type.indexOf(">"));
-		}
-		return type;  	
-	}
+			used[i] = true;
 
-	private boolean verifAssociation(Association association1, Association association2){
-		if (association1.getClasse1().getNom().equals(association1.getClasse2().getNom()))
-			return false;
-		
-		return association1.getClasse1().getNom().equals(association2.getClasse2().getNom()) &&
-			   association2.getClasse1().getNom().equals(association1.getClasse2().getNom());
+			if (association2 != null) 
+			{
+				this.lstAssociations.add( new Association(association1.getClasse1(),association1.getClasse2(),"bidirectionnelle",
+									                      association1.getMultiplicite(),association2.getMultiplicite()));
+			} 
+			else 
+			{
+				lstAssociations.add (new Association(association1.getClasse1(),association1.getClasse2(),"unidirectionnelle",
+				                                     association1.getMultiplicite(),"0..*"));
+			}
+		}
 	}
 
 	public List<Association> getLsAssociations() {
@@ -142,34 +132,5 @@ public class Retroconception
 		for (int i = 0 ; i < this.lstAssociations.size() ; i++) {
 			System.out.println(this.lstAssociations.get(i));
 		}
-	}
-
-	public String toString()
-	{
-		String sRet = "";
-
-		for ( Classe s : this.lstClasses )
-			sRet += s.toString() + "\n";
-
-		sRet += "Associations:\n";
-
-		for (int i = 0 ; i < this.lstAssociations.size() ; i++)
-			sRet +="Association " + (i + 1) + ": " + this.lstAssociations.get(i).toString() + "\n";
-
-		sRet += "Heritage:\n";
-		for ( Classe stereo : this.lstClasses )
-			if( stereo.getMere() != null ) sRet += stereo.getNom() + " hérite de " + stereo.getMere();
-
-		sRet += "\nImplements:\n";
-		for ( Classe stereo : this.lstClasses )
-			if( ! stereo.getLstImplementations().isEmpty() )
-			{
-				sRet += stereo.getNom() + " implemente ";
-				for ( String s : stereo.getLstImplementations() )
-					sRet += s + ", ";
-				sRet = sRet.substring( 0, sRet.length()-2 ) + "\n";
-			}
-
-		return sRet;
 	}
 }

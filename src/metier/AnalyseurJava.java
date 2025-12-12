@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-
 /**
  * Permet d'analyser un fichier java et d'en extraire :  Le nom de la classe, les attributs de la classe, les méthodes de la classe
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Martha, CONSTANTIN Alexis 
@@ -126,6 +125,7 @@ public class AnalyseurJava
 			sc.close();
 		}
 		catch (FileNotFoundException e){}
+		// System.out.println(fichierClean);
 
 		/* ------------------ */
 		/* Creation du Classe */
@@ -147,10 +147,14 @@ public class AnalyseurJava
 
 			// Stereotypes
 			for (String ster : AnalyseurJava.ENS_STER)
-				if (ligne.contains(ster) ) classe = (Classe) AnalyseurJava.initAll( ster, "", ligne);
+				if (ligne.contains(ster) )
+					classe = (Classe) AnalyseurJava.initAll( ster, "", ligne);
 
+			if ( ligne.contains("record") )
+				continue;
+			
 			// Methode ( gestion des methodes abstract )
-			if (ligne.contains("(") && !ligne.contains("="))
+			if ( ligne.contains("(") && !ligne.contains("="))
 			{
 				methode = (Methode) AnalyseurJava.initAll("methode", classe.getNom(), ligne);
 				classe.ajouterMethode(methode);
@@ -162,7 +166,6 @@ public class AnalyseurJava
 				attribut = (Attribut) AnalyseurJava.initAll("attribut", classe.getNom(), ligne);
 				classe.ajouterAttribut(attribut);
 			}
-
 		}
 		sc.close();
 
@@ -176,7 +179,6 @@ public class AnalyseurJava
 		boolean statique      = false;
 		boolean lectureUnique = false;
 		boolean abstraite     = false;
-		String  stereotype    = null;
 		String  type          = "";
 		String  nom           = "";
 		String  mere          = null;
@@ -219,21 +221,16 @@ public class AnalyseurJava
 		{
 			case "class" ->
 			{
-				for (String ster : AnalyseurJava.ENS_STER)
-					if (mot.equals(ster))
-						stereotype = ster;
-
 				mot = sc.next().replace("{", "");
 
 				nom = mot;
 
 				// Si la classe n'as pas de implements ni de extends
-				if (!sc.hasNext())
-					return new Classe(mot, statique, lectureUnique, abstraite, stereotype, nom, null);
+				if (! ligne.contains( "implements" ) && ! ligne.contains( "extends" ) )
+					return new Classe(mot, statique, lectureUnique, abstraite, null, nom, null);
 
 				while (sc.hasNext())
 				{
-
 					mot = sc.next();
 
 					if (mot.equals("extends"))
@@ -242,7 +239,7 @@ public class AnalyseurJava
 						mere = mot;
 					}
 
-					classe = new Classe(visibilite, statique, lectureUnique, abstraite, stereotype, nom, mere);
+					classe = new Classe(visibilite, statique, lectureUnique, abstraite, null, nom, mere);
 
 					if (mot.equals("implements"))
 					{
@@ -266,9 +263,83 @@ public class AnalyseurJava
 			}
 			case "record" ->
 			{
-				return null;
+				mot = sc.next().replace("{", "");
+
+				nom = mot;
+
+				indexAvt = ligne.indexOf("(");
+				indexAps = ligne.indexOf(")");
+				
+				parametre = ligne.substring(indexAvt + 1, indexAps);
+
+				classe = new Classe( mot, statique, lectureUnique, abstraite, "record", nom, null );
+
+				// Si sans paramètre
+				if ( parametre.equals("") )
+					return classe;
+
+				// Cas ou 1 seul parametre
+				if (!parametre.contains(","))
+				{
+					sc = new Scanner( parametre );
+					sc.useDelimiter("\\s+");
+
+					type = sc.next();
+					nom = sc.next();
+
+					// Les parametre des attributs d'un record sont private, pas statique et final
+					classe.ajouterAttribut( new Attribut( "private", false, true, type, nom ) );
+
+					return classe;
+				}
+
+				// Cas ou plusieurs parametres
+				Scanner scParametre = new Scanner(parametre);
+				scParametre.useDelimiter("\\,");
+
+				while (scParametre.hasNext())
+				{
+					mot = scParametre.next();
+
+					sc = new Scanner(mot);
+					sc.useDelimiter("\\s+");
+
+					type = sc.next();
+					nom = sc.next();
+
+					// Les parametre des attributs d'un record sont private, pas statique et final
+					classe.ajouterAttribut( new Attribut( "private", false, true, type, nom ) );
+				}
+
+				// Si la classe n'as pas de implements
+				if ( ! ligne.contains( "implements" ) )
+					return classe;
+
+				while (sc.hasNext())
+				{
+					mot = sc.next();
+
+					if (mot.equals("implements"))
+					{
+						int indexImplement = ligne.indexOf("implements") + "implements".length();
+
+						String  detecteImplements = ligne.substring(indexImplement, ligne.length()).trim();	
+						Scanner scImplements = new Scanner(detecteImplements);
+						scImplements.useDelimiter("\\,");
+
+						while (scImplements.hasNext())
+						{
+							classe.ajouterImplementations(scImplements.next());
+						}
+						break;
+					}
+				}
+
+				sc.close();
+
+				return classe;
 			}
-			case "enum" ->
+			case "enum" -> 
 			{
 				return null;
 			}

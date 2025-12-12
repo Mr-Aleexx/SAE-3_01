@@ -6,4 +6,6 @@
 ./src/metier/Retroconception.java
 ./src/metier/Classe.java
 
+./src/ihm/IHMCUI.java
+
 ./src/Controleur.java

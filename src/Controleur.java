@@ -4,25 +4,27 @@ import java.util.List;
 import src.metier.Association;
 import src.metier.Classe;
 import src.metier.Retroconception;
+import src.ihm.IHMCUI;
 
 public class Controleur
 {
 	private Retroconception metier;
+	private IHMCUI          ihm;
 
 	public Controleur()
 	{
 		this.metier = new Retroconception();
+		this.ihm    = new IHMCUI( this );
 	}
 
-	/* --------------------------------------- geteurs --------------------------------------- */
 
 	public List<Classe>      getLstClasses     () { return this.metier.getLstClasses();      }
 	public List<Association> getLstAssociations() { return this.metier.getLstAssociations(); }
+	
 
 	public void ouvrirDossier(String cheminDossier)
 	{
 		this.metier.ouvrirDossier(cheminDossier);
-		System.out.println(metier.toString());
 	}
 
 	public void ouvrirFichier(String cheminFichier)
@@ -30,9 +32,9 @@ public class Controleur
 		this.metier.ouvrirFichier(cheminFichier);
 	}
 
-	public String toString()
+	public String afficher()
 	{
-		return this.metier.toString();
+		return this.ihm.afficher();
 	}
 
 	public static void main(String[] args)
@@ -42,6 +44,8 @@ public class Controleur
 		//ctrl.ouvrirFichier("./tests/Abstract.java");
 
 		ctrl.ouvrirDossier( "./tests/" );
+
+		System.out.println( ctrl.afficher() );
 	}
 	
 }
