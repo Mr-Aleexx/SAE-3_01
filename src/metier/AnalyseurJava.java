@@ -1,7 +1,6 @@
 package src.metier;
 
 import  src.Controleur;
-import src.metier.Stereotype;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -148,7 +147,7 @@ public class AnalyseurJava
 
 			// Attributs
 			if ( ligne.contains( ";" ) && ( ! ligne.contains( "(" ) ||
-												ligne.contains( "(" ) && ligne.contains( "=" ) ) )
+			                                  ligne.contains( "(" ) && ligne.contains( "=" ) ) )
 			{
 				attribut = ( Attribut )AnalyseurJava.initAll( "Attribut", stereotype.getNom(), ligne );
 				stereotype.ajouterAttribut( attribut );
@@ -159,48 +158,6 @@ public class AnalyseurJava
 			{
 				methode = ( Methode )AnalyseurJava.initAll( "Methode", stereotype.getNom(), ligne );
 				stereotype.ajouterMethode( methode );
-
-				// // Recupere la list de parametre
-				// String lstParametre = ligne.substring( ligne.indexOf( "(" ) + 1 , ligne.indexOf( ")" ) );
-
-				// // Cas où vide
-				// if ( lstParametre.equals( "" ) )
-				// {
-				// 	stereotype.ajouterMethode( methode );
-				// 	continue;
-				// }
-
-				// // Cas ou il y a un seul parametre
-				// if ( ! lstParametre.contains( "," ) )
-				// {
-				// 	scParametre = new Scanner( lstParametre );
-				// 	scParametre.useDelimiter( "\\s+" );
-
-				// 	mot = scParametre.next();
-
-				// 	methode.ajouterParametres( new Parametre( mot, scParametre.next() ) );
-
-				// 	scParametre.close();
-				// }
-				// else
-				// {
-				// 	scLstParametre = new Scanner( lstParametre );
-				// 	scLstParametre.useDelimiter( "\\," );
-
-				// 	while ( scLstParametre.hasNext() )
-				// 	{
-				// 		ligneParametre = scLstParametre.next().trim();
-				// 		scParametre    = new Scanner( ligneParametre );
-				// 		scParametre.useDelimiter( "\\s+" );
-
-				// 		typeParam = scParametre.next();
-				// 		nomParam  = scParametre.next();
-
-				// 		methode.ajouterParametres( new Parametre( typeParam, nomParam ) );
-
-				// 		scParametre.close();
-				// 	}
-				// 	scLstParametre.close();
 			}
 		}
 		sc.close();
@@ -268,30 +225,20 @@ public class AnalyseurJava
 						mot = sc.next();
 						mere = mot;
 					}
-					if( mot.equals( "implements") ) 
-					{
-						String detecteImplements = ligne.substring( ligne.indexOf("implements"),ligne.length() );
-						Scanner scImplements = new Scanner( detecteImplements );
-						scImplements.useDelimiter("\\,");
+					// if( mot.equals( "implements") ) 
+					// {
+					// 	String detecteImplements = ligne.substring( ligne.indexOf("implements"),ligne.length() );
+					// 	Scanner scImplements = new Scanner( detecteImplements );
+					// 	scImplements.useDelimiter("\\,");
 						
-						// while ( scImplements.hasNext() )
-						// {
-
-						// }
-						// break;
-					}
+					// 	while ( scImplements.hasNext() )
+					// 	{
+							
+					// 	}
+					// 	break;
+					// }
 
 					if( ! aGeneralization ) break;
-				}
-
-				if ( sc.hasNext() ) mot = sc.next();
-
-				if ( mot.equals( "extends" ) )
-				{
-					mere = sc.next().replace( "{", "");
-					if ( sc.hasNext() ) mot = sc.next();
-					
-					if ( mot.equals( "implements" ) ) mot = "mabite";
 				}
 				
 				sc.close();

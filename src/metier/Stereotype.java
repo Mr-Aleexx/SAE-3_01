@@ -200,6 +200,18 @@ public class Stereotype
 
 		sRet += separation + "\n";
 
+		if (   this.getMere() != null            )
+			sRet += this.getNom() + " hérite de " + this.getMere() + "\n";
+		
+		if ( ! this.lstImplementations.isEmpty() )
+		{
+			sRet += this.getNom() + " implemente ";
+			for ( String s : this.lstImplementations )
+				sRet += s + " ,";
+			sRet = sRet.substring( 0, sRet.length()-2 ) + "\n";
+		}
+			
+
 		return sRet;
 	}
 
