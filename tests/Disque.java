@@ -1,6 +1,6 @@
 package ressources;
 
-public class Disque extends Point implements Comparable, LaDaronneAJP, Alex27pc
+public class Disque extends Point implements Comparable, AlexandreTBo, alex_goat_cr7
 { 
 	private Point  centre;
 	private double rayon;

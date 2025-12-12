@@ -5,14 +5,13 @@ import java.util.List;
 
 public class Retroconception
 {
-	private List<Stereotype>  lstStereotype;
+	private List<Classe>  lstClasse;
 	private List<Association> lstAssociations;
 	
 	public Retroconception()
 	{
-		this.lstStereotype   = new ArrayList<Stereotype> ();
+		this.lstClasse   = new ArrayList<Classe> ();
 		this.lstAssociations = new ArrayList<Association>();
-		creationAssociation();
 	}
 	
 	/**
@@ -21,10 +20,9 @@ public class Retroconception
 	 */
 	public void ouvrirDossier(String cheminDossier)
 	{
-		//this.lstStereotype = AnalyseurJava.analyserDossier(cheminDossier);
-
-		for ( Stereotype s : this.lstStereotype )
-			System.out.println( s.toString() );
+		this.lstClasse = AnalyseurJava.analyserDossier(cheminDossier);
+		
+		this.creationAssociation();
 	}
 
 	/**
@@ -33,71 +31,66 @@ public class Retroconception
 	 */
 	public void ouvrirFichier(String fichier)
 	{
-		System.out.println( AnalyseurJava.analyserFichier(fichier).toString() );
-	}
-	
-	public Integer getIndiceStereotype(int x, int y)
-	{
-		for (int cpt = 0; cpt < this.lstStereotype.size(); cpt++)
-			if (this.lstStereotype.get(cpt).possede(x, y))
-				return cpt;
-		
-		return null;
+		AnalyseurJava.analyserFichier(fichier);
 	}
 
-
-	public void deplacerStereotype(int idTache, int x, int y)
-	{
-		if (idTache >= 0 && idTache < this.lstStereotype.size())
-		{
-			this.lstStereotype.get(idTache).getPos().deplacerX(x);
-			this.lstStereotype.get(idTache).getPos().deplacerY(y);
-		}
-	}
-	
 	
 	public void creationAssociation()
 	{
-		List<Association> lstAssociationTmp = new ArrayList<>();
-		List<Integer> lstIndex = new ArrayList<>();
-		
-		for (Stereotype stereotype1 : this.lstStereotype) 
-		{
-			for (Attribut attribut : stereotype1.getAttributs()) 
-			{
-				for (Stereotype stereotype2 : this.lstStereotype)
-				{
-					if (attribut.getType().equals(stereotype2.getNom()))
-					{
-						lstAssociationTmp.add(new Association(stereotype1, stereotype2, "1..1"));
-					}
-					else if(attribut.getType().contains("<") && attribut.getType().contains(">"))
-					{
-						String typeExtrait = extraireTypeGenerique(attribut.getType());
+		List<Association> lstAssociationTmp = creationMultiplicite();
+		creationTypeAsso(lstAssociationTmp);
+	}
 
-						if (typeExtrait.equals(stereotype2.getNom()))
+	private List<Association> creationMultiplicite()
+	{
+		List<Association> lstAssociationTmp = new ArrayList<>();
+		
+		for (Classe Classe1 : this.lstClasse) 
+		{
+			for (Attribut attribut : Classe1.getAttributs()) 
+			{
+				for (Classe Classe2 : this.lstClasse)
+				{
+					if(!Classe1.getNom().equals(Classe2.getNom()))
+					{
+						if (attribut.getType().equals(Classe2.getNom()))
 						{
-							lstAssociationTmp.add(new Association(stereotype1, stereotype2, "0..*"));
+							lstAssociationTmp.add(new Association(Classe1, Classe2, "(1..1)"));
 						}
-					} 
+						else if(attribut.getType().contains("<") && attribut.getType().contains(">"))
+						{
+							String typeExtrait = extraireTypeGenerique(attribut.getType());
+
+							if (typeExtrait.equals(Classe2.getNom()))
+							{
+								lstAssociationTmp.add(new Association(Classe1, Classe2, "(0..*)"));
+							}
+						}
+					}
 				}
 			}
 		}
 
+		return lstAssociationTmp;
+	}
 
+	private void creationTypeAsso(List<Association> lstAssociationTmp) 
+	{
+		List<Integer> lstIndex = new ArrayList<>();
+		
 		for (int i = 0; i < lstAssociationTmp.size(); i++) 
-    	{
+		{
 			if (lstIndex.contains(i)) continue;
 			
 			Association association1 = lstAssociationTmp.get(i);
 			String lien = "unidirectionnelle";
 			String mult1 = association1.getMultiplicite();
-			String mult2 = mult1; 
+			String mult2 = null;
 			
-			for (int j = i + 1; j < lstAssociationTmp.size(); j++) 
+			for (int j = i + 1; j < lstAssociationTmp.size(); j++)
 			{
 				Association association2 = lstAssociationTmp.get(j);
-				
+
 				if (verifAssociation(association1, association2))
 				{
 					lien = "bidirectionnelle";
@@ -106,8 +99,11 @@ public class Retroconception
 					break;
 				}
 			}
-			this.lstAssociations.add(new Association(association1.getStereotype1(), association1.getStereotype2(), lien, mult1, mult2));
-    	}
+			if (mult2 == null) 
+				mult2 = "(1..1)";
+				
+			this.lstAssociations.add(new Association(association1.getClasse1(), association1.getClasse2(), lien, mult1, mult2));
+		}
 	}
 
 	private String extraireTypeGenerique(String type) 
@@ -120,11 +116,11 @@ public class Retroconception
 	}
 
 	private boolean verifAssociation(Association association1, Association association2){
-		if (association1.getStereotype1().getNom().equals(association1.getStereotype2().getNom()))
+		if (association1.getClasse1().getNom().equals(association1.getClasse2().getNom()))
 			return false;
 		
-		return association1.getStereotype1().getNom().equals(association2.getStereotype2().getNom()) &&
-			   association2.getStereotype1().getNom().equals(association1.getStereotype2().getNom());
+		return association1.getClasse1().getNom().equals(association2.getClasse2().getNom()) &&
+			   association2.getClasse1().getNom().equals(association1.getClasse2().getNom());
 	}
 
 	public List<Association> getLsAssociations() {
@@ -135,5 +131,34 @@ public class Retroconception
 		for (int i = 0 ; i < this.lstAssociations.size() ; i++) {
 			System.out.println(this.lstAssociations.get(i));
 		}
+	}
+
+	public String toString()
+	{
+		String sRet = "";
+
+		for ( Classe s : this.lstClasse )
+			sRet += s.toString() + "\n";
+
+		sRet += "Associations:\n";
+
+		for (int i = 0 ; i < this.lstAssociations.size() ; i++)
+			sRet +="Association " + (i + 1) + ": " + this.lstAssociations.get(i).toString() + "\n";
+
+		sRet += "Heritage:\n";
+		for ( Classe stereo : this.lstClasse )
+			if( stereo.getMere() != null ) sRet += stereo.getNom() + " hérite de " + stereo.getMere();
+
+		sRet += "\nImplements:\n";
+		for ( Classe stereo : this.lstClasse )
+			if( ! stereo.getLstImplementations().isEmpty() )
+			{
+				sRet += stereo.getNom() + " implemente ";
+				for ( String s : stereo.getLstImplementations() )
+					sRet += s + ", ";
+				sRet = sRet.substring( 0, sRet.length()-2 ) + "\n";
+			}
+
+		return sRet;
 	}
 }

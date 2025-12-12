@@ -6,7 +6,7 @@ import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 
 import src.Controleur;
-import src.metier.Stereotype;
+import src.metier.Classe;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -40,7 +40,7 @@ public class PanelUML extends JPanel
 
 	public void paintComponent(Graphics g)
 	{
-		Stereotype s;
+		Classe s;
 		int xRect, yRect, tailleXRect, tailleYRect;
 		int tailleXCarre, xCarre, yCarre;
 		int textRectX, textRectY, textCarreX, textCarreY;
@@ -49,12 +49,12 @@ public class PanelUML extends JPanel
 
 		super.paintComponent(g);
 
-		// Dessiner l'ensemble des Stereotype
-		for (int cpt = 0; cpt < this.ctrl.getNbStereotype(); cpt++)
+		// Dessiner l'ensemble des Classe
+		for (int cpt = 0; cpt < this.ctrl.getNbClasse(); cpt++)
 		{
 			s = this.ctrl.getTache(cpt);
 
-			// Création du positionnement des Stereotypes:
+			// Création du positionnement des Classes:
 			xRect       = s.getPos().getCentreX() - s.getPos().getTailleX() / 2;
 			yRect       = s.getPos().getCentreY() - s.getPos().getTailleY() / 2;
 			tailleXRect = s.getPos().getTailleX();
@@ -88,7 +88,7 @@ public class PanelUML extends JPanel
 		}
 	}
 
-	public void construireInformations(Graphics2D g2, Stereotype s, int textX, int textY, int tailleX)
+	public void construireInformations(Graphics2D g2, Classe s, int textX, int textY, int tailleX)
 	{
 		
 	}
@@ -114,18 +114,18 @@ public class PanelUML extends JPanel
 			{
 				if (e.getClickCount() == 2)
 					if ( this.numStereoActive != 0 && this.numStereoActive != PanelUML.this.ctrl.getNbTaches() - 1 )
-						PanelUML.this.frameMere.majLabel(PanelUML.this.ctrl.getStereotype(this.numStereoActive));
+						PanelUML.this.frameMere.majLabel(PanelUML.this.ctrl.getClasse(this.numStereoActive));
 
 				if (SwingUtilities.isRightMouseButton(e))
 					if ( this.numStereoActive != 0 && this.numStereoActive != PanelUML.this.ctrl.getNbTaches() - 1 )
-						PanelUML.this.ctrl.creerFrameTache(PanelUML.this.ctrl.getStereotype(this.numStereoActive) );
+						PanelUML.this.ctrl.creerFrameTache(PanelUML.this.ctrl.getClasse(this.numStereoActive) );
 			}
 		}
 
 		public void mouseDragged(MouseEvent e)
 		{
 			if ( this.numStereoActive != null )
-				PanelUML.this.ctrl.deplacerStereotype( this.numStereoActive, e.getX() - x, e.getY() - y );
+				PanelUML.this.ctrl.deplacerClasse( this.numStereoActive, e.getX() - x, e.getY() - y );
 
 			this.x = e.getX();
 			this.y = e.getY();

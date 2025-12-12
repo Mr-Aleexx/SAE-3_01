@@ -28,6 +28,7 @@ public class AttributeShowcase {
     public Map<String, Integer> scoreMap;
     protected Set<Double> scoreSet = new HashSet<>();
     private Map<String, List<Integer>> nestedGenerics;
+	private Map<String, String> listMap;
     public Optional<String> optValue = Optional.empty();
 
     // ----- 5. static, final, static final (constantes) -----

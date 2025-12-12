@@ -3,7 +3,8 @@ package src.metier;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Stereotype
+
+public class Classe 
 {
 	private static final String SOULIGNER     = "\033[4m";
 	private static final String REINITIALISER = "\033[0m";
@@ -12,15 +13,14 @@ public class Stereotype
 	private boolean          statique;             //Static ou non 
 	private boolean          lectureUnique;        //Final ou non
 	private boolean          abstraite;
-	private String           type;                 //class, interface, enum, record...
 	private String           nom;
+
+	private String           stereotype;
 	private List<Attribut>   attributs;
 	private List<Methode>    methodes;
-	private List<Stereotype> stereotypesInterne;   //Classes dans la classe
+	private List<Classe>     ClassesInterne;   //Classes dans la classe
 	private String           mere;
 	private List<String>     lstImplementations;
-
-	private Position         position;
 
 	
 
@@ -34,21 +34,20 @@ public class Stereotype
 	 * @param type Type de la classe
 	 * @param nom Nom de la classe
 	 */
-	public Stereotype(String visi, boolean statique, boolean lectureUnique, boolean abstraite, String type, String nom, String mere)
+	public Classe(String visi, boolean statique, boolean lectureUnique, boolean abstraite, String stereotype, String nom, String mere)
 	{
 		this.visibilite         = visi;
 		this.statique           = statique;
 		this.lectureUnique      = lectureUnique;
 		this.abstraite          = abstraite;
-		this.type               = type;
+		this.stereotype         = stereotype;
 		this.nom                = nom;
 		this.attributs          = new ArrayList<Attribut>  ();
 		this.methodes           = new ArrayList<Methode>   ();
-		this.stereotypesInterne = new ArrayList<Stereotype>();
+		this.ClassesInterne     = new ArrayList<Classe>();
 		this.mere               = mere;
 		this.lstImplementations = new ArrayList<String>();
 
-		this.position           = new Position();
 	}
 
 	// Getter
@@ -56,41 +55,32 @@ public class Stereotype
 	public boolean          estStatique          () { return this.statique          ; }
 	public boolean          estLectureUnique     () { return this.lectureUnique     ; }
 	public boolean          estAbstraite         () { return this.abstraite         ; }
-	public String           getType              () { return this.type              ; }
+	public String           getStereotype        () { return this.stereotype        ; }
 	public String           getNom               () { return this.nom               ; }
 	public List<Attribut>   getAttributs         () { return this.attributs         ; }
 	public List<Methode>    getMethodes          () { return this.methodes          ; }
-	public List<Stereotype> getStereotypesInterne() { return this.stereotypesInterne; }
+	public List<Classe>     getClassesInterne    () { return this.ClassesInterne    ; }
 	public String           getMere              () { return this.mere              ; }
 	public List<String>     getLstImplementations() { return this.lstImplementations; }
-	public Position         getPos               () { return this.position          ; }
 
 	// Setter
 	public void setVisibilite        (String           visibilite         ) { this.visibilite         = visibilite         ; }
 	public void setStatique          (boolean          statique           ) { this.statique           = statique           ; }
 	public void setLectureUnique     (boolean          lectureUnique      ) { this.lectureUnique      = lectureUnique      ; }
 	public void setAbstraite         (boolean          abstraite          ) { this.abstraite          = abstraite          ; }
-	public void setType              (String           type               ) { this.type               = type               ; }
+	public void setStereotype        (String           stereotype         ) { this.stereotype         = stereotype         ; }
 	public void setNom               (String           nom                ) { this.nom                = nom                ; }
 	public void setAttributs         (List<Attribut>   attributs          ) { this.attributs          = attributs          ; }
 	public void setMethodes          (List<Methode>    methodes           ) { this.methodes           = methodes           ; }
-	public void setStereotypesInterne(List<Stereotype> stereotypesInternes) { this.stereotypesInterne = stereotypesInternes; }
+	public void setClassesInterne    (List<Classe>     ClassesInternes    ) { this.ClassesInterne     = ClassesInternes    ; }
 	public void setMere              (String           mere               ) { this.mere               = mere               ; }
 	public void setLstImplementations(List<String>     lstImplementations ) { this.lstImplementations = lstImplementations ; }
 
-	public void ajouterAttribut         (Attribut   attribut         ) { this.attributs         .add(attribut         );}
-	public void ajouterMethode          (Methode    methode          ) { this.methodes          .add(methode          );}
-	public void ajouterStereotypeInterne(Stereotype stereotypeInterne) { this.stereotypesInterne.add(stereotypeInterne);}
-	public void ajouterImplementations  (String     implementation   ) { this.lstImplementations.add(implementation   );}
+	public void ajouterAttribut         (Attribut   attribut         ) { this.attributs         .add(attribut      );}
+	public void ajouterMethode          (Methode    methode          ) { this.methodes          .add(methode       );}
+	public void ajouterClasseInterne    (Classe     ClasseInterne    ) { this.ClassesInterne    .add(ClasseInterne );}
+	public void ajouterImplementations  (String     implementation   ) { this.lstImplementations.add(implementation);}
 
-	public boolean possede(int x, int y)
-	{
-		return x >= this.position.getCentreX() - ( this.position.getTailleX() / 2                         ) &&
-		       x <= this.position.getCentreX() + ( this.position.getTailleX() / 2                         ) &&
-
-		       y >= this.position.getCentreY() - ( this.position.getTailleY() / 2                         ) &&
-		       y <= this.position.getCentreY() + ( this.position.getTailleY() + this.position.getTailleY() / 2 );
-	}
 
 	public String toString()
 	{
@@ -102,9 +92,9 @@ public class Stereotype
 		int    typeMethodePlusLong  = 0;
 		int    nomMethodePlusLong   = 0;
 		
-		String separation     = "";
-		String sMeth          = "";
-		String sRet           = "";
+		String separation;
+		String sMeth;
+		String sRet;
 
 		//Prévérification de taille
 		for (Attribut attrib : this.attributs)
@@ -164,6 +154,12 @@ public class Stereotype
 
 		sRet = separation + "\n";
 
+		if ( this.stereotype != null )
+		{
+			int taille = ( nbCharPlusLong - this.stereotype.length() - 4 ) /2;
+			sRet += String.format( "%" + taille + "s" , " " ) + "<<" + this.stereotype + ">>" + "\n";
+		}
+
 		if(this.lectureUnique)
 			sRet += String.format ( "%"  + nbCharPlusLong/2 + "s", this.nom ) + ((this.lectureUnique) ? " {Gelé}" : "");
 		else
@@ -174,11 +170,11 @@ public class Stereotype
 		for (Attribut attrib : this.attributs)
 		{
 			if(attrib.estStatique())
-				sRet += Stereotype.SOULIGNER;
+				sRet += Classe.SOULIGNER;
 			else
-				sRet += Stereotype.REINITIALISER;
+				sRet += Classe.REINITIALISER;
 
-			sRet += attrib.toString( nomAttributPlusLong ) + Stereotype.REINITIALISER + "\n" ;
+			sRet += attrib.toString( nomAttributPlusLong ) + Classe.REINITIALISER + "\n" ;
 		}
 
 		sRet += separation + "\n";
@@ -187,30 +183,18 @@ public class Stereotype
 		for (Methode meth : this.methodes)
 		{
 			if(meth.estStatique())
-				sRet += Stereotype.SOULIGNER;
+				sRet += Classe.SOULIGNER;
 			else
-				sRet += Stereotype.REINITIALISER;
+				sRet += Classe.REINITIALISER;
 
 			sMeth = meth.toString( nomMethodePlusLong );
 
-			sMeth += Stereotype.REINITIALISER;
+			sMeth += Classe.REINITIALISER;
 			
 			sRet += sMeth + "\n";
 		}
 
 		sRet += separation + "\n";
-
-		if (   this.getMere() != null            )
-			sRet += this.getNom() + " hérite de " + this.getMere() + "\n";
-		
-		if ( ! this.lstImplementations.isEmpty() )
-		{
-			sRet += this.getNom() + " implemente ";
-			for ( String s : this.lstImplementations )
-				sRet += s + ",";
-			sRet = sRet.substring( 0, sRet.length()-2 ) + "\n";
-		}
-			
 
 		return sRet;
 	}
