@@ -4,6 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Mets en place la rétroconception des associations
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Martha, CONSTANTIN Alexis
+ * @version Etape 4
+ * @since 08-12-2025
+ */
 public class Retroconception
 {
 	private List<Classe>      lstClasses;
@@ -36,10 +44,6 @@ public class Retroconception
 		this.creationAssociation();
 	}
 
-	/**
-	 * I have no idea of what this is supposed to do
-	 * @param fichier Contenu du fichier
-	 */
 	public void ouvrirFichier(String fichier)
 	{
 		AnalyseurJava.analyserFichier(fichier);
@@ -52,6 +56,11 @@ public class Retroconception
 		creationTypeAsso(lstAssociationTmp);
 	}
 
+
+	/**
+	 * Créer les multiplicitées en fonctions des associations
+	 * @return List des associations de la classe 
+	 */
 	private List<Association> creationMultiplicite()
 	{
 		List<Association> lstAssociationTmp = new ArrayList<>();
@@ -85,6 +94,8 @@ public class Retroconception
 		return lstAssociationTmp;
 	}
 
+
+	
 	private void creationTypeAsso(List<Association> lstAssociationTmp) 
 	{
 		boolean[] used = new boolean[lstAssociationTmp.size()];

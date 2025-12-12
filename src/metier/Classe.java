@@ -3,6 +3,15 @@ package src.metier;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Représentation d'une classe
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Martha, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
 public class Classe
 {
 	private static final String SOULIGNER     = "\033[4m";

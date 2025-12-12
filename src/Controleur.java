@@ -6,6 +6,14 @@ import src.metier.Classe;
 import src.metier.Retroconception;
 import src.ihm.IHMCUI;
 
+/**
+ * Controleur de la classe qui lance le CUI pour l'instant
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Martha, CONSTANTIN Alexis
+ * @version Etape 4
+ * @since 08-12-2025
+ */
 public class Controleur
 {
 	private Retroconception metier;

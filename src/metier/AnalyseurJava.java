@@ -9,7 +9,7 @@ import java.util.Scanner;
 /**
  * Permet d'analyser un fichier java et d'en extraire :  Le nom de la classe, les attributs de la classe, les méthodes de la classe
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Martha, CONSTANTIN Alexis 
- * @version alpha pre-release 1.0.0.1
+ * @version Etape 4
  * @since 08-12-2025
  */
 

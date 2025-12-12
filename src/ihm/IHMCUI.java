@@ -7,6 +7,13 @@ import src.metier.Methode;
 import src.metier.Parametre;
 import src.metier.Association;
 
+/**
+ * Représentation dans le terminal en UML d'une ou plusieurs clases java
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Martha, CONSTANTIN Alexis
+ * @version Etape 4
+ * @since 08-12-2025
+ */
 public class IHMCUI
 {
 	private static final String SOULIGNER     = "\033[4m";
@@ -156,7 +163,7 @@ public class IHMCUI
 				else
 					strClasse += IHMCUI.REINITIALISER;
 
-				sMeth = this.afficherMethode(meth);
+				sMeth = this.afficherMethode(meth, nomMethodePlusLong);
 
 				sMeth += IHMCUI.REINITIALISER;
 				
@@ -167,10 +174,6 @@ public class IHMCUI
 
 			sRet += strClasse + "\n\n";
 		}
-
-
-		for ( Classe classe : this.ctrl.getLstClasses() )
-			sRet += classe.toString() + "\n";
 
 		sRet += "Associations:\n";
 
@@ -217,7 +220,7 @@ public class IHMCUI
 		       ((attribut.estLectureUnique()) ? " {Gelé}" : "");
 	}
 
-	private String afficherMethode( Methode methode )
+	private String afficherMethode( Methode methode, int longueurNom )
 	{
 		String parametre = "";
 
@@ -233,11 +236,11 @@ public class IHMCUI
 		
 		String sRet = methode.getSymbole() + " ";
 
-		if( methode.getType() == null || this.type.equals( "void" ) )
-			sRet += this.nom + " (" + parametre + ")";
+		if( methode.getType() == null || methode.getType().equals( "void" ) )
+			sRet += methode.getNom() + " (" + parametre + ")";
 		else
-			sRet += String.format( "%-" + longueurNom + "s", this.nom + " (" + parametre + ")" ) +
-			        " :" + this.type + ((this.lectureUnique) ? " {Gelé}" : ""); ;
+			sRet += String.format( "%-" + longueurNom + "s", methode.getNom() + " (" + parametre + ")" ) +
+			        " :" + methode.getType() + ((methode.estLectureUnique()) ? " {Gelé}" : "");
 
 		return sRet;
 	}

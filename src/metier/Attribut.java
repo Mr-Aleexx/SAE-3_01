@@ -1,4 +1,14 @@
 package src.metier;
+
+
+/**
+ * Représentation des attributs d'une classe
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Martha, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
 public class Attribut
 {
 	private String  visibilite;
@@ -7,14 +17,6 @@ public class Attribut
 	private String  type;
 	private String  nom;
 
-	/**
-	 * Représentation des attributs d'une classe
-	 * @param visibilite 
-	 * @param statique Si la classe est statique ou non
-	 * @param lectureUnique Si la classe est en lecture unique ou non
-	 * @param type Le type de la classe
-	 * @param nom Le nom de la classe
-	 */
 	public Attribut( String visibilite, boolean statique, boolean lectureUnique, String type, String nom )
 	{
 		this.visibilite    = visibilite;
