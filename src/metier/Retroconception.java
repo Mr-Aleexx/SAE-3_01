@@ -21,7 +21,7 @@ public class Retroconception
 	 */
 	public void ouvrirDossier(String cheminDossier)
 	{
-		this.lstStereotype = AnalyseurJava.analyserDossier(cheminDossier);
+		//this.lstStereotype = AnalyseurJava.analyserDossier(cheminDossier);
 
 		for ( Stereotype s : this.lstStereotype )
 			System.out.println( s.toString() );

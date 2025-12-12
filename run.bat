@@ -8,7 +8,7 @@ if %errorlevel% neq 0 (
 )
 
 rem Execution
-java -cp bin Controleur
+java -cp bin src.Controleur
 if %errorlevel% neq 0 (
     echo L'execution a echoue.
     exit /b 1

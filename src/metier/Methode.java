@@ -59,11 +59,14 @@ public class Methode
 	{
 		String parametre = "";
 
-		for (int cpt = 0; cpt < this.parametres.size(); cpt++)
+		if ( ! this.parametres.isEmpty() )
 		{
-			parametre += this.parametres.get(cpt).nom () + " : " + this.parametres.get(cpt).type(); 
-			if(cpt != this.parametres.size()-1)
-				parametre += ", ";
+			for (Parametre p : this.parametres)
+			{
+				parametre += p.toString() + ", ";
+			}
+			// Enleve le ", " en trop
+			parametre = parametre.substring( 0, parametre.length() -2 );
 		}
 		
 		String sRet = this.getSymbole() + " ";
