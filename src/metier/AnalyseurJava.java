@@ -1,11 +1,7 @@
 package src.metier;
 
-import  src.Controleur;
-
-import java.io.File;
-import java.io.FileInputStream;
+import  java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.text.AttributedCharacterIterator.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -176,9 +172,10 @@ public class AnalyseurJava
 		String  nom           = "";
 		String  mere          = null;
 
-		boolean aGeneralization;
-		int     index, indexAvt, indexAps;
-		String  parametre = "";
+		boolean    aGeneralization;
+		int        index, indexAvt, indexAps;
+		String     parametre = "";
+		Stereotype s = null;
 
 		Scanner sc = new Scanner( ligne );
 		sc.useDelimiter("\\s+");
@@ -216,8 +213,7 @@ public class AnalyseurJava
 
 				while ( sc.hasNext() )
 				{
-					aGeneralization = false;
-					
+			
 					mot = sc.next();
 
 					if( mot.equals( "extends"   ) )
@@ -225,25 +221,30 @@ public class AnalyseurJava
 						mot = sc.next();
 						mere = mot;
 					}
-					// if( mot.equals( "implements") ) 
-					// {
-					// 	String detecteImplements = ligne.substring( ligne.indexOf("implements"),ligne.length() );
-					// 	Scanner scImplements = new Scanner( detecteImplements );
-					// 	scImplements.useDelimiter("\\,");
-						
-					// 	while ( scImplements.hasNext() )
-					// 	{
-							
-					// 	}
-					// 	break;
-					// }
 
-					if( ! aGeneralization ) break;
+					s = new Stereotype( visibilite, statique, lectureUnique, abstraite, type, nom, mere );
+
+					if( mot.equals( "implements") )
+					{
+						int indexImplement = ligne.indexOf( "implements" ) + "implements".length();
+
+						String detecteImplements = ligne.substring( indexImplement ,ligne.length() ).trim();
+						Scanner scImplements = new Scanner( detecteImplements );
+						scImplements.useDelimiter("\\,");
+
+						System.out.println( detecteImplements );
+						
+						while ( scImplements.hasNext() )
+						{
+							s.ajouterImplementations( scImplements.next() );
+						}
+						break;
+					}
 				}
 				
 				sc.close();
 
-				return new Stereotype( visibilite, statique, lectureUnique, abstraite, type, nom, mere );
+				return s;
 			}
 			case "Attribut" ->
 			{

@@ -1,17 +1,15 @@
 @echo off
 
-rem Compilation
-javac @compile.list -d bin
-if %errorlevel% neq 0 (
-    echo La compilation a echoue.
-    exit /b 1
+javac @compile.list -d class
+if errorlevel 1 (
+	echo La compilation a échoué.
+	exit /b 1
 )
 
-rem Execution
 java -cp bin src.Controleur
-if %errorlevel% neq 0 (
-    echo L'execution a echoue.
-    exit /b 1
+if errorlevel 1 (
+	echo L'exécution a échoué.
+	exit /b 1
 )
 
-echo L'execution s'est terminee avec succes.
+echo L'exécution s'est terminée avec succès.

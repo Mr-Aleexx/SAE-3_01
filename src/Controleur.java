@@ -49,7 +49,7 @@ public class Controleur
 	{
 		Controleur ctrl = new Controleur();
 
-		ctrl.ouvrirFichier("./tests/Disque.java");
+		ctrl.ouvrirFichier("./tests/Commentaires.java");
 		
 		//ctrl.ouvrirDossier("./tests");
 	}

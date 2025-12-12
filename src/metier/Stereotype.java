@@ -207,7 +207,7 @@ public class Stereotype
 		{
 			sRet += this.getNom() + " implemente ";
 			for ( String s : this.lstImplementations )
-				sRet += s + " ,";
+				sRet += s + ",";
 			sRet = sRet.substring( 0, sRet.length()-2 ) + "\n";
 		}
 			
