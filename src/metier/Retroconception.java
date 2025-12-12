@@ -1,28 +1,39 @@
 package src.metier;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Retroconception
 {
-	private List<Classe>  lstClasse;
+	private List<Classe>  lstClasses;
 	private List<Association> lstAssociations;
 	
 	public Retroconception()
 	{
-		this.lstClasse   = new ArrayList<Classe> ();
+		this.lstClasses      = new ArrayList<Classe>     ();
 		this.lstAssociations = new ArrayList<Association>();
 	}
+	
+	public List<Classe>      getLstClasses     () { return this.lstClasses;      }
+	public List<Association> getLstAssociations() { return this.lstAssociations; }
 	
 	/**
 	 * Ouvre un dossier avec son chemin passé en paramètre
 	 * @param cheminDossier Chemoin vers le dossier
-	 */
+	*/
 	public void ouvrirDossier(String cheminDossier)
 	{
-		this.lstClasse = AnalyseurJava.analyserDossier(cheminDossier);
+		File dossier = new File(cheminDossier);
+		ArrayList<Classe> lstClasses = new ArrayList<Classe>();
 		
-		this.creationAssociation();
+		File[] lstFichier = dossier.listFiles();
+		
+		for (File fichier : lstFichier)
+			if (fichier.getName().contains(".java"))
+				lstClasses.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
+			
+		this.creationAssociation();		
 	}
 
 	/**
@@ -45,11 +56,11 @@ public class Retroconception
 	{
 		List<Association> lstAssociationTmp = new ArrayList<>();
 		
-		for (Classe Classe1 : this.lstClasse) 
+		for (Classe Classe1 : this.lstClasses) 
 		{
 			for (Attribut attribut : Classe1.getAttributs()) 
 			{
-				for (Classe Classe2 : this.lstClasse)
+				for (Classe Classe2 : this.lstClasses)
 				{
 					if(!Classe1.getNom().equals(Classe2.getNom()))
 					{
@@ -137,7 +148,7 @@ public class Retroconception
 	{
 		String sRet = "";
 
-		for ( Classe s : this.lstClasse )
+		for ( Classe s : this.lstClasses )
 			sRet += s.toString() + "\n";
 
 		sRet += "Associations:\n";
@@ -146,11 +157,11 @@ public class Retroconception
 			sRet +="Association " + (i + 1) + ": " + this.lstAssociations.get(i).toString() + "\n";
 
 		sRet += "Heritage:\n";
-		for ( Classe stereo : this.lstClasse )
+		for ( Classe stereo : this.lstClasses )
 			if( stereo.getMere() != null ) sRet += stereo.getNom() + " hérite de " + stereo.getMere();
 
 		sRet += "\nImplements:\n";
-		for ( Classe stereo : this.lstClasse )
+		for ( Classe stereo : this.lstClasses )
 			if( ! stereo.getLstImplementations().isEmpty() )
 			{
 				sRet += stereo.getNom() + " implemente ";

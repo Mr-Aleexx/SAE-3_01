@@ -1,5 +1,8 @@
 package src;
 
+import java.util.List;
+import src.metier.Association;
+import src.metier.Classe;
 import src.metier.Retroconception;
 
 public class Controleur
@@ -10,6 +13,11 @@ public class Controleur
 	{
 		this.metier = new Retroconception();
 	}
+
+	/* --------------------------------------- geteurs --------------------------------------- */
+
+	public List<Classe>      getLstClasses     () { return this.metier.getLstClasses();      }
+	public List<Association> getLstAssociations() { return this.metier.getLstAssociations(); }
 
 	public void ouvrirDossier(String cheminDossier)
 	{
