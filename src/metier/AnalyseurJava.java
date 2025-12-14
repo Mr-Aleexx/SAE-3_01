@@ -16,7 +16,7 @@ import java.util.Scanner;
 public class AnalyseurJava
 {
 	private static final String[] ENS_VISI = new String[] { "public", "private", "protected" };
-	private static final String[] ENS_STER = new String[] { "interface", "enum", "record" };
+	private static final String[] ENS_STER = new String[] { "interface", "enum", "record"    };
 
 	/**
 	 * Retourne un Objet Classe à partir d'un fichier java
@@ -26,6 +26,52 @@ public class AnalyseurJava
 	 * @return
 	 */
 	public static Classe analyserFichier(String fichier)
+	{
+		Scanner  sc;
+		String   ligne;
+		Classe   classe = null;
+		Attribut attribut;
+		Methode  methode;
+
+		sc = new Scanner( AnalyseurJava.nettoyerFichier( fichier ) );
+		sc.useDelimiter("\\n");
+
+		while ( sc.hasNext())
+		{
+			ligne = sc.next();
+
+			// Classe
+			if ( ligne.contains( "class" ) )
+				classe = (Classe) AnalyseurJava.initAll("class", "", ligne);
+
+			// Stereotypes
+			for (String ster : AnalyseurJava.ENS_STER)
+				if (ligne.contains(ster) )
+					classe = (Classe) AnalyseurJava.initAll( ster, "", ligne);
+
+			if ( ligne.contains("record") )
+				continue;
+			
+			// Methode ( gestion des methodes abstract et des attributs static qui s'ignitialise avec une methode )
+			if ( ligne.contains("(") && !ligne.contains("=") )
+			{
+				methode = (Methode) AnalyseurJava.initAll( "methode", classe.getNom(), ligne );
+				classe.ajouterMethode(methode);
+			}
+
+			// Attributs
+			else if ( ligne.contains(";") )
+			{
+				attribut = (Attribut) AnalyseurJava.initAll( "attribut", classe.getNom(), ligne );
+				classe.ajouterAttribut(attribut);
+			}
+		}
+		sc.close();
+
+		return classe;
+	}
+
+	private static String nettoyerFichier( String fichier )
 	{
 		/*
 		 * Première Lecture : enleve les commentaire et les corps des méthodes
@@ -37,7 +83,7 @@ public class AnalyseurJava
 		List<Boolean> niveauAcolade      = new ArrayList<Boolean>();
 		try
 		{
-			sc = new Scanner(new FileInputStream(fichier), "UTF8");
+			sc = new Scanner(new FileInputStream( fichier ), "UTF8");
 			while (sc.hasNextLine())
 			{
 				ligne = sc.nextLine().trim();
@@ -47,63 +93,59 @@ public class AnalyseurJava
 				/* ------------------------ */
 
 				// Le commentaire //
-				if (ligne.contains("//"))
-				{
-					ligne = ligne.substring(0, ligne.indexOf("//"));
-				}
+				if (ligne.contains("//")) ligne = ligne.substring( 0, ligne.indexOf("//") );
 
 				// Verif de si on est a la fin commentaire */
-				if (estDansCommentaire && ligne.contains("*/"))
+				if ( estDansCommentaire && ligne.contains("*/") )
 				{
-					ligne = ligne.substring(ligne.indexOf("*/") + 2);
+					ligne = ligne.substring( ligne.indexOf("*/") + 2) ;
 					estDansCommentaire = false;
 				}
 
 				// Verif si on est dans un commentaire /* */ et on passe a la
 				// prochaine itération
-				if (estDansCommentaire)
-					continue;
+				if ( estDansCommentaire ) continue;
 
 				// Le commentaire /* */ sur la même ligne
-				if (ligne.contains("/*") && ligne.contains("*/"))
-					ligne = ligne.substring(0, ligne.indexOf("/*")) + ligne.substring(ligne.indexOf("*/") + 2);
+				if ( ligne.contains("/*") && ligne.contains("*/") )
+					ligne = ligne.substring( 0, ligne.indexOf("/*") ) +
+					        ligne.substring( ligne.indexOf("*/") + 2 );
 
 				// Verif de si on commence un commentaire /*
-				if (ligne.contains("/*"))
+				if ( ligne.contains("/*") )
 				{
-					ligne = ligne.substring(0, ligne.indexOf("/*"));
+					ligne = ligne.substring( 0, ligne.indexOf("/*") );
 					estDansCommentaire = true;
 				}
 
 				// Enleve la documentation Java doc avec les overides...
-				// en partant du principe qu'elle n'est pas sur la même ligne
-				if (ligne.contains("@"))
-					continue;
+				// en partant du principe qu'elle n'est pas sur la même ligne que le code
+				if ( ligne.contains("@") ) continue;
 
 				/* ------------------------------- */
 				/* Gestion des imports et packages */
 				/* ------------------------------- */
 
-				if (ligne.contains("import"))
-					ligne = ligne.substring(0, ligne.indexOf("import")) + ligne.substring(ligne.indexOf(";") + 1);
+				if ( ligne.contains("import") ) ligne = ligne.substring( 0, ligne.indexOf("import") ) + 
+				                                        ligne.substring( ligne.indexOf(";") + 1 );
 
-				if (ligne.contains("package"))
-					ligne = ligne.substring(0, ligne.indexOf("package")) + ligne.substring(ligne.indexOf(";") + 1);
+				if ( ligne.contains("package") ) ligne = ligne.substring( 0, ligne.indexOf("package") ) + 
+				                                         ligne.substring( ligne.indexOf(";") +  1) ;
 
 				/* ----------------------------- */
 				/* Gestion des corps de méthodes */
 				/* ----------------------------- */
 
-				// On déclare une liste de boolean pour gérer si il y a
-				// plusieurs classes et la declaration de methode locale
-				// et les bloc d'initialisations d'attributs
-
 				// Enleve les methode écrite sur 1 ligne
-				if (ligne.contains("{") && ligne.contains("}"))
-					ligne = ligne.substring(0, ligne.indexOf("{")) + ligne.substring(ligne.indexOf("}") + 1);
+				if ( ligne.contains("{") && ligne.contains("}") )
+					ligne = ligne.substring( 0, ligne.indexOf("{") ) +
+					        ligne.substring( ligne.indexOf("}") + 1 );
 
-				if (ligne.contains("{"))
-					niveauAcolade.add(true);
+				// On déclare une liste de boolean pour gérer le niveau d'acolade, soit si il y a
+				// plusieurs classes ou une declaration de methode locale
+				// ou les bloc d'initialisations d'attributs
+				
+				if (ligne.contains("{")) niveauAcolade.add(true);
 
 				if (ligne.contains("}"))
 				{
@@ -125,51 +167,8 @@ public class AnalyseurJava
 			sc.close();
 		}
 		catch (FileNotFoundException e){}
-		// System.out.println(fichierClean);
 
-		/* ------------------ */
-		/* Creation du Classe */
-		/* ------------------ */
-		Classe   classe = null;
-		Attribut attribut;
-		Methode  methode;
-
-		sc = new Scanner(fichierClean);
-		sc.useDelimiter("\\n");
-
-		while (sc.hasNext())
-		{
-			ligne = sc.next();
-
-			// Classe
-			if ( ligne.contains( "class" ) )
-				classe = (Classe) AnalyseurJava.initAll("class", "", ligne);
-
-			// Stereotypes
-			for (String ster : AnalyseurJava.ENS_STER)
-				if (ligne.contains(ster) )
-					classe = (Classe) AnalyseurJava.initAll( ster, "", ligne);
-
-			if ( ligne.contains("record") )
-				continue;
-			
-			// Methode ( gestion des methodes abstract )
-			if ( ligne.contains("(") && !ligne.contains("="))
-			{
-				methode = (Methode) AnalyseurJava.initAll("methode", classe.getNom(), ligne);
-				classe.ajouterMethode(methode);
-			}
-
-			// Attributs
-			else if (ligne.contains(";"))
-			{
-				attribut = (Attribut) AnalyseurJava.initAll("attribut", classe.getNom(), ligne);
-				classe.ajouterAttribut(attribut);
-			}
-		}
-		sc.close();
-
-		return classe;
+		return fichierClean;
 	}
 
 	private static Object initAll(String typeInit, String nomClasse, String ligne)

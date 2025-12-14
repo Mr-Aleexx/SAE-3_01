@@ -1,6 +1,4 @@
 package src.metier;
-
-
 /**
  * Représentation des attributs d'une classe
  * 

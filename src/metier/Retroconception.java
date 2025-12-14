@@ -106,13 +106,15 @@ public class Retroconception
 			Association association1 = lstAssociationTmp.get(i);
 			Association association2 = null;
 
-			for (int j = i + 1; j < lstAssociationTmp.size(); j++) {
+			for (int j = i + 1; j < lstAssociationTmp.size(); j++)
+			{
 				if (used[j]) continue;
 				
 				Association candidate = lstAssociationTmp.get(j);
 
 				if (association1.getClasse1()== candidate.getClasse2() &&
-					association1.getClasse2()== candidate.getClasse1()) {
+					association1.getClasse2()== candidate.getClasse1()    )
+				{
 
 					association2 = candidate;
 					used[j] = true;
@@ -133,10 +135,6 @@ public class Retroconception
 				                                     association1.getMultiplicite(),"0..*"));
 			}
 		}
-	}
-
-	public List<Association> getLsAssociations() {
-		return getLsAssociations();
 	}
 
 	public void printLstAssociation() {
