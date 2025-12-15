@@ -46,10 +46,6 @@ public class IHMCUI
 		String  nom; 
 		boolean lectureUnique;
 
-		System.out.print("Taille de la list :  ");
-		System.out.println(this.ctrl.getLstClasses().size());
-		//Prévérification de taille
-
 		
 		for ( Classe classe : this.ctrl.getLstClasses() )
 		{

@@ -72,7 +72,7 @@ public class AnalyseurJava
 		 */
 		Scanner      sc;
 		String       ligne;
-		List<String> fichierClean        = new ArrayList<String>();
+		List<String> fichierClean       = new ArrayList<String>();
 		boolean      estDansCommentaire = false;
 		int          niveauAcolade      = 0;
 		try
