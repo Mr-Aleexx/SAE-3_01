@@ -70,15 +70,15 @@ public class AnalyseurJava
 		/*
 		 * Première Lecture : enleve les commentaire et les corps des méthodes
 		 */
-		Scanner       sc;
-		String        ligne;
+		Scanner      sc;
+		String       ligne;
 		List<String> fichierClean        = new ArrayList<String>();
-		boolean       estDansCommentaire = false;
-		List<Boolean> niveauAcolade      = new ArrayList<Boolean>();
+		boolean      estDansCommentaire = false;
+		int          niveauAcolade      = 0;
 		try
 		{
-			sc = new Scanner(new FileInputStream( fichier ), "UTF8");
-			while (sc.hasNextLine())
+			sc = new Scanner( new FileInputStream( fichier ), "UTF8" );
+			while ( sc.hasNextLine() )
 			{
 				ligne = sc.nextLine().trim();
 
@@ -87,7 +87,7 @@ public class AnalyseurJava
 				/* ------------------------ */
 
 				// Le commentaire //
-				if (ligne.contains("//")) ligne = ligne.substring( 0, ligne.indexOf("//") );
+				if ( ligne.contains("//") ) ligne = ligne.substring( 0, ligne.indexOf("//") );
 
 				// Verif de si on est a la fin commentaire */
 				if ( estDansCommentaire && ligne.contains("*/") )
@@ -102,8 +102,8 @@ public class AnalyseurJava
 
 				// Le commentaire /* */ sur la même ligne
 				if ( ligne.contains("/*") && ligne.contains("*/") )
-					ligne = ligne.substring( 0, ligne.indexOf("/*") ) +
-					        ligne.substring( ligne.indexOf("*/") + 2 );
+					ligne = ligne.substring( 0, ligne.indexOf("/*")     ) +
+					        ligne.substring(    ligne.indexOf("*/") + 2 );
 
 				// Verif de si on commence un commentaire /*
 				if ( ligne.contains("/*") )
@@ -120,11 +120,11 @@ public class AnalyseurJava
 				/* Gestion des imports et packages */
 				/* ------------------------------- */
 
-				if ( ligne.contains("import") ) ligne = ligne.substring( 0, ligne.indexOf("import") ) + 
-				                                        ligne.substring( ligne.indexOf(";") + 1 );
+				if ( ligne.contains("import") ) ligne = ligne.substring( 0, ligne.indexOf("import")      ) +
+				                                        ligne.substring(    ligne.indexOf(";"     ) + 1  );
 
-				if ( ligne.contains("package") ) ligne = ligne.substring( 0, ligne.indexOf("package") ) + 
-				                                         ligne.substring( ligne.indexOf(";") +  1) ;
+				if ( ligne.contains("package") ) ligne = ligne.substring( 0, ligne.indexOf("package")      ) +
+				                                         ligne.substring(    ligne.indexOf(";"      ) +  1 );
 
 				/* ----------------------------- */
 				/* Gestion des corps de méthodes */
@@ -132,31 +132,31 @@ public class AnalyseurJava
 
 				// Enleve les methode écrite sur 1 ligne
 				if ( ligne.contains("{") && ligne.contains("}") )
-					ligne = ligne.substring( 0, ligne.indexOf("{") ) +
-					        ligne.substring( ligne.indexOf("}") + 1 );
+					ligne = ligne.substring( 0, ligne.indexOf("{")     ) +
+					        ligne.substring(    ligne.indexOf("}") + 1 );
 
 				// On déclare une liste de boolean pour gérer le niveau d'acolade, soit si il y a
 				// plusieurs classes ou une declaration de methode locale
 				// ou les bloc d'initialisations d'attributs
 				
-				if (ligne.contains("{")) niveauAcolade.add(true);
+				if ( ligne.contains("{") ) niveauAcolade++;
 
-				if (ligne.contains("}"))
+				if ( ligne.contains("}") )
 				{
-					niveauAcolade.remove(0);
-					ligne = "";
+					niveauAcolade--;
+					continue;
 				}
 
 				// Pour le format R&K
-				if (niveauAcolade.size() >= 2 && !ligne.contains("{"))
-					ligne = "";
+				if ( niveauAcolade >= 2 && !ligne.contains("{") ) continue;
 
 				// Enleve les acolade en trop
 				ligne = ligne.replace("{", "");
 
 				// Enleve les lignes vides
-				if (!ligne.equals(""))
-					fichierClean.add(ligne);
+				if ( ligne.equals("") ) continue;
+				
+				fichierClean.add(ligne);
 			}
 			sc.close();
 		}
