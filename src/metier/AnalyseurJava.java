@@ -21,44 +21,43 @@ public class AnalyseurJava
 	/**
 	 * Retourne un Objet Classe à partir d'un fichier java
 	 * 
-	 * @param fichier
-	 *            nom du fichier
+	 * @param fichier nom du fichier
 	 * @return
 	 */
 	public static Classe analyserFichier(String fichier)
 	{
-		Scanner  sc;
 		Classe   classe = null;
 		Attribut attribut;
 		Methode  methode;
 
 		for ( String ligne : AnalyseurJava.nettoyerFichier( fichier ) )
 		{
-
-			// Classe
-			if ( ligne.contains( "class" ) )
-				classe = (Classe) AnalyseurJava.initAll("class", "", ligne);
-
-			// Stereotypes
-			for (String ster : AnalyseurJava.ENS_STER)
-				if (ligne.contains(ster) )
-					classe = (Classe) AnalyseurJava.initAll( ster, "", ligne);
-
-			if ( ligne.contains("record") )
-				continue;
-			
-			// Methode ( gestion des methodes abstract et des attributs static qui s'ignitialise avec une methode )
-			if ( ligne.contains("(") && !ligne.contains("=") )
+			if ( classe == null )
 			{
-				methode = (Methode) AnalyseurJava.initAll( "methode", classe.getNom(), ligne );
-				classe.ajouterMethode(methode);
+				// Classe
+				if ( ligne.contains( "class" ) )
+					classe = (Classe) AnalyseurJava.initAll("class", "", ligne);
+				// Stereotypes
+				for (String ster : AnalyseurJava.ENS_STER)
+					if (ligne.contains(ster) )
+						classe = (Classe) AnalyseurJava.initAll( ster, "", ligne);
 			}
-
-			// Attributs
-			else if ( ligne.contains(";") )
+			else
 			{
-				attribut = (Attribut) AnalyseurJava.initAll( "attribut", classe.getNom(), ligne );
-				classe.ajouterAttribut(attribut);
+				// Attributs
+				if ( ligne.contains(";") )
+				{
+					attribut = (Attribut) AnalyseurJava.initAll( "attribut", classe.getNom(), ligne );
+					classe.ajouterAttribut(attribut);
+				}
+				
+				// Le else est obliger pour eviter les initialisation d'attribut par l'appel de methode
+				else if ( ligne.contains("(") )
+				{
+					methode = (Methode) AnalyseurJava.initAll( "methode", classe.getNom(), ligne );
+					classe.ajouterMethode(methode);
+				}
+				
 			}
 		}
 
@@ -92,7 +91,7 @@ public class AnalyseurJava
 				// Verif de si on est a la fin commentaire */
 				if ( estDansCommentaire && ligne.contains("*/") )
 				{
-					ligne = ligne.substring( ligne.indexOf("*/") + 2) ;
+					ligne = ligne.substring( ligne.indexOf("*/") + 2 ) ;
 					estDansCommentaire = false;
 				}
 
@@ -150,11 +149,23 @@ public class AnalyseurJava
 				// Pour le format R&K
 				if ( niveauAcolade >= 2 && !ligne.contains("{") ) continue;
 
+				/* --------------- */
+				/* Autres Gestions */
+				/* --------------- */
+
 				// Enleve les acolade en trop
 				ligne = ligne.replace("{", "");
 
 				// Enleve les lignes vides
 				if ( ligne.equals("") ) continue;
+
+				// Enleve les ";" des methode abstract pour faciliter la lecture
+				if ( ligne.contains( "(" ) && ligne.contains( ";" ) )
+					ligne = ligne.replace( ";" , "" );
+
+				/* ----------------- */
+				/* Ajout de la ligne */
+				/* ----------------- */
 				
 				fichierClean.add(ligne);
 			}
@@ -162,8 +173,11 @@ public class AnalyseurJava
 		}
 		catch (FileNotFoundException e){}
 
+		for ( String s : fichierClean )
+			System.out.println( s );
 		return fichierClean;
 	}
+
 
 	private static Object initAll(String typeInit, String nomClasse, String ligne)
 	{
@@ -424,4 +438,5 @@ public class AnalyseurJava
 			}
 		}
 	}
+	//private Attribut initAttribut()
 }

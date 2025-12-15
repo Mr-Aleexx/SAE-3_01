@@ -49,17 +49,18 @@ public class Controleur
 	{
 		Controleur ctrl = new Controleur();
 
-		long startTime = System.currentTimeMillis();
+		// long startTime = System.currentTimeMillis();
 
-		for ( int cpt = 0; cpt < 30; cpt++ )
-			ctrl.ouvrirDossier( "./data/" );
+		// for ( int cpt = 0; cpt < 30; cpt++ )
+		// 	ctrl.ouvrirDossier( "./data/" );
 
-		long endTime = System.currentTimeMillis();
+		// long endTime = System.currentTimeMillis();
 		
+		ctrl.ouvrirDossier( "./data/" );
 
 		System.out.println( ctrl.afficher() );
 
-		System.out.println("Durée d'exécution : " + (endTime - startTime) + " ms");
+		// System.out.println("Durée d'exécution : " + (endTime - startTime) + " ms");
 	}
 	
 }

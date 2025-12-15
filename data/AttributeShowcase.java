@@ -24,12 +24,12 @@ public class AttributeShowcase {
     protected List<String>[] arrayOfLists;   // tableau générique (edge case)
 
     // ----- 4. Types génériques -----
-    private List<String> list;
-    public Map<String, Integer> scoreMap;
+    private   List<String> list;
+    public    Map<String, Integer> scoreMap;
     protected Set<Double> scoreSet = new HashSet<>();
-    private Map<String, List<Integer>> nestedGenerics;
-	private Map<String, String> listMap;
-    public Optional<String> optValue = Optional.empty();
+    private   Map<String,List<Integer>> nestedGenerics;
+	private   Map<String,String> listMap;
+    public    Optional<String> optValue = Optional.empty();
 
     // ----- 5. static, final, static final (constantes) -----
     public static int staticCounter;
