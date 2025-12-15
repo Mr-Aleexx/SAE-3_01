@@ -1,10 +1,10 @@
 package src;
 
 import java.util.List;
+import src.ihm.IHMCUI;
 import src.metier.Association;
 import src.metier.Classe;
 import src.metier.Retroconception;
-import src.ihm.IHMCUI;
 
 /**
  * Controleur de la classe qui lance le CUI pour l'instant
@@ -49,9 +49,17 @@ public class Controleur
 	{
 		Controleur ctrl = new Controleur();
 
-		ctrl.ouvrirDossier( "./data/" );
+		long startTime = System.currentTimeMillis();
+
+		for ( int cpt = 0; cpt < 30; cpt++ )
+			ctrl.ouvrirDossier( "./data/" );
+
+		long endTime = System.currentTimeMillis();
+		
 
 		System.out.println( ctrl.afficher() );
+
+		System.out.println("Durée d'exécution : " + (endTime - startTime) + " ms");
 	}
 	
 }

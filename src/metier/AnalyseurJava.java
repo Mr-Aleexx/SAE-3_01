@@ -28,17 +28,12 @@ public class AnalyseurJava
 	public static Classe analyserFichier(String fichier)
 	{
 		Scanner  sc;
-		String   ligne;
 		Classe   classe = null;
 		Attribut attribut;
 		Methode  methode;
 
-		sc = new Scanner( AnalyseurJava.nettoyerFichier( fichier ) );
-		sc.useDelimiter("\\n");
-
-		while ( sc.hasNext())
+		for ( String ligne : AnalyseurJava.nettoyerFichier( fichier ) )
 		{
-			ligne = sc.next();
 
 			// Classe
 			if ( ligne.contains( "class" ) )
@@ -66,19 +61,18 @@ public class AnalyseurJava
 				classe.ajouterAttribut(attribut);
 			}
 		}
-		sc.close();
 
 		return classe;
 	}
 
-	private static String nettoyerFichier( String fichier )
+	private static List<String> nettoyerFichier( String fichier )
 	{
 		/*
 		 * Première Lecture : enleve les commentaire et les corps des méthodes
 		 */
 		Scanner       sc;
 		String        ligne;
-		String        fichierClean       = "";
+		List<String> fichierClean        = new ArrayList<String>();
 		boolean       estDansCommentaire = false;
 		List<Boolean> niveauAcolade      = new ArrayList<Boolean>();
 		try
@@ -162,7 +156,7 @@ public class AnalyseurJava
 
 				// Enleve les lignes vides
 				if (!ligne.equals(""))
-					fichierClean += ligne + "\n";
+					fichierClean.add(ligne);
 			}
 			sc.close();
 		}
