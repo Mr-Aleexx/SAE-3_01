@@ -24,11 +24,6 @@ public class Attribut
 		this.nom           = nom;
 	}
 
-	public Attribut()
-	{
-		this( null, false, false, "", "" );
-	}
-
 	public String  getVisibilite   () { return this.visibilite;    }
 	public boolean estStatique     () { return this.statique;      }
 	public boolean estLectureUnique() { return this.lectureUnique; }

@@ -1,4 +1,4 @@
-public class Commentaires {
+public class Commentaires extends MNavet implements Professionnel, Communication {
 
 	/*
 	dazdzadazdazdazodjazda z
@@ -41,11 +41,11 @@ public class Commentaires {
 		this.b = b/*;/* */;
 	}
 
-	public static foo(int a, int b) {
+	public static int foo(int a, int b) {
 		return a;
 	}
 
-	public static foo2(int a, int b) {
+	public static int foo2(int a, int b) {
 		return a;
 	}
 

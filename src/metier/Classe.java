@@ -40,7 +40,7 @@ public class Classe
 	 * @param type Type de la classe
 	 * @param nom Nom de la classe
 	 */
-	public Classe(String visi, boolean statique, boolean lectureUnique, boolean abstraite, String stereotype, String nom, String mere)
+	public Classe(String visi, boolean statique, boolean lectureUnique, boolean abstraite, String stereotype, String nom )
 	{
 		this.visibilite         = visi;
 		this.statique           = statique;
@@ -51,7 +51,7 @@ public class Classe
 		this.attributs          = new ArrayList<Attribut>  ();
 		this.methodes           = new ArrayList<Methode>   ();
 		this.ClassesInterne     = new ArrayList<Classe>();
-		this.mere               = mere;
+		this.mere               = null;
 		this.lstImplementations = new ArrayList<String>();
 
 	}

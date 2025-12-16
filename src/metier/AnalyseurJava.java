@@ -30,38 +30,159 @@ public class AnalyseurJava
 		Attribut attribut;
 		Methode  methode;
 
+		/* Caractéristiques des Classes, attributs et methodes */
+		String  visibilite;
+		boolean statique;
+		boolean lectureUnique;
+		boolean abstraite;
+		String  stereotype;
+		String  nom;
+		String  type;
+		String  mere;
+
+		/* Variables Utilitaires */
+		Scanner sc;
+		boolean aGeneralization;
+		int     index;
+		List<String> lstAttribut;
+
 		for ( String ligne : AnalyseurJava.nettoyerFichier( fichier ) )
 		{
+			visibilite    = "package";
+			statique      = false;
+			lectureUnique = false;
+			abstraite     = false;
+			stereotype    = "class";
+			nom           = "";
+			mere          = null;
+
+			sc = new Scanner(ligne);
+			sc.useDelimiter("\\s+");
+
+			String mot = sc.next();
+
+			// Gere la visibilite de la ligne qui par default est a package
+			for (String visi : AnalyseurJava.ENS_VISI)
+				if ( mot.equals(visi) ) visibilite = visi;
+
+			// Gere les combinaisons des static, final et abstract possibles
+			aGeneralization = false;
+			while ( sc.hasNext() )
+			{
+				if ( aGeneralization || ! visibilite.equals("package") ) mot = sc.next();
+
+				aGeneralization = false;
+
+				if ( mot.equals( "static"   ) ) statique      = aGeneralization = true;
+				if ( mot.equals( "final"    ) ) lectureUnique = aGeneralization = true;
+				if ( mot.equals( "abstract" ) ) abstraite     = aGeneralization = true;
+
+				if ( ! aGeneralization ) break;
+			}
+			
 			if ( classe == null )
 			{
-				// Classe
-				if ( ligne.contains( "class" ) )
-					classe = (Classe) AnalyseurJava.initAll("class", "", ligne);
 				// Stereotypes
 				for (String ster : AnalyseurJava.ENS_STER)
-					if (ligne.contains(ster) )
-						classe = (Classe) AnalyseurJava.initAll( ster, "", ligne);
+					if ( mot.equals( ster ) ) stereotype = ster;
+
+				nom = sc.next();
+
+				classe = new Classe( visibilite, statique, lectureUnique, abstraite, null, nom );
+
+				if ( sc.hasNext() ) AnalyseurJava.gereExtendsImplements( classe, sc, ligne );
 			}
 			else
 			{
 				// Attributs
 				if ( ligne.contains(";") )
 				{
-					attribut = (Attribut) AnalyseurJava.initAll( "attribut", classe.getNom(), ligne );
+					ligne = ligne.substring( ligne.indexOf( mot ) );
+
+					lstAttribut = AnalyseurJava.decomposeurType( ligne , ' ' );
+
+					type = lstAttribut.get(0);
+					nom  = lstAttribut.get(1).replace( ";" , "" );
+					System.out.println(nom + " TEST");
+
+					// gere le cas où on initialise l'attribut sans mettre d'espace au "="
+					if ( nom.contains( "=" ) ) nom = nom.substring( 0 , nom.indexOf( "=" ) );
+
+					attribut = new Attribut( visibilite, statique, lectureUnique, type, nom );
 					classe.ajouterAttribut(attribut);
 				}
 				
 				// Le else est obliger pour eviter les initialisation d'attribut par l'appel de methode
 				else if ( ligne.contains("(") )
 				{
-					methode = (Methode) AnalyseurJava.initAll( "methode", classe.getNom(), ligne );
+					// Recuperation du nom de la methode
+					index = mot.indexOf("(");
+					if (index != -1)
+						mot = mot.substring(0, index);
+
+					// Si c'est le controleur
+					if ( classe.getNom().equals(mot))
+					{
+						type = null;
+						nom = mot;
+					}
+					else
+					{
+						type = mot;
+
+						mot = sc.next();
+
+						index = mot.indexOf("(");
+						if (index != -1)
+							nom = mot.substring(0, index);
+					}
+
+					methode = new Methode(visibilite, statique, lectureUnique, abstraite, type, nom );
+
+					AnalyseurJava.gereParametres( methode , ligne );
+
 					classe.ajouterMethode(methode);
 				}
 				
 			}
+			sc.close();
 		}
 
 		return classe;
+	}
+
+	// Permet de gerer les types Hash avec plusieurs parametres dedanss
+	private static List<String> decomposeurType( String ligne, char delimiteur )
+	{
+		List<String> lstRet = new ArrayList<String>();
+		int          niveauChevron = 0;
+		String       res = "";
+		
+		for (int i = 0 ; i < ligne.length() ; i++ )
+		{
+			if ( ligne.charAt(i) == '<' ) niveauChevron ++;
+			if ( ligne.charAt(i) == '>' ) niveauChevron --;
+			
+			res += ligne.charAt(i);
+			
+			if( niveauChevron == 0 && ligne.charAt(i) == delimiteur )
+			{
+				res = res.trim();
+
+				if ( ! res.equals("") )
+				{
+					// Gere le cas ou il y a des espace entre le type et le "<"
+					if ( res.charAt(0) == '<' )
+						lstRet.add( lstRet.remove( lstRet.size() - 1 ) + res );
+					
+					lstRet.add( res );
+				}
+				res = "";
+			}
+		}
+		lstRet.add(res);
+		
+		return lstRet;
 	}
 
 	private static List<String> nettoyerFichier( String fichier )
@@ -79,7 +200,7 @@ public class AnalyseurJava
 			sc = new Scanner( new FileInputStream( fichier ), "UTF8" );
 			while ( sc.hasNextLine() )
 			{
-				ligne = sc.nextLine().trim();
+				ligne = sc.nextLine();
 
 				/* ------------------------ */
 				/* Gestion des commentaires */
@@ -156,12 +277,12 @@ public class AnalyseurJava
 				// Enleve les acolade en trop
 				ligne = ligne.replace("{", "");
 
-				// Enleve les lignes vides
-				if ( ligne.equals("") ) continue;
-
 				// Enleve les ";" des methode abstract pour faciliter la lecture
 				if ( ligne.contains( "(" ) && ligne.contains( ";" ) )
 					ligne = ligne.replace( ";" , "" );
+
+				// Enleve les lignes vides
+				if ( ligne.trim().equals("") ) continue;
 
 				/* ----------------- */
 				/* Ajout de la ligne */
@@ -170,273 +291,87 @@ public class AnalyseurJava
 				fichierClean.add(ligne);
 			}
 			sc.close();
+
+			// for ( String s : fichierClean )
+			// 	System.out.println(s);
 		}
 		catch (FileNotFoundException e){}
-
-		for ( String s : fichierClean )
-			System.out.println( s );
+		
 		return fichierClean;
 	}
 
-
-	private static Object initAll(String typeInit, String nomClasse, String ligne)
+	private static void gereParametres( Methode m, String ligne )
 	{
-		/* Caractéristiques des Classes, attributs et methodes */
-		String  visibilite    = "package";
-		boolean statique      = false;
-		boolean lectureUnique = false;
-		boolean abstraite     = false;
-		String  type          = "";
-		String  nom           = "";
-		String  mere          = null;
+		String  parametre = "";
+		Scanner sc;
+		String  mot, type, nom;
+		List<String> lstType, lstParametre;
 
-		/* Variables Utilitaires */
-		boolean aGeneralization;
-		int index, indexAvt, indexAps;
-		String parametre = "";
-		Classe classe = null;
+		int indexAvt = ligne.indexOf("(");
+		int indexAps = ligne.indexOf(")");
+		if (indexAvt != -1 && indexAps != -1)
+			parametre = ligne.substring(indexAvt + 1, indexAps);
 
-		Scanner sc = new Scanner(ligne);
-		sc.useDelimiter("\\s+");
+		// Si sans paramètre
+		if (parametre.equals(""))
+			return;
 
-		String mot = sc.next();
-
-		// Gere la visibilite de la classe qui par default est a package
-		for (String visi : AnalyseurJava.ENS_VISI)
-			if (mot.equals(visi))
-				visibilite = visi;
-
-		// Gere les combinaisons des static, final et abstract possibles
-		aGeneralization = false;
-		while (sc.hasNext())
+		// Cas ou 1 seul parametre
+		if ( ! parametre.contains(",") )
 		{
-			if (aGeneralization || !visibilite.equals("package"))
-				mot = sc.next();
+			
+			lstType = AnalyseurJava.decomposeurType( parametre , ' ' );
 
-			aGeneralization = false;
+			type = lstType.get(0);
+			nom  = lstType.get(1);
 
-			if ( mot.equals( "static"   ) ) statique      = aGeneralization = true;
-			if ( mot.equals( "final"    ) ) lectureUnique = aGeneralization = true;
-			if ( mot.equals( "abstract" ) ) abstraite     = aGeneralization = true;
+			m.ajouterParametres(new Parametre(type, nom));
 
-			if (!aGeneralization)
-				break;
+			return;
 		}
 
-		// Gere les classes, stereotypes, attributs, methodes
-		switch ( typeInit )
+		// Cas ou plusieurs parametres
+		lstParametre = AnalyseurJava.decomposeurType( parametre, ',' );
+
+		for ( String s : lstParametre )
 		{
-			case "class" ->
+			s = s.trim();
+			
+			lstType = AnalyseurJava.decomposeurType( s, ' ' );
+
+			type = lstType.get(0).replace(",", "");
+			nom  = lstType.get(1).replace(",", "");
+
+			m.ajouterParametres(new Parametre(type, nom));
+		}
+	}
+
+	private static void gereExtendsImplements( Classe c, Scanner sc, String ligne )
+	{
+		String mot, mere;
+
+		mot = sc.next();
+
+		if ( mot.equals("extends") )
+		{
+			mere = sc.next();
+			c.setMere( mere );
+
+			mot = sc.next();
+		}
+
+		if ( mot.equals("implements") )
+		{
+			int indexImplement = ligne.indexOf("implements") + "implements".length();
+
+			String detecteImplements = ligne.substring(indexImplement, ligne.length()).trim();
+			Scanner scImplements = new Scanner(detecteImplements);
+			scImplements.useDelimiter("\\,");
+
+			while (scImplements.hasNext())
 			{
-				mot = sc.next().replace("{", "");
-
-				nom = mot;
-
-				// Si la classe n'as pas de implements ni de extends
-				if (! ligne.contains( "implements" ) && ! ligne.contains( "extends" ) )
-					return new Classe(mot, statique, lectureUnique, abstraite, null, nom, null);
-
-				while (sc.hasNext())
-				{
-					mot = sc.next();
-
-					if (mot.equals("extends"))
-					{
-						mot = sc.next();
-						mere = mot;
-					}
-
-					classe = new Classe(visibilite, statique, lectureUnique, abstraite, null, nom, mere);
-
-					if (mot.equals("implements"))
-					{
-						int indexImplement = ligne.indexOf("implements") + "implements".length();
-
-						String detecteImplements = ligne.substring(indexImplement, ligne.length()).trim();
-						Scanner scImplements = new Scanner(detecteImplements);
-						scImplements.useDelimiter("\\,");
-
-						while (scImplements.hasNext())
-						{
-							classe.ajouterImplementations(scImplements.next());
-						}
-						break;
-					}
-				}
-
-				sc.close();
-
-				return classe;
-			}
-			case "record" ->
-			{
-				mot = sc.next().replace("{", "");
-
-				nom = mot;
-
-				indexAvt = ligne.indexOf("(");
-				indexAps = ligne.indexOf(")");
-				
-				parametre = ligne.substring(indexAvt + 1, indexAps);
-
-				classe = new Classe( mot, statique, lectureUnique, abstraite, "record", nom, null );
-
-				// Si sans paramètre
-				if ( parametre.equals("") )
-					return classe;
-
-				// Cas ou 1 seul parametre
-				if (!parametre.contains(","))
-				{
-					sc = new Scanner( parametre );
-					sc.useDelimiter("\\s+");
-
-					type = sc.next();
-					nom = sc.next();
-
-					// Les parametre des attributs d'un record sont private, pas statique et final
-					classe.ajouterAttribut( new Attribut( "private", false, true, type, nom ) );
-
-					return classe;
-				}
-
-				// Cas ou plusieurs parametres
-				Scanner scParametre = new Scanner(parametre);
-				scParametre.useDelimiter("\\,");
-
-				while (scParametre.hasNext())
-				{
-					mot = scParametre.next();
-
-					sc = new Scanner(mot);
-					sc.useDelimiter("\\s+");
-
-					type = sc.next();
-					nom = sc.next();
-
-					// Les parametre des attributs d'un record sont private, pas statique et final
-					classe.ajouterAttribut( new Attribut( "private", false, true, type, nom ) );
-				}
-
-				// Si la classe n'as pas de implements
-				if ( ! ligne.contains( "implements" ) )
-					return classe;
-
-				while (sc.hasNext())
-				{
-					mot = sc.next();
-
-					if (mot.equals("implements"))
-					{
-						int indexImplement = ligne.indexOf("implements") + "implements".length();
-
-						String  detecteImplements = ligne.substring(indexImplement, ligne.length()).trim();	
-						Scanner scImplements = new Scanner(detecteImplements);
-						scImplements.useDelimiter("\\,");
-
-						while (scImplements.hasNext())
-						{
-							classe.ajouterImplementations(scImplements.next());
-						}
-						break;
-					}
-				}
-
-				sc.close();
-
-				return classe;
-			}
-			case "enum" -> 
-			{
-				return null;
-			}
-			case "interface" ->
-			{
-				return null;
-			}
-			case "attribut" ->
-			{
-				type = mot;
-				nom = sc.next().replace(";", "");
-				sc.close();
-
-				return new Attribut(visibilite, statique, lectureUnique, type, nom);
-			}
-			case "methode" ->
-			{
-				// Recuperation du nom de la methode
-				index = mot.indexOf("(");
-				if (index != -1)
-					mot = mot.substring(0, index);
-
-				// Si c'est le controleur
-				if (nomClasse.equals(mot))
-				{
-					type = null;
-					nom = mot;
-				}
-				else
-				{
-					type = mot;
-
-					mot = sc.next();
-
-					index = mot.indexOf("(");
-					if (index != -1)
-						nom = mot.substring(0, index);
-				}
-
-				Methode m = new Methode(visibilite, statique, lectureUnique, abstraite, type, nom);
-
-				indexAvt = ligne.indexOf("(");
-				indexAps = ligne.indexOf(")");
-				if (indexAvt != -1 && indexAps != -1)
-					parametre = ligne.substring(indexAvt + 1, indexAps);
-
-				// Si sans paramètre
-				if (parametre.equals(""))
-					return m;
-
-				// Cas ou 1 seul parametre
-				if (!parametre.contains(","))
-				{
-					sc = new Scanner(parametre);
-					sc.useDelimiter("\\s+");
-
-					type = sc.next();
-					nom = sc.next();
-
-					m.ajouterParametres(new Parametre(type, nom));
-
-					return m;
-				}
-
-				// Cas ou plusieurs parametres
-
-				Scanner scParametre = new Scanner(parametre);
-				scParametre.useDelimiter("\\,");
-
-				while (scParametre.hasNext())
-				{
-					mot = scParametre.next();
-
-					sc = new Scanner(mot);
-					sc.useDelimiter("\\s+");
-
-					type = sc.next();
-					nom = sc.next();
-
-					m.ajouterParametres(new Parametre(type, nom));
-				}
-
-				return m;
-			}
-			default ->
-			{
-				System.err.println("Erreur du type de la ligne ( class, enum, attributs, methode ... )");
-				return null;
+				c.ajouterImplementations(scImplements.next().trim());
 			}
 		}
 	}
-	//private Attribut initAttribut()
 }

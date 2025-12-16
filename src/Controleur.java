@@ -57,6 +57,7 @@ public class Controleur
 		// long endTime = System.currentTimeMillis();
 		
 		ctrl.ouvrirDossier( "./data/" );
+		// ctrl.ouvrirFichier("./data/Abstract.java");
 
 		System.out.println( ctrl.afficher() );
 

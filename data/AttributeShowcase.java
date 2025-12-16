@@ -10,7 +10,13 @@ public class AttributeShowcase {
     private boolean privateBoolean;
     byte packagePrivateByte; // pas de modificateur = package-private
     private char letter = 'A';
-    public long bigNumber = 999999999L;
+    public long BIGNUMBER_BIGNUMBER = 999999999L;
+	
+	{ // bloc d'initialisation d'instance
+		x = 10;
+		s = "hello";
+		System.out.println("Bloc instance");
+	}
     private short smallNumber = 12;
 
     // ----- 2. Types objets -----
@@ -30,10 +36,11 @@ public class AttributeShowcase {
     private   Map<String,List<Integer>> nestedGenerics;
 	private   Map<String,String> listMap;
     public    Optional<String> optValue = Optional.empty();
+    public    Hashmap<String, HashMap<int, int>> hash;
 
     // ----- 5. static, final, static final (constantes) -----
     public static int staticCounter;
-    private static final String CONST_NAME = "TEST";
+    private static final String               CONST_NAME="TEST";
     protected final int instanceId = 123;
     static final double PI = 3.14159;
 
@@ -73,5 +80,21 @@ public class AttributeShowcase {
         this.list = new ArrayList<>();
         this.scoreMap = new HashMap<>();
         this.nestedGenerics = new HashMap<>();
+    }
+
+    public int test( Hashmap<String, HashMap<int, int>> a )
+    {
+
+    }
+
+	public static int fooHash1(int a, int b, Hashmap<String, HashMap<int, int>> hash) {
+		int capitalCities = 0;
+
+		return capitalCities;
+	}
+
+    public           static                  final                    int                   jsp1(                HashMap             <               int              ,           String        >         a,  HashMap    <    int    ,     String    >            b                 )
+    {
+        
     }
 }
