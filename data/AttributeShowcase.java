@@ -36,7 +36,7 @@ public class AttributeShowcase {
     private   Map<String,List<Integer>> nestedGenerics;
 	private   Map<String,String> listMap;
     public    Optional<String> optValue = Optional.empty();
-    public    Hashmap<String, HashMap<int, int>> hash;
+    public    Hashmap<String,HashMap<int,int>> hash;
 
     // ----- 5. static, final, static final (constantes) -----
     public static int staticCounter;
@@ -87,14 +87,19 @@ public class AttributeShowcase {
 
     }
 
-	public static int fooHash1(int a, int b, Hashmap<String, HashMap<int, int>> hash) {
+	public static int fooHash1(int a, int b, Hashmap  <  String alpha , HashMap  <  int a ,   int b >  > hash) {
 		int capitalCities = 0;
 
 		return capitalCities;
 	}
 
-    public           static                  final                    int                   jsp1(                HashMap             <               int              ,           String        >         a,  HashMap    <    int    ,     String    >            b                 )
-    {
-        
-    }
+    public static int fooHash2(int a,
+    int b,
+    int c,
+    int d, 
+    int e) {
+		int capitalCities = 0;
+
+		return capitalCities;
+	}
 }

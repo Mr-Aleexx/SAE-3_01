@@ -46,7 +46,7 @@ public class Retroconception
 
 	public void ouvrirFichier(String fichier)
 	{
-		AnalyseurJava.analyserFichier(fichier);
+		this.lstClasses.add(AnalyseurJava.analyserFichier(fichier));
 	}
 
 	

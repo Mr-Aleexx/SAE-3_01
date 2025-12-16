@@ -38,7 +38,6 @@ public class AnalyseurJava
 		String  stereotype;
 		String  nom;
 		String  type;
-		String  mere;
 
 		/* Variables Utilitaires */
 		Scanner sc;
@@ -52,9 +51,8 @@ public class AnalyseurJava
 			statique      = false;
 			lectureUnique = false;
 			abstraite     = false;
-			stereotype    = "class";
+			stereotype    = "";
 			nom           = "";
-			mere          = null;
 
 			sc = new Scanner(ligne);
 			sc.useDelimiter("\\s+");
@@ -86,9 +84,23 @@ public class AnalyseurJava
 				for (String ster : AnalyseurJava.ENS_STER)
 					if ( mot.equals( ster ) ) stereotype = ster;
 
-				nom = sc.next();
+				// Gere si les parametre sont collé au record
+				mot = sc.next();
 
-				classe = new Classe( visibilite, statique, lectureUnique, abstraite, null, nom );
+				index =  mot.indexOf( "(" );
+				if ( index != -1 ) mot = mot.substring( 0, index );
+
+				nom = mot;
+
+				classe = new Classe( visibilite, statique, lectureUnique, abstraite, stereotype, nom );
+
+				switch( stereotype )
+				{
+					case "record" ->
+					{
+						AnalyseurJava.gereRecord( classe, ligne );
+					}
+				}
 
 				if ( sc.hasNext() ) AnalyseurJava.gereExtendsImplements( classe, sc, ligne );
 			}
@@ -103,7 +115,6 @@ public class AnalyseurJava
 
 					type = lstAttribut.get(0);
 					nom  = lstAttribut.get(1).replace( ";" , "" );
-					System.out.println(nom + " TEST");
 
 					// gere le cas où on initialise l'attribut sans mettre d'espace au "="
 					if ( nom.contains( "=" ) ) nom = nom.substring( 0 , nom.indexOf( "=" ) );
@@ -113,7 +124,7 @@ public class AnalyseurJava
 				}
 				
 				// Le else est obliger pour eviter les initialisation d'attribut par l'appel de methode
-				else if ( ligne.contains("(") )
+				else if ( ligne.contains("(") && ! AnalyseurJava.estFonctionPredefinie(ligne) )
 				{
 					// Recuperation du nom de la methode
 					index = mot.indexOf("(");
@@ -151,40 +162,6 @@ public class AnalyseurJava
 		return classe;
 	}
 
-	// Permet de gerer les types Hash avec plusieurs parametres dedanss
-	private static List<String> decomposeurType( String ligne, char delimiteur )
-	{
-		List<String> lstRet = new ArrayList<String>();
-		int          niveauChevron = 0;
-		String       res = "";
-		
-		for (int i = 0 ; i < ligne.length() ; i++ )
-		{
-			if ( ligne.charAt(i) == '<' ) niveauChevron ++;
-			if ( ligne.charAt(i) == '>' ) niveauChevron --;
-			
-			res += ligne.charAt(i);
-			
-			if( niveauChevron == 0 && ligne.charAt(i) == delimiteur )
-			{
-				res = res.trim();
-
-				if ( ! res.equals("") )
-				{
-					// Gere le cas ou il y a des espace entre le type et le "<"
-					if ( res.charAt(0) == '<' )
-						lstRet.add( lstRet.remove( lstRet.size() - 1 ) + res );
-					
-					lstRet.add( res );
-				}
-				res = "";
-			}
-		}
-		lstRet.add(res);
-		
-		return lstRet;
-	}
-
 	private static List<String> nettoyerFichier( String fichier )
 	{
 		/*
@@ -194,6 +171,7 @@ public class AnalyseurJava
 		String       ligne;
 		List<String> fichierClean       = new ArrayList<String>();
 		boolean      estDansCommentaire = false;
+		boolean      estDansParametre   = false;
 		int          niveauAcolade      = 0;
 		try
 		{
@@ -270,6 +248,21 @@ public class AnalyseurJava
 				// Pour le format R&K
 				if ( niveauAcolade >= 2 && !ligne.contains("{") ) continue;
 
+				/* ------------------------------------------------------- */
+				/* Gestion des parametres de methodes sur plusieurs lignes */
+				/* ------------------------------------------------------- */
+
+				if (estDansParametre)
+				{
+					if (ligne.contains(")"))
+						estDansParametre = false;
+
+					ligne = fichierClean.remove(fichierClean.size() - 1) + ligne;
+				}
+
+				if ( ligne.contains("(") && !ligne.contains(")") )
+					estDansParametre = true;
+
 				/* --------------- */
 				/* Autres Gestions */
 				/* --------------- */
@@ -291,35 +284,63 @@ public class AnalyseurJava
 				fichierClean.add(ligne);
 			}
 			sc.close();
-
-			// for ( String s : fichierClean )
-			// 	System.out.println(s);
 		}
 		catch (FileNotFoundException e){}
 		
 		return fichierClean;
 	}
 
+	// Permet de gerer les types Hash avec plusieurs parametres dedanss
+	public static List<String> decomposeurType( String ligne, char delimiteur )
+	{
+		List<String> lstRet = new ArrayList<String>();
+		int          niveauChevron = 0;
+		String       res = "";
+		
+		for (int i = 0 ; i < ligne.length() ; i++ )
+		{
+			if ( ligne.charAt(i) == '<' ) niveauChevron ++;
+			if ( ligne.charAt(i) == '>' ) niveauChevron --;
+			
+			res += ligne.charAt(i);
+			
+			if( niveauChevron == 0 && ligne.charAt(i) == delimiteur )
+			{
+				res = res.trim();
+
+				if ( ! res.equals("") )
+				{
+					// Gere le cas ou il y a des espace entre le type et le "<"
+					if ( res.charAt(0) == '<' )
+						lstRet.add( lstRet.remove( lstRet.size() - 1 ) + res );
+					else
+						lstRet.add( res );
+				}
+				res = "";
+			}
+		}
+		// Ajoute la derniere iteration
+		if ( ! res.equals("") ) lstRet.add(res);
+		
+		return lstRet;
+	}
+
 	private static void gereParametres( Methode m, String ligne )
 	{
-		String  parametre = "";
-		Scanner sc;
-		String  mot, type, nom;
+		String       type, nom;
 		List<String> lstType, lstParametre;
 
-		int indexAvt = ligne.indexOf("(");
-		int indexAps = ligne.indexOf(")");
-		if (indexAvt != -1 && indexAps != -1)
-			parametre = ligne.substring(indexAvt + 1, indexAps);
+		String parametre = ligne.substring( ligne.indexOf("(") + 1, ligne.indexOf(")") );
 
 		// Si sans paramètre
 		if (parametre.equals(""))
 			return;
 
+		lstParametre = AnalyseurJava.decomposeurType( parametre, ',' );
+
 		// Cas ou 1 seul parametre
-		if ( ! parametre.contains(",") )
+		if ( lstParametre.size() == 1 )
 		{
-			
 			lstType = AnalyseurJava.decomposeurType( parametre , ' ' );
 
 			type = lstType.get(0);
@@ -331,7 +352,7 @@ public class AnalyseurJava
 		}
 
 		// Cas ou plusieurs parametres
-		lstParametre = AnalyseurJava.decomposeurType( parametre, ',' );
+		
 
 		for ( String s : lstParametre )
 		{
@@ -373,5 +394,72 @@ public class AnalyseurJava
 				c.ajouterImplementations(scImplements.next().trim());
 			}
 		}
+	}
+
+	private static void gereRecord( Classe c, String ligne )
+	{
+		/* --------------------- */
+		/* Gestion des attributs */
+		/* --------------------- */
+		
+		String       type, nom;
+		Methode      methode;
+		List<String> lstType;
+		List<Parametre> lstParametres = new ArrayList<Parametre>();
+
+		String attributs = ligne.substring( ligne.indexOf( "(" ) + 1, ligne.indexOf( ")" ) );
+		List<String> lstAttributs = AnalyseurJava.decomposeurType( attributs , ',' );
+
+		System.out.println( lstAttributs.isEmpty() );
+
+		if ( lstAttributs.isEmpty() ) return;
+
+		for ( String s : lstAttributs )
+		{
+			lstType =  AnalyseurJava.decomposeurType( s , ' ' );
+
+			type = lstType.get(0);
+			nom  = lstType.get(1).replace( ",", "" );
+
+			c.ajouterAttribut( new Attribut( "private", false, true, type, nom) );
+			lstParametres.add( new Parametre( type, nom ) );
+		}
+
+		/* -------------------- */
+		/* Gestion des methodes */
+		/* -------------------- */
+
+		// Constructeur
+
+		if ( ! lstParametres.isEmpty() )
+		{
+			methode = new Methode( "public", false, false, false, null, c.getNom() );
+			methode.setParametres( lstParametres );
+
+			c.ajouterMethode( methode );
+		}
+
+		// Getters
+
+		List<Attribut> ensAttributs = c.getAttributs();
+		
+		if ( ! ensAttributs.isEmpty() )
+		{
+			for ( Attribut a : ensAttributs )
+			{
+				c.ajouterMethode( new Methode( "public", false, false, false, a.getType(),  a.getNom()  ) );
+			}
+		}
+
+		// Equals, HashCode, toString
+
+		c.ajouterMethode( new Methode("public", false, false, false, "boolean", "equals"  ) );
+		c.ajouterMethode( new Methode("public", false, false, false, "int"    , "hashCode") );
+		c.ajouterMethode( new Methode("public", false, false, false, "String" , "toString") );
+	}
+
+	private static boolean estFonctionPredefinie(String ligne)
+	{
+		return  ligne.contains ("equals") || ligne.contains ("hashCode" ) || ligne.contains ("toString" );
 	}
 }

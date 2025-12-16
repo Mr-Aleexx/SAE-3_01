@@ -5,6 +5,7 @@
 ./src/metier/Parametre.java
 ./src/metier/Retroconception.java
 ./src/metier/Classe.java
+./src/metier/CasParticuliers.java
 
 ./src/ihm/IHMCUI.java
 
