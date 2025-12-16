@@ -8,7 +8,7 @@ import java.util.List;
  * Mets en place la rétroconception des associations
  * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
- *         Martha, CONSTANTIN Alexis
+ *         Marta, CONSTANTIN Alexis
  * @version Etape 4
  * @since 08-12-2025
  */

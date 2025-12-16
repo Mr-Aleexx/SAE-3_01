@@ -3,8 +3,7 @@ package src.metier;
 /**
  * Représentation d'une association 
  * 
- * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
- *         Martha, CONSTANTIN Alexis
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Marta, CONSTANTIN Alexis
  * @version 1.0
  * @since 08-12-2025
  */

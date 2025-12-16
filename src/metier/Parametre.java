@@ -4,7 +4,7 @@ package src.metier;
  * Représentation des paramètres d'une méthode
  * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
- *         Martha, CONSTANTIN Alexis
+ *         Marta, CONSTANTIN Alexis
  * @version 1.0
  * @since 08-12-2025
  */

@@ -136,4 +136,8 @@ public class CasParticuliers {
 		}
 
 	}
+	public static boolean estFonctionPredefinie(String ligne)
+	{
+		return  ligne.contains ("equals") || ligne.contains ("hashCode" ) || ligne.contains ("toString" );
+	}
 }

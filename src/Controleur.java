@@ -10,7 +10,7 @@ import src.metier.Retroconception;
  * Controleur de la classe qui lance le CUI pour l'instant
  * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
- *         Martha, CONSTANTIN Alexis
+ *         Marta, CONSTANTIN Alexis
  * @version Etape 4
  * @since 08-12-2025
  */

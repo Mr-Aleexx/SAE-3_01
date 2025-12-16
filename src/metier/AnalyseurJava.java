@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 /**
  * Permet d'analyser un fichier java et d'en extraire :  Le nom de la classe, les attributs de la classe, les méthodes de la classe
- * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Martha, CONSTANTIN Alexis 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Marta, CONSTANTIN Alexis 
  * @version Etape 4
  * @since 08-12-2025
  */
@@ -20,7 +20,6 @@ public class AnalyseurJava
 
 	/**
 	 * Retourne un Objet Classe à partir d'un fichier java
-	 * 
 	 * @param fichier nom du fichier
 	 * @return
 	 */
@@ -98,11 +97,11 @@ public class AnalyseurJava
 				{
 					case "record" ->
 					{
-						AnalyseurJava.gereRecord( classe, ligne );
+						CasParticuliers.gereRecord( classe, ligne );
 					}
 				}
 
-				if ( sc.hasNext() ) AnalyseurJava.gereExtendsImplements( classe, sc, ligne );
+				if ( sc.hasNext() ) CasParticuliers.gereExtendsImplements( classe, sc, ligne );
 			}
 			else
 			{
@@ -124,7 +123,7 @@ public class AnalyseurJava
 				}
 				
 				// Le else est obliger pour eviter les initialisation d'attribut par l'appel de methode
-				else if ( ligne.contains("(") && ! AnalyseurJava.estFonctionPredefinie(ligne) )
+				else if ( ligne.contains("(") && ! CasParticuliers.estFonctionPredefinie(ligne) )
 				{
 					// Recuperation du nom de la methode
 					index = mot.indexOf("(");
@@ -150,7 +149,7 @@ public class AnalyseurJava
 
 					methode = new Methode(visibilite, statique, lectureUnique, abstraite, type, nom );
 
-					AnalyseurJava.gereParametres( methode , ligne );
+					CasParticuliers.gereParametres(methode, ligne);
 
 					classe.ajouterMethode(methode);
 				}
@@ -299,12 +298,14 @@ public class AnalyseurJava
 		
 		for (int i = 0 ; i < ligne.length() ; i++ )
 		{
-			if ( ligne.charAt(i) == '<' ) niveauChevron ++;
-			if ( ligne.charAt(i) == '>' ) niveauChevron --;
+			// Caractère en cours
+			char c = ligne.charAt(i);
+			if ( c == '<' ) niveauChevron ++;
+			if ( c == '>' ) niveauChevron --;
 			
-			res += ligne.charAt(i);
+			res += c;
 			
-			if( niveauChevron == 0 && ligne.charAt(i) == delimiteur )
+			if( niveauChevron == 0 && c == delimiteur )
 			{
 				res = res.trim();
 
@@ -323,143 +324,5 @@ public class AnalyseurJava
 		if ( ! res.equals("") ) lstRet.add(res);
 		
 		return lstRet;
-	}
-
-	private static void gereParametres( Methode m, String ligne )
-	{
-		String       type, nom;
-		List<String> lstType, lstParametre;
-
-		String parametre = ligne.substring( ligne.indexOf("(") + 1, ligne.indexOf(")") );
-
-		// Si sans paramètre
-		if (parametre.equals(""))
-			return;
-
-		lstParametre = AnalyseurJava.decomposeurType( parametre, ',' );
-
-		// Cas ou 1 seul parametre
-		if ( lstParametre.size() == 1 )
-		{
-			lstType = AnalyseurJava.decomposeurType( parametre , ' ' );
-
-			type = lstType.get(0);
-			nom  = lstType.get(1);
-
-			m.ajouterParametres(new Parametre(type, nom));
-
-			return;
-		}
-
-		// Cas ou plusieurs parametres
-		
-
-		for ( String s : lstParametre )
-		{
-			s = s.trim();
-			
-			lstType = AnalyseurJava.decomposeurType( s, ' ' );
-
-			type = lstType.get(0).replace(",", "");
-			nom  = lstType.get(1).replace(",", "");
-
-			m.ajouterParametres(new Parametre(type, nom));
-		}
-	}
-
-	private static void gereExtendsImplements( Classe c, Scanner sc, String ligne )
-	{
-		String mot, mere;
-
-		mot = sc.next();
-
-		if ( mot.equals("extends") )
-		{
-			mere = sc.next();
-			c.setMere( mere );
-
-			mot = sc.next();
-		}
-
-		if ( mot.equals("implements") )
-		{
-			int indexImplement = ligne.indexOf("implements") + "implements".length();
-
-			String detecteImplements = ligne.substring(indexImplement, ligne.length()).trim();
-			Scanner scImplements = new Scanner(detecteImplements);
-			scImplements.useDelimiter("\\,");
-
-			while (scImplements.hasNext())
-			{
-				c.ajouterImplementations(scImplements.next().trim());
-			}
-		}
-	}
-
-	private static void gereRecord( Classe c, String ligne )
-	{
-		/* --------------------- */
-		/* Gestion des attributs */
-		/* --------------------- */
-		
-		String       type, nom;
-		Methode      methode;
-		List<String> lstType;
-		List<Parametre> lstParametres = new ArrayList<Parametre>();
-
-		String attributs = ligne.substring( ligne.indexOf( "(" ) + 1, ligne.indexOf( ")" ) );
-		List<String> lstAttributs = AnalyseurJava.decomposeurType( attributs , ',' );
-
-		System.out.println( lstAttributs.isEmpty() );
-
-		if ( lstAttributs.isEmpty() ) return;
-
-		for ( String s : lstAttributs )
-		{
-			lstType =  AnalyseurJava.decomposeurType( s , ' ' );
-
-			type = lstType.get(0);
-			nom  = lstType.get(1).replace( ",", "" );
-
-			c.ajouterAttribut( new Attribut( "private", false, true, type, nom) );
-			lstParametres.add( new Parametre( type, nom ) );
-		}
-
-		/* -------------------- */
-		/* Gestion des methodes */
-		/* -------------------- */
-
-		// Constructeur
-
-		if ( ! lstParametres.isEmpty() )
-		{
-			methode = new Methode( "public", false, false, false, null, c.getNom() );
-			methode.setParametres( lstParametres );
-
-			c.ajouterMethode( methode );
-		}
-
-		// Getters
-
-		List<Attribut> ensAttributs = c.getAttributs();
-		
-		if ( ! ensAttributs.isEmpty() )
-		{
-			for ( Attribut a : ensAttributs )
-			{
-				c.ajouterMethode( new Methode( "public", false, false, false, a.getType(),  a.getNom()  ) );
-			}
-		}
-
-		// Equals, HashCode, toString
-
-		c.ajouterMethode( new Methode("public", false, false, false, "boolean", "equals"  ) );
-		c.ajouterMethode( new Methode("public", false, false, false, "int"    , "hashCode") );
-		c.ajouterMethode( new Methode("public", false, false, false, "String" , "toString") );
-	}
-
-	private static boolean estFonctionPredefinie(String ligne)
-	{
-		return  ligne.contains ("equals") || ligne.contains ("hashCode" ) || ligne.contains ("toString" );
 	}
 }

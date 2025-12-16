@@ -8,7 +8,7 @@ import java.util.List;
  * Représentation d'une classe
  * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
- *         Martha, CONSTANTIN Alexis
+ *         Marta, CONSTANTIN Alexis
  * @version 1.0
  * @since 08-12-2025
  */
