@@ -23,13 +23,11 @@ public class PanelUML extends JPanel
 	private static final String REINITIALISER = "\033[0m";
 
 	private Controleur ctrl;
-	private FrameUML   frameMere;
 	private Integer selectedClassIndex;
 
-	public PanelUML(Controleur ctrl, FrameUML frame)
+	public PanelUML(Controleur ctrl)
 	{
 		this.ctrl = ctrl;
-		this.frameMere = frame;
 		this.selectedClassIndex = 0;
 
 		this.setBackground( new Color(247, 247, 246) );

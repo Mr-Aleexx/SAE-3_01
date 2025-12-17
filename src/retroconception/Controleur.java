@@ -37,6 +37,9 @@ public class Controleur
 	public int               getNbClasse    ()             { return this.metier.getNbClasse    ();     }
 
 
+	public void   ouvrirDossier	    ()                        { this.ihm   .ouvrirDossier();          }
+	public void   exporterImage	    ()                        { this.ihm   .exporterImage();         }
+
 	public void   definirDimension  (Classe c , int ligne   ) { this.metier.definirDimension(c, ligne);}
 	public void   deplacerClasse    (int    id, int x, int y) { this.metier.deplacerClasse(id, x, y); }
 	public void   ouvrirDossier     (String cheminDossier   ) { this.metier.ouvrirDossier(cheminDossier); }
@@ -44,7 +47,6 @@ public class Controleur
 	public void   sauvegarderFichier(File   fichier         ) { this.metier.sauvegarderFichier(fichier); }
 	public void   chargerSauvegarde (File   fichier         ) { this.metier.chargerSauvegarde(fichier); }
 	public String getLigneMax       (Classe classe          ) { return this.metier.getLigneMax(classe); }
-
 
 	public String afficher()
 	{

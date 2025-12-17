@@ -1,11 +1,11 @@
 package retroconception.ihm;
 
 import retroconception.Controleur;
-import retroconception.metier.Classe;
+import retroconception.metier.Association;
 import retroconception.metier.Attribut;
+import retroconception.metier.Classe;
 import retroconception.metier.Methode;
 import retroconception.metier.Parametre;
-import retroconception.metier.Association;
 
 /**
  * Représentation dans le terminal en UML d'une ou plusieurs clases java
@@ -148,9 +148,7 @@ public class IHMCUI
 				strClasse += this.afficherAttribut(attrib, nomAttributPlusLong ) + IHMCUI.REINITIALISER + "\n" ;
 			}
 
-		
 			strClasse += separation + "\n";
-
 
 			for (Methode meth : classe.getMethodes())
 			{

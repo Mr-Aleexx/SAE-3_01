@@ -15,12 +15,10 @@ public class PanelClasses extends JPanel implements ActionListener
 	private Controleur    ctrl;
 	private FrameUML      frame;
 	private List<JButton> lstButtons;
-	private FrameInfo     frameInfo;
 
-	public PanelClasses(Controleur ctrl, FrameUML frame)
+	public PanelClasses(Controleur ctrl)
 	{
 		this.ctrl = ctrl;
-		this.frame = frame;
 		this.lstButtons = new ArrayList<>();
 
 		this.setBackground(new Color(228, 240, 232));
@@ -78,7 +76,7 @@ public class PanelClasses extends JPanel implements ActionListener
 			{
 				this.resetBtnColor();
 				btn.setBackground(new Color(153, 213, 144));
-				this.frameInfo = new FrameInfo(ctrl, ctrl.getLstClasses().get(this.lstButtons.indexOf(btn)));
+				new FrameInfo(ctrl, ctrl.getLstClasses().get(this.lstButtons.indexOf(btn)));
 			}
 		}
 	}

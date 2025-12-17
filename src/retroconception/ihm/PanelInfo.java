@@ -70,7 +70,7 @@ public class PanelInfo extends JPanel
 
 			for (Attribut attr : classe.getAttributs())
 			{
-				String prefix = String.format("  %s %s", attr.getSymbole(), attr.getNom());
+				String prefix = String.format("%s %s", attr.getSymbole(), attr.getNom());
 				int padding = maxNomLength - prefix.length() + 2; // +2 pour le symbole
 
 				String line = prefix + " ".repeat(padding) + ": " + attr.getType() + "\n";
@@ -112,8 +112,8 @@ public class PanelInfo extends JPanel
 				}
 
 				String signature = String.format(
-					"  %s %s(%s)",
-					method.getVisibilite(),
+					"%s %s(%s)",
+					method.getSymbole(),
 					method.getNom(),
 					params
 				);

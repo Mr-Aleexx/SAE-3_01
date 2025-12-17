@@ -139,10 +139,6 @@ final class NettoyerFichier
 		}
 		catch (FileNotFoundException e){}
 
-		for (String s : fichierClean ) {
-			System.out.println( s );
-		}
-
 		return fichierClean;
 	}
 }

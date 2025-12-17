@@ -7,18 +7,17 @@ import retroconception.Controleur;
 public class BarreMenu extends JMenuBar implements ActionListener
 {
 	private Controleur ctrl;
-	private FrameUML   frame;
 
 	private JMenuItem menuiOuvrir;
 	private JMenuItem menuiSauveg;
 	private JMenuItem menuiExpImg;
 	private JMenuItem menuiQuitte;
 	private JMenuItem menuiCharge;
+	private JMenuItem menuiReset;
 
-	public BarreMenu(Controleur ctrl, FrameUML frame)
+	public BarreMenu(Controleur ctrl)
 	{
 		this.ctrl = ctrl;
-		this.frame = frame;
 
 		this.initMenu();
 		this.ajouterEcouteurs();
@@ -29,16 +28,18 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		JMenu menuFichier = new JMenu("Fichier");
 
 		this.menuiOuvrir = new JMenuItem("Ouvrir");
+		this.menuiCharge = new JMenuItem("Charger Sauvegarde");
 		this.menuiSauveg = new JMenuItem("Sauvegarder");
 		this.menuiExpImg = new JMenuItem("Exporter en Image");
+		this.menuiReset  = new JMenuItem("Réinitialiser");
 		this.menuiQuitte = new JMenuItem("Quitter");
-		this.menuiCharge = new JMenuItem("Charger Sauvegarde");
 
 		menuFichier.add(this.menuiOuvrir);
 		menuFichier.add(this.menuiCharge);
 		menuFichier.add(this.menuiSauveg);
 		menuFichier.add(this.menuiExpImg);
 		menuFichier.addSeparator();
+		menuFichier.add(this.menuiReset );
 		menuFichier.add(this.menuiQuitte);
 
 		this.add( menuFichier );
@@ -50,6 +51,7 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		this.menuiCharge.addActionListener(this);
 		this.menuiSauveg.addActionListener(this);
 		this.menuiExpImg.addActionListener(this);
+		this.menuiReset .addActionListener(this);
 		this.menuiQuitte.addActionListener(this);
 	}
 
@@ -57,7 +59,7 @@ public class BarreMenu extends JMenuBar implements ActionListener
 	{
 		if (e.getSource() == this.menuiOuvrir)
 		{
-			this.frame.ouvrirDossier();
+			this.ctrl.ouvrirDossier();
 		}
 
 		if (e.getSource() == this.menuiCharge)
@@ -84,7 +86,12 @@ public class BarreMenu extends JMenuBar implements ActionListener
 
 		if ( e.getSource() == this.menuiExpImg )
 		{
-			this.frame.exporterImage();
+			this.ctrl.exporterImage();
+		}
+
+		if ( e.getSource() == this.menuiReset )
+		{
+			
 		}
 
 		if ( e.getSource() == this.menuiQuitte )

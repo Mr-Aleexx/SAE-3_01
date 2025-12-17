@@ -32,14 +32,14 @@ public class FrameUML extends JFrame
 		/* ----------------------------- */
 		/* Création des Composants      */
 		/* ----------------------------- */
-		this.panelUML  = new PanelUML (this.ctrl, this);
-		this.panelInfo = new PanelClasses(this.ctrl, this);
+		this.panelUML  = new PanelUML    (ctrl);
+		this.panelInfo = new PanelClasses(ctrl);
 
 		JScrollPane scrollFrame = new JScrollPane( this.panelUML,
 		                                           JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 		                                           JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
 
-		menubMaBarre = new BarreMenu( this.ctrl, this );
+		menubMaBarre = new BarreMenu( this.ctrl );
 		
 		this.add( this.panelInfo, BorderLayout.WEST   );
 		this.add( scrollFrame   , BorderLayout.CENTER );
