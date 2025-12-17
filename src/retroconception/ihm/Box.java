@@ -1,6 +1,7 @@
-public class Box 
-{
+package retroconception.ihm;
 
+public class Box
+{
 	private int x;
 	private int y;
 

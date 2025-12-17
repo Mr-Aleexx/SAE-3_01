@@ -1,14 +1,13 @@
 @echo off
-REM Compilation
-javac @compile.list -d class
-IF %ERRORLEVEL% NEQ 0 (
+
+javac @src\compile.list -d class
+if errorlevel 1 (
     echo La compilation a echoue.
     exit /b 1
 )
 
-REM Exécution
 java -cp class retroconception.Controleur
-IF %ERRORLEVEL% NEQ 0 (
+if errorlevel 1 (
     echo L'execution a echoue.
     exit /b 1
 )

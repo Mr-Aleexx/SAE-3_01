@@ -1,7 +1,6 @@
 package retroconception.ihm;
 
 import java.awt.event.*;
-import java.io.File;
 import javax.swing.*;
 import retroconception.Controleur;
 
@@ -9,18 +8,18 @@ public class BarreMenu extends JMenuBar implements ActionListener
 {
 	private Controleur ctrl;
 	private FrameUML   frame;
-	
+
 	private JMenuItem menuiOuvrir;
 	private JMenuItem menuiSauveg;
 	private JMenuItem menuiExpImg;
 	private JMenuItem menuiQuitte;
 	private JMenuItem menuiCharge;
 
-	public BarreMenu(Controleur ctrl, FrameUML frame) 
+	public BarreMenu(Controleur ctrl, FrameUML frame)
 	{
 		this.ctrl = ctrl;
 		this.frame = frame;
-		
+
 		this.initMenu();
 		this.ajouterEcouteurs();
 	}
@@ -29,10 +28,10 @@ public class BarreMenu extends JMenuBar implements ActionListener
 	{
 		JMenu menuFichier = new JMenu("Fichier");
 
-		this.menuiOuvrir = new JMenuItem("Ouvrir"           );
-		this.menuiSauveg = new JMenuItem("Sauvegarder"      );
+		this.menuiOuvrir = new JMenuItem("Ouvrir");
+		this.menuiSauveg = new JMenuItem("Sauvegarder");
 		this.menuiExpImg = new JMenuItem("Exporter en Image");
-		this.menuiQuitte = new JMenuItem("Quitter"          );
+		this.menuiQuitte = new JMenuItem("Quitter");
 		this.menuiCharge = new JMenuItem("Charger Sauvegarde");
 
 		menuFichier.add(this.menuiOuvrir);
@@ -42,7 +41,7 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		menuFichier.addSeparator();
 		menuFichier.add(this.menuiQuitte);
 
-		this.add(menuFichier);
+		this.add( menuFichier );
 	}
 
 	private void ajouterEcouteurs()
@@ -54,8 +53,6 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		this.menuiQuitte.addActionListener(this);
 	}
 
-
-	@Override
 	public void actionPerformed(ActionEvent e)
 	{
 		if (e.getSource() == this.menuiOuvrir)
@@ -74,7 +71,7 @@ public class BarreMenu extends JMenuBar implements ActionListener
 				this.ctrl.chargerSauvegarde(selection.getSelectedFile().getAbsoluteFile());
 		}
 
-		if (e.getSource() == this.menuiSauveg)
+		if ( e.getSource() == this.menuiSauveg )
 		{
 			JFileChooser selection = new JFileChooser();
 			selection.setDialogTitle("Enregistrer");
@@ -85,12 +82,12 @@ public class BarreMenu extends JMenuBar implements ActionListener
 				this.ctrl.sauvegarderFichier(selection.getSelectedFile().getAbsoluteFile());
 		}
 
-		if (e.getSource() == this.menuiExpImg)
+		if ( e.getSource() == this.menuiExpImg )
 		{
 			this.frame.exporterImage();
 		}
 
-		if (e.getSource() == this.menuiQuitte)
+		if ( e.getSource() == this.menuiQuitte )
 		{
 			System.exit(0);
 		}

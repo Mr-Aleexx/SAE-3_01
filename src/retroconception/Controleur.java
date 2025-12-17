@@ -54,7 +54,7 @@ public class Controleur
 	public static void main(String[] args)
 	{
 		Controleur ctr = new Controleur();
-		ctr.ouvrirDossier( "./data/association/bi/" );
+		ctr.ouvrirDossier( "./data/testAtt" );
 		System.out.println( ctr.afficher() );
 	}
 	

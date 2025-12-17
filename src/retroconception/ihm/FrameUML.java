@@ -11,11 +11,11 @@ import retroconception.Controleur;
 
 public class FrameUML extends JFrame
 {
-	private Controleur ctrl;
-	private PanelUML panelUML;
+	private Controleur   ctrl;
+	private PanelUML     panelUML;
 	private PanelClasses panelInfo;
 
-	private String fichierEnCours;
+	private String      fichierEnCours;
 
 	public FrameUML(Controleur ctrl)
 	{
@@ -35,17 +35,17 @@ public class FrameUML extends JFrame
 		this.panelUML  = new PanelUML (this.ctrl, this);
 		this.panelInfo = new PanelClasses(this.ctrl, this);
 
-		JScrollPane scrollFrame = new JScrollPane(this.panelUML,
-												JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-												JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane scrollFrame = new JScrollPane( this.panelUML,
+		                                           JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+		                                           JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
 
-		menubMaBarre = new BarreMenu(this.ctrl, this);
+		menubMaBarre = new BarreMenu( this.ctrl, this );
 		
-		this.add(this.panelInfo, BorderLayout.WEST);
-		this.add(scrollFrame, BorderLayout.CENTER);
-		this.setJMenuBar(menubMaBarre);
+		this.add( this.panelInfo, BorderLayout.WEST   );
+		this.add( scrollFrame   , BorderLayout.CENTER );
+		this.setJMenuBar( menubMaBarre );
 
-		this.setVisible(true);
+		this.setVisible( true );
 	}
 
 	public void exporterImage()
@@ -61,7 +61,7 @@ public class FrameUML extends JFrame
 		this.panelUML.paint(g2d);
 		g2d.dispose();
 		
-		try 
+		try
 		{
 			JFileChooser selection = new JFileChooser();
 			selection.setDialogTitle("Enregistrer en Image");
@@ -70,10 +70,8 @@ public class FrameUML extends JFrame
 
 			if (resultat == JFileChooser.APPROVE_OPTION)
 				ImageIO.write(image, "PNG", new File(selection.getSelectedFile().getAbsolutePath()));
-		} catch (IOException e) 
-		{
-			e.printStackTrace();
 		}
+		catch (IOException e) { e.printStackTrace(); }
 	}
 
 
@@ -96,15 +94,14 @@ public class FrameUML extends JFrame
 			}
 			else 
 			{
-				JOptionPane.showMessageDialog(this.getParent(), "Veuillez sélectionner un dossier",
-						"Sélection invalide", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog( this.getParent(), "Veuillez sélectionner un dossier",
+				                               "Sélection invalide", JOptionPane.ERROR_MESSAGE );
 			}
 		}
 	}
 
-
 	public void majIHM()
-	{		
+	{
 		this.panelUML.majIHM();
 		this.panelInfo.actualiser();
 	}

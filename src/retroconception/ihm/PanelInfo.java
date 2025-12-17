@@ -3,10 +3,8 @@ package retroconception.ihm;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.lang.reflect.Parameter;
-
 import javax.swing.*;
-
+import javax.swing.text.*;
 import retroconception.Controleur;
 import retroconception.metier.Attribut;
 import retroconception.metier.Classe;
@@ -21,93 +19,124 @@ public class PanelInfo extends JPanel
 	{
 		this.ctrl = ctrl;
 		
-		
 		this.setLayout(new BorderLayout());
 		this.setBackground(new Color(228, 240, 232));
 		
-		// Titre
+		/* ------------------ */
+		/* Titre de la classe */
+		/* ------------------ */
 		JLabel titre = new JLabel(classe.getNom());
 		titre.setFont(new Font("Arial", Font.BOLD, 16));
 		titre.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		/* ---------------- */
+		/* Zone de contenu  */
+		/* ---------------- */
+		JTextPane pane = new JTextPane();
+		pane.setEditable(false);
+		pane.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		pane.setBackground(new Color(240, 245, 242));
+		pane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		StyledDocument doc = pane.getStyledDocument();
+
+		/* ------- */
+		/* Styles  */
+		/* ------- */
+
+		Style normal = pane.addStyle("normal", null);
+
+		Style bold = pane.addStyle("bold", null);
+		StyleConstants.setBold(bold, true);
+
+		Style underline = pane.addStyle("underline", null);
+		StyleConstants.setUnderline(underline, true);
 		
-		
-		JTextArea textArea = new JTextArea();
-		textArea.setEditable(false);
-		textArea.setBackground(new Color(240, 245, 242));
-		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		textArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		
-		StringBuilder sb = new StringBuilder();
-		
-		int maxNomLength = 0;
-		for (Attribut attr : classe.getAttributs()) 
+		try
 		{
-			int length = (attr.getVisibilite() + " " + attr.getNom()).length();
-			if (length > maxNomLength) maxNomLength = length;
-		}
-		
-		sb.append("ATTRIBUTS\n");
-		sb.append("─────────────────────────────\n");
-		for (Attribut attr : classe.getAttributs()) 
-		{
-			String prefix = String.format("  %s %s", attr.getVisibilite(), attr.getNom());
-			int padding = maxNomLength - prefix.length() + 2;
-			sb.append(prefix);
-			sb.append(" ".repeat(padding));
-			sb.append(": " + attr.getType() + "\n");
-		}
-		
-		sb.append("\n");
-		
-		int maxMethodLength = 0;
-		for (Methode method : classe.getMethodes()) 
-		{
-			String para = "";
-			for (Parametre parametre : method.getParametre()) 
+			/* ----------- */
+			/* ATTRIBUTS   */
+			/* ----------- */
+
+			doc.insertString( doc.getLength(), "ATTRIBUTS\n"                    , bold );
+			doc.insertString( doc.getLength(), "─────────────────────────────\n", bold );
+
+			int maxNomLength = 0;
+			for (Attribut attr : classe.getAttributs())
 			{
-				para += parametre.nom() + " : " + parametre.type();
-				if(method.getParametre().indexOf(parametre) != method.getParametre().size() - 1)
-					para += ", ";
-			}
-			int length = (method.getVisibilite() + " " + method.getNom() + "(" + para + ")").length();
-			if (length > maxMethodLength) maxMethodLength = length;
-		}
-		
-		sb.append("MÉTHODES\n");
-		sb.append("─────────────────────────────\n");
-		for (Methode method : classe.getMethodes())
-		{
-			String para = "";
-			String type = method.getType();
-			
-			for (Parametre parametre : method.getParametre()) 
-			{
-				para += parametre.nom() + " : " + parametre.type();
-				if(method.getParametre().indexOf(parametre) != method.getParametre().size() - 1)
-					para += ", ";
+				int length = (attr.getSymbole() + " " + attr.getNom()).length();
+				if (length > maxNomLength) maxNomLength = length;
 			}
 
-			String signature = String.format("  %s %s(%s)", method.getVisibilite(), method.getNom(), para);
-			
-			if (type != null && !type.equals("void"))
+			for (Attribut attr : classe.getAttributs())
 			{
-				int padding = maxMethodLength - signature.length() + 2;
-				sb.append(signature);
-				sb.append(" ".repeat(padding));
-				sb.append(": " + type + "\n");
+				String prefix = String.format("  %s %s", attr.getSymbole(), attr.getNom());
+				int padding = maxNomLength - prefix.length() + 2; // +2 pour le symbole
+
+				String line = prefix + " ".repeat(padding) + ": " + attr.getType() + "\n";
+
+				if (attr.estStatique()) doc.insertString( doc.getLength(), line, underline );
+				else                    doc.insertString( doc.getLength(), line, normal    );
 			}
-			else
+
+			/* ----------- */
+			/* MÉTHODES    */
+			/* ----------- */
+
+			doc.insertString( doc.getLength(), "\nMÉTHODES\n"                   , bold );
+			doc.insertString( doc.getLength(), "─────────────────────────────\n", bold );
+
+			int maxMethodLength = 0;
+			for ( Methode method : classe.getMethodes() )
 			{
-				sb.append(signature + "\n");
+				String params = "";
+				for ( Parametre p : method.getParametre() )
+				{
+					params += p.nom() + " : " + p.type();
+					if ( method.getParametre().indexOf(p) != method.getParametre().size() - 1 )
+						params += ", ";
+				}
+
+				int length = (method.getVisibilite() + " " + method.getNom() + "(" + params + ")").length();
+				if (length > maxMethodLength) maxMethodLength = length;
+			}
+
+			for (Methode method : classe.getMethodes())
+			{
+				String params = "";
+				for (Parametre p : method.getParametre())
+				{
+					params += p.nom() + " : " + p.type();
+					if (method.getParametre().indexOf(p) != method.getParametre().size() - 1)
+						params += ", ";
+				}
+
+				String signature = String.format(
+					"  %s %s(%s)",
+					method.getVisibilite(),
+					method.getNom(),
+					params
+				);
+
+				if (method.getType() != null && !method.getType().equals("void"))
+				{
+					int padding = maxMethodLength - signature.length() + 2;
+					signature += " ".repeat(padding) + ": " + method.getType();
+				}
+
+				if (method.estStatique())
+					doc.insertString(doc.getLength(), signature + "\n", underline);
+				else
+					doc.insertString(doc.getLength(), signature + "\n", normal);
 			}
 		}
-		
-		textArea.setText(sb.toString());
-		
-		JScrollPane scrollPane = new JScrollPane(textArea);
+		catch (BadLocationException e)
+		{
+			e.printStackTrace();
+		}
+
+		JScrollPane scrollPane = new JScrollPane(pane);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
-		
-		this.add(titre, BorderLayout.NORTH);
 		this.add(scrollPane, BorderLayout.CENTER);
 	}
 }
