@@ -7,7 +7,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 REM Exécution
-java -cp class src.Controleur
+java -cp class retroconception.Controleur
 IF %ERRORLEVEL% NEQ 0 (
     echo L'execution a echoue.
     exit /b 1

@@ -19,7 +19,7 @@ Le code génère une représentation en UML CUI des classes avec
 
 The workspace contains two folders by default, where:
 
-- `src`  Dossier des codes java
+- `retroconception`  Dossier des codes java
 - `lib`  Dossier des librairies
 
 Le fichiers class seront générés dans un dossier `class`

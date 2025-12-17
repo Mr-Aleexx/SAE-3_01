@@ -1,0 +1,44 @@
+package ressources;
+
+public class PointRetK{
+	private final int x;
+	private int y;
+	private String nom;
+
+	public PointRetK( int x, int y ){
+		this.x = x;
+		this.y = y;
+	}
+
+	public PointRetK(int x, int y, String nom){
+		this.x = x;
+		this.y = y;
+		this.nom = nom;
+	}
+	// public int getZ()
+	/* 
+		public int getH()
+	
+
+	*/public int getX(){
+		 return x;
+	}
+	public int getY(){
+		return y;
+	}
+	public String getNom() { return this.nom; }
+
+	public void setX( int x ) {
+		this.x = x; 
+	}
+	public void setY( int y )
+	{ 
+		this.y = y;
+	}
+	public void setNom(String nom) { this.nom = nom;}
+
+	
+	
+	
+
+}
