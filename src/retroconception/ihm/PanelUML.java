@@ -410,8 +410,8 @@ public class PanelUML extends JPanel
 	private int obtenirCentreY(Classe classe)
 	{
 		return classe.getPos().getCentreYClasse() + 
-			classe.getPos().getTailleYClasse() / 2 +
-			classe.getPos().getTailleYAttribut() / 2;
+		       classe.getPos().getTailleYMethode() / 2 +
+		       classe.getPos().getTailleYAttribut() / 2;
 	}
 
 	private int obtenirLargeur(Classe classe)
@@ -438,17 +438,25 @@ public class PanelUML extends JPanel
 		int x = centreX;
 		int y = centreY;
 
-		if (Math.abs(dx) > Math.abs(dy)) {
-			
-			if (dx > 0) {
+		if (Math.abs(dx) > Math.abs(dy))
+		{
+			if (dx > 0)
+			{
 				x = centreX + demiLargeur;
-			} else {
+			}
+			else
+			{
 				x = centreX - demiLargeur;
 			}
-		} else {
-			if (dy > 0) {
+		}
+		else
+		{
+			if (dy > 0)
+			{
 				y = centreY + demiHauteur;
-			} else {
+			}
+			else
+			{
 				y = centreY - demiHauteur;
 			}
 		}
@@ -459,7 +467,8 @@ public class PanelUML extends JPanel
 	private void drawArrowHead(Graphics2D g2, int x1, int y1, int x2, int y2)
 	{
 		double phi   = Math.toRadians(25);
-		double dy    = y2 - y1, dx = x2 - x1;
+		double dy    = y2 - y1;
+		double dx    = x2 - x1;
 		double theta = Math.atan2(dy, dx);
 
 		int barb     = 10;

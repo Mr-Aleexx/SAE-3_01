@@ -130,8 +130,10 @@ public class Retroconception
 		String typeAttribut = "";
 		String typeMethode  = "";
 		String nomMethode   = "";
-			
-		ligne = classe.getNom() + (classe.estLectureUnique() ? " {Gelé}" : "");
+		String methodeSansT = "";
+		String specificite  = classe.estLectureUnique() ? " {Gelé}" : "";
+
+		ligne = classe.getNom() + specificite;
 
 		if( ligne.length() < classe.getStereotype().length()+2 && !classe.getStereotype().equals("") )
 			ligne += "«"+classe.getStereotype()+"»";
@@ -140,25 +142,26 @@ public class Retroconception
 		for (int cptAtt = 0; cptAtt < 3 && cptAtt < classe.getAttributs().size(); cptAtt++)
 		{
 			Attribut attrib = classe.getAttributs().get(cptAtt);
-			
+
+			specificite = attrib.estLectureUnique() ? " {Gelé}" : "";
+
 			maxAttribut = attrib.getSymbole() + " " + attrib.getNom();
-			
+
 			if(!attrib.getValeurConstante().equals("")) maxAttribut += " = " + attrib.getValeurConstante();
-			
+
 			if( nomAttribut.length() < maxAttribut.length())
 				nomAttribut = maxAttribut;
 
-			if( typeAttribut.length() < attrib.getType().length() + (attrib.estLectureUnique() ? " {Gelé}" : "").length() )
-				typeAttribut = attrib.getType() + (attrib.estLectureUnique() ? " {Gelé}" : "");
+			if( typeAttribut.length() < attrib.getType().length() + specificite.length() )
+				typeAttribut = attrib.getType() + specificite;
 
 			if( ligne.length() < (nomAttribut + " : " + typeAttribut).length())
 				ligne = nomAttribut + " : " + typeAttribut;
 		}
-
 		for ( int cptMeth = 0; cptMeth < 3 && cptMeth < classe.getMethodes().size(); cptMeth++ )
 		{
 			Methode meth = classe.getMethodes().get(cptMeth);
-			
+
 			String type = meth.getType();
 
 			String para = "";
@@ -174,29 +177,36 @@ public class Retroconception
 				para += param.nom() + " : " + param.type();
 				if(meth.getParametre().indexOf(param) != meth.getParametre().size() - 1)
 					para += ", ";
-
 			}
-			
+
 			maxMethode = (meth.getSymbole() + " " + meth.getNom() + "(" + para + ")");
-			
-			if (maxMethode.length() > nomMethode.length())
-				nomMethode = maxMethode;
 
-			if( meth.getType() != null && ! type.equals( "void" ) )
-				if( typeMethode.length() < 3 + type.length() )
-					typeMethode = " : " + type;
+			specificite = "";
+			specificite += (meth.estLectureUnique() ? " {Gelé}" : "");
+			specificite += (meth.estAbstraite() ? " {abstract}" : "");
 
-			typeMethode += (meth.estLectureUnique() ? " {Gelé}" : "");
-			typeMethode += (meth.estAbstraite() ? " {abstract}" : "");
+			if( type != null && ! type.equals( "void" ) )
+			{
+				if (maxMethode.length() > nomMethode.length())
+					nomMethode = maxMethode;
 
-			if( meth.getType() != null && ! type.equals( "void" ) )
-				if( ligne.length() < (nomMethode + typeMethode).length())
-					ligne = nomMethode + typeMethode;
+				if( typeMethode.length() < type.length() )
+					typeMethode =  " : " + type;
+			}
 			else
-				ligne = nomMethode;
-			
+				if( methodeSansT.length() < (maxMethode + specificite).length())
+					methodeSansT = maxMethode + specificite;
+
+			if( methodeSansT.length() < (nomMethode + typeMethode + specificite).length())
+			{
+				if( ligne.length() < (nomMethode + typeMethode + specificite).length())
+					ligne = nomMethode + typeMethode + specificite;
+			}
+			else
+				if( ligne.length() < (methodeSansT).length())
+					ligne = methodeSansT;
 		}
-		
+
 		return ligne;
 	}
 
