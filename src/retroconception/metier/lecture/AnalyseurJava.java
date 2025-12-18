@@ -235,7 +235,7 @@ public final class AnalyseurJava
 
 			lstType = AnalyseurJava.decomposeurType(s, ' ');
 
-			type = lstType.get(0).replace(",", "");
+			type = lstType.get(0);
 			nom = lstType.get(1).replace(",", "");
 
 			m.ajouterParametres(new Parametre(type, nom));
