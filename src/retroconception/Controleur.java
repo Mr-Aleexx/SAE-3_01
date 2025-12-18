@@ -56,7 +56,7 @@ public class Controleur
 	public static void main(String[] args)
 	{
 		Controleur ctr = new Controleur();
-		ctr.ouvrirDossier( "./data/testAtt" );
+		ctr.ouvrirDossier( "./data/testInter" );
 		System.out.println( ctr.afficher() );
 	}
 	

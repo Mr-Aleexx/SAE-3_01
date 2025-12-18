@@ -177,11 +177,10 @@ public final class AnalyseurJava
 					
 					if ( classe.getStereotype().equals( "interface" ) )
 					{
-						if ( visibilite.equals( "package" ) ) visibilite = "public";
-						
-						if ( visibilite.equals( "package" ) && ! statique )
+						if ( visibilite.equals( "package" ) )
 						{
-							abstraite = true;
+							visibilite = "public";
+							if ( ! statique ) abstraite = true;
 						}
 					}
 
@@ -208,8 +207,7 @@ public final class AnalyseurJava
 		parametre = ligne.substring(ligne.indexOf("(") + 1, ligne.indexOf(")"));
 
 		// Si sans paramètre
-		if (parametre.equals(""))
-			return;
+		if ( parametre.equals("") ) return;
 
 		lstParametre = AnalyseurJava.decomposeurType(parametre, ',');
 
@@ -228,7 +226,6 @@ public final class AnalyseurJava
 		}
 
 		// Cas ou plusieurs parametres
-
 		for (String s : lstParametre)
 		{
 			s = s.trim();
