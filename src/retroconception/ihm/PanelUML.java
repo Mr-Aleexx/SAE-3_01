@@ -20,9 +20,6 @@ import retroconception.metier.Parametre;
 
 public class PanelUML extends JPanel
 {
-	private static final String SOULIGNER     = "\033[4m";
-	private static final String REINITIALISER = "\033[0m";
-
 	private Controleur ctrl;
 	private Integer    selectedClassIndex;
 
@@ -84,7 +81,6 @@ public class PanelUML extends JPanel
 			tailleYMethode  = c.getPos().getTailleYMethode ();
 			
 
-			
 			if (cpt == this.selectedClassIndex)
 			{
 				g2.setColor(new Color(0, 107, 87));
@@ -118,62 +114,70 @@ public class PanelUML extends JPanel
 				textClasseY += sautDeLigne;
 			}
 			String classe = c.getNom()+ ((c.estLectureUnique()) ? " {Gelé}" : "");
-			if( c.estStatique()) classe += PanelUML.SOULIGNER;
 			
 			// ligne Classe
 			textClasseX = posX + (tailleX - fm.stringWidth( c.getNom()+ ((c.estLectureUnique()) ? " {Gelé}" : ""))) /2;
 			g2.drawString( classe, textClasseX, textClasseY );
 			
 			// determiner longueur max attribut
-			int maxNomTaille = 0;
 			int tailleMax    = 0;
-			int typeMax      = 0;
-			for (Attribut attr : c.getAttributs()) 
+			int maxNomTaille = 0;
+			for ( int cptAtt = 0; cptAtt < 3 && cptAtt < c.getAttributs().size(); cptAtt++ )
 			{
-				tailleMax = (attr.getSymbole() + " " + attr.getNom()).length();
-				if(!attr.getValeurConstante().equals("")) tailleMax += (" = " + attr.getValeurConstante()).length();
+				Attribut att = c.getAttributs().get(cptAtt);
+				
+				tailleMax = (att.getSymbole() + " " + att.getNom()).length();
+				
+				if(!att.getValeurConstante().equals(""))
+					tailleMax += (" = " + att.getValeurConstante()).length();
 
+		
 				if (tailleMax > maxNomTaille) maxNomTaille = tailleMax;
 
-				if( typeMax < attr.getType().length() )
-					typeMax = attr.getType().length() + (attr.estLectureUnique() ? 7 : 0);
 			}
 			
 			// dessiner Attribut
-			for (int cptAtt = 0; cptAtt < c.getAttributs().size(); cptAtt++)
+			for (int cptAtt = 0; cptAtt < 3 && cptAtt < c.getAttributs().size(); cptAtt++)
 			{
 				Attribut att = c.getAttributs().get(cptAtt);
 
 				String attribut = att.getSymbole() + " " + att.getNom();
-			
-				if(!att.getValeurConstante().equals("")) attribut += " = " + att.getValeurConstante();
+
+				if(!att.getValeurConstante().equals(""))
+					attribut += " = " + att.getValeurConstante();
 
 				nbEspace = maxNomTaille - attribut.length();
-				
+
 				attribut += " ".repeat(nbEspace+1) + ": " + att.getType() +
 				           (att.estLectureUnique() ? " {Gelé}" : "");
 				
 				textMembreX = posX      + largeurStr;
 				textMembreY = yAttribut + sautDeLigne;
 
-				if( cptAtt > 2 )
-				{
-					g2.drawString( "…", textMembreX, textMembreY );
-					break;
-				}
+				
 		
 				if( att.estStatique()) g2.drawLine(textMembreX, textMembreY+sautDeLigne/6, textMembreX + fm.stringWidth( attribut ), textMembreY+sautDeLigne/6);
 				
 				g2.drawString( attribut, textMembreX, textMembreY );
 
 				yAttribut += sautDeLigne;
+
+				if( cptAtt == 2 && c.getAttributs().size() > 3 )
+				{
+					textMembreX = posX      + largeurStr;
+					textMembreY = yAttribut + sautDeLigne;
+					
+					g2.drawString( "…", textMembreX, textMembreY );
+				}
 			}
 			
 			// determiner longueur max methode
 			maxNomTaille = 0;
 			tailleMax    = 0;
-			for (Methode meth : c.getMethodes())
+			for ( int cptMeth = 0; cptMeth < 3 && cptMeth < c.getMethodes().size(); cptMeth++ )
 			{
+				Methode meth = c.getMethodes().get(cptMeth);
+				
 				String type = meth.getType();
 				if( type != null )
 				{
@@ -192,17 +196,18 @@ public class PanelUML extends JPanel
 							para += ", ";
 					}
 
-					tailleMax = (meth.getSymbole() + " " + meth.getNom() + "(" + para + ")").length() + 
-					            (meth.estLectureUnique() ? 7 : 0) + (meth.estAbstraite() ? 10 : 0);
-					
+					tailleMax = (meth.getSymbole() + " " + meth.getNom() + "(" + para + ")").length();
+
 					if (tailleMax > maxNomTaille) maxNomTaille = tailleMax;
+						tailleMax += (meth.estLectureUnique() ? 7 : 0) + (meth.estAbstraite() ? 10 : 0);
+					
 				}
 			}
 			
 			// dessiner methode
-			for (int cptMeth = 0; cptMeth < c.getMethodes().size(); cptMeth++)
+			for (int cptMeth = 0; cptMeth < 3 && cptMeth < c.getMethodes().size(); cptMeth++)
 			{
-				Methode meth= c.getMethodes().get(cptMeth);
+				Methode meth = c.getMethodes().get(cptMeth);
 		
 				String type = meth.getType();
 				String methode;
@@ -228,29 +233,49 @@ public class PanelUML extends JPanel
 					nbEspace = maxNomTaille - methode.length();
 					methode += " ".repeat(nbEspace+1) + ": " + meth.getType();
 				}
-				methode += (meth.estLectureUnique() ? " {Gelé}" : "") +
-				           (meth.estAbstraite() ? " {abstract}" : "");
+
+				methode += (meth.estLectureUnique() ? " {Gelé}" : "");
+				methode += (meth.estAbstraite() ? " {abstract}" : "");
 				
 				textMembreX = posX     + largeurStr;
 				textMembreY = yMethode + sautDeLigne;
-
-				if( cptMeth > 2 )
-				{
-					g2.drawString( "…", textMembreX, textMembreY );
-					break;
-				}
 				
 				if( meth.estStatique()) g2.drawLine(textMembreX, textMembreY+sautDeLigne/6, textMembreX + fm.stringWidth( methode), textMembreY+sautDeLigne/6);
 
 				g2.drawString( methode, textMembreX, textMembreY );
 				
 				yMethode += sautDeLigne;
+
+				if( cptMeth == 2 && c.getMethodes().size() > 3 )
+				{ 
+					textMembreX = posX     + largeurStr;
+					textMembreY = yMethode + sautDeLigne;
+					
+					g2.drawString( "…", textMembreX, textMembreY );
+				}
 			}
 
 			// Construction des liens entre les tâches:
 			this.construireLiens( g2 );
 		}
+	}
 
+	private int[] calculerPointsConnexion(Classe c1, Classe c2)
+	{
+		int c1CentreX = obtenirCentreX(c1);
+		int c1CentreY = obtenirCentreY(c1);
+		int c2CentreX = obtenirCentreX(c2);
+		int c2CentreY = obtenirCentreY(c2);
+
+		int c1Largeur = obtenirLargeur(c1);
+		int c1Hauteur = obtenirHauteur(c1);
+		int c2Largeur = obtenirLargeur(c2);
+		int c2Hauteur = obtenirHauteur(c2);
+
+		int[] point1 = calculerPointConnection(c1CentreX, c1CentreY, c1Largeur, c1Largeur, c2Largeur, c2Largeur);
+		int[] point2 = calculerPointConnection(c1CentreX, c1CentreY, c1Largeur, c1Largeur, c2Largeur, c2Largeur);
+
+		return new int[]{point1[0], point1[1], point2[0], point2[1]};
 	}
 
 	public void construireLiens(Graphics2D g2)
@@ -261,7 +286,8 @@ public class PanelUML extends JPanel
 			Classe classe1 = association.getClasse1();
 			Classe classe2 = association.getClasse2();
 
-			
+			int[] points = calculerPointsConnexion(classe1, classe2);
+
 			int x1 = classe1.getPos().getCentreX() - classe1.getPos().getTailleX() / 2;
 			int y1 = classe1.getPos().getCentreYClasse() + 
 			         classe1.getPos().getTailleYClasse() / 2 +
@@ -402,6 +428,65 @@ public class PanelUML extends JPanel
 		int[] yPoints = {y2, y3, y4};
 
 		g2.fillPolygon(xPoints, yPoints, 3);
+	}
+
+
+	private int obtenirCentreX(Classe c)
+	{
+		return c.getPos().getCentreX();
+	}
+
+	private int obtenirCentreY(Classe c)
+	{
+		return c.getPos().getCentreYClasse() + 
+			   c.getPos().getTailleYClasse() / 2 +
+			   c.getPos().getTailleYAttribut() / 2;
+	}
+
+	private int obtenirLargeur(Classe c) 
+	{
+		return c.getPos().getTailleX();
+	}
+
+	private int obtenirHauteur(Classe c) 
+	{
+		return c.getPos().getTailleYClasse  () + 
+	    	   c.getPos().getTailleYAttribut() + 
+	       	   c.getPos().getTailleYMethode ();
+	}
+
+	private int[] calculerPointConnection(int centreX, int centreY, int largueur, int hauteur, int versCentreX, int versCentreY) 
+	{
+		double dDepuisCentre;
+	
+		int x;
+		int y;
+
+		// Un tableau non instancié sera retourné
+		double dx = versCentreX - centreX;
+		double dy = versCentreY - centreY;
+		if (largueur == 0) return new int[]{centreX, centreY};
+
+		// Theoreme de Pythagore pour avoir la taille du vecteur de la ligne
+		double hypothenuse = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+
+		// Normalisation des vecteur pour qu'il soit plus facile de calculer ensuite
+		dx /= hypothenuse;
+		dy /= hypothenuse;
+
+		// Calcule des demiLargeur et demiHauteur pour les points d'ancrages
+		double demiLargeur = largueur/2.0;
+		double demiHauteur = hauteur/2.0;
+
+		double pointHorizontale = demiLargeur/Math.abs(dx);
+		double pointVerticale   = demiHauteur/Math.abs(dy);
+
+		dDepuisCentre = Math.min(pointHorizontale, pointVerticale);
+
+		x = centreX + (int)(dx * dDepuisCentre);
+		y = centreY + (int)(dy * dDepuisCentre);
+
+		return new int[]{0,0};
 	}
 
 	public void majIHM()

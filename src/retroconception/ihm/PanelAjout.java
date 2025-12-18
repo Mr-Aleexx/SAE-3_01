@@ -43,20 +43,22 @@ public class PanelAjout extends JPanel implements ActionListener
 		gbc.gridy = 1;
 		this.add(cmbAssociations, gbc);
 		
-		this.lblRoleName = new JLabel("Nom du rôle :");
+		this.lblRoleName = new JLabel("Nom du rôle 1 :");
+		gbc.gridx = 0;
 		gbc.gridy = 2;
-		this.add(lblRoleName, gbc);
-		
+		gbc.gridwidth = 2;
+		this.add(this.lblRoleName, gbc);
+
 		this.txtRoleName1 = new JTextField(20);
 		gbc.gridy = 3;
 		this.add(this.txtRoleName1, gbc);
 
-		this.lblRoleName = new JLabel("Nom du rôle :");
-		gbc.gridy = 2;
-		this.add(lblRoleName, gbc);
-		
+		JLabel lblRoleName2 = new JLabel("Nom du rôle 2 :");
+		gbc.gridy = 4;
+		this.add(lblRoleName2, gbc);
+
 		this.txtRoleName2 = new JTextField(20);
-		gbc.gridy = 3;
+		gbc.gridy = 5;
 		this.add(this.txtRoleName2, gbc);
 		
 		JPanel panelBoutons = new JPanel(new FlowLayout());
@@ -66,7 +68,7 @@ public class PanelAjout extends JPanel implements ActionListener
 		panelBoutons.add(btnValider);
 		panelBoutons.add(btnAnnuler);
 		
-		gbc.gridy = 4;
+		gbc.gridy = 6;
 		gbc.gridwidth = 2;
 		this.add(panelBoutons, gbc);
 
@@ -85,7 +87,7 @@ public class PanelAjout extends JPanel implements ActionListener
 		cmbAssociations.removeAllItems();
 		for (Association asso : ctrl.getLstAssociations())
 		{
-			if(asso.getTypeAsso() != null && asso.getTypeAsso().equals("bidirectionnelle"))
+			if(asso.getTypeAsso() != null && "bidirectionnelle".equals(asso.getTypeAsso()))
 			{
 				desc = asso.getClasse1().getNom() + " <-> " + asso.getClasse2().getNom();
 			}
@@ -97,29 +99,16 @@ public class PanelAjout extends JPanel implements ActionListener
 			cmbAssociations.addItem(desc);
 		}
 	}
-	
+
 	private void valider()
 	{
-		String roleName = this.txtRoleName1.getText().trim();
+		String roleName1 = this.txtRoleName1.getText().trim();
+		String roleName2 = this.txtRoleName2.getText().trim();
 		int selectedIndex = cmbAssociations.getSelectedIndex();
-		
-		if (roleName.isEmpty())
-		{
-			JOptionPane.showMessageDialog(this, 
-				"Veuillez entrer un nom de rôle.", 
-				"Erreur", 
-				JOptionPane.ERROR_MESSAGE);
-			return;
-		}
 		
 		if (selectedIndex >= 0)
 		{
-			this.ctrl.ajouterRoleAssociation(selectedIndex, roleName);
-			
-			JOptionPane.showMessageDialog(this, 
-				"Rôle ajouté avec succès!", 
-				"Succès", 
-				JOptionPane.INFORMATION_MESSAGE);
+			this.ctrl.ajouterRoleAssociation(selectedIndex, roleName1, roleName2);
 			
 			this.txtRoleName1.setText("");
 			this.txtRoleName2.setText("");
@@ -148,14 +137,13 @@ public class PanelAjout extends JPanel implements ActionListener
 			this.annuler();
 		}
 
+		
 		if(e.getSource() == this.cmbAssociations)
 		{
-			int indiceSelect = cmbAssociations.getSelectedItem();
-
+			int indiceSelect = cmbAssociations.getSelectedIndex();
 			if(indiceSelect >= 0 && indiceSelect < ctrl.getLstAssociations().size())
 			{
-				Association asso = ctrl.getLstAssociations().get(selectedIndex);
-
+				Association asso = ctrl.getLstAssociations().get(indiceSelect);
 				this.txtRoleName1.setEditable(true);
 				this.txtRoleName2.setEditable(asso.getTypeAsso().equals("bidirectionnelle"));
 			}

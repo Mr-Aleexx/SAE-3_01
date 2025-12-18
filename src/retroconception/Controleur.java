@@ -58,9 +58,18 @@ public class Controleur
 	public void lancerSauvegarde() { this.ihm.lancerSauvegarde(); }
 	public void lancerChargement() { this.ihm.lancerChargement(); }
 
-	public void ajouterRoleAssociation(int index, String nomRole)
+	public void ajouterRoleAssociationUni(int index, String nomRole)
 	{
 		this.metier.getLstAssociations().get(index).setRole1(nomRole);
+	}
+
+	public void ajouterRoleAssociation(int index, String nomRole1, String nomRole2)
+	{
+		if(!nomRole1.isEmpty())
+			this.metier.getLstAssociations().get(index).setRole1(nomRole1);
+
+		if(!nomRole2.isEmpty())
+			this.metier.getLstAssociations().get(index).setRole2(nomRole2);
 	}
 
 	public static void main(String[] args)

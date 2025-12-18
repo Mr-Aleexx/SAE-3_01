@@ -44,10 +44,6 @@ public class AttributeShowcase {
     protected final int instanceId = 123;
     static final double PI = 3.14159;
 
-    // ----- 6. volatile et transient -----
-    private volatile boolean running;
-    private transient int cachedValue;
-
     // ----- 7. Attributs avec annotations -----
     @NotNull
     private String annotatedField = "hello";

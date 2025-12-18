@@ -121,7 +121,7 @@ public class Retroconception
 		}
 	}
 
-	public String getLigneMax(Classe classe)
+	public String getLigneMax(Classe classe) 
 	{
 		String ligne;
 		String maxAttribut  = "";
@@ -136,8 +136,11 @@ public class Retroconception
 		if( ligne.length() < classe.getStereotype().length()+2 && !classe.getStereotype().equals("") )
 			ligne += "«"+classe.getStereotype()+"»";
 
-		for (Attribut attrib : classe.getAttributs())
+
+		for (int cptAtt = 0; cptAtt < 3 && cptAtt < classe.getAttributs().size(); cptAtt++)
 		{
+			Attribut attrib = classe.getAttributs().get(cptAtt);
+			
 			maxAttribut = attrib.getSymbole() + " " + attrib.getNom();
 			
 			if(!attrib.getValeurConstante().equals("")) maxAttribut += " = " + attrib.getValeurConstante();
@@ -145,19 +148,21 @@ public class Retroconception
 			if( nomAttribut.length() < maxAttribut.length())
 				nomAttribut = maxAttribut;
 
-			if( typeAttribut.length() < attrib.getType().length() )
+			if( typeAttribut.length() < attrib.getType().length() + (attrib.estLectureUnique() ? " {Gelé}" : "").length() )
 				typeAttribut = attrib.getType() + (attrib.estLectureUnique() ? " {Gelé}" : "");
 
 			if( ligne.length() < (nomAttribut + " : " + typeAttribut).length())
 				ligne = nomAttribut + " : " + typeAttribut;
 		}
 
-		for (Methode meth : classe.getMethodes())
+		for ( int cptMeth = 0; cptMeth < 3 && cptMeth < classe.getMethodes().size(); cptMeth++ )
 		{
+			Methode meth = classe.getMethodes().get(cptMeth);
+			
 			String type = meth.getType();
 
 			String para = "";
-			for (int cptPara = 0; cptPara < meth.getParametre().size(); cptPara++)
+			for (int cptPara = 0; cptPara < 3 && cptPara < meth.getParametre().size(); cptPara++)
 			{
 				Parametre param = meth.getParametre().get(cptPara);
 
@@ -169,29 +174,28 @@ public class Retroconception
 				para += param.nom() + " : " + param.type();
 				if(meth.getParametre().indexOf(param) != meth.getParametre().size() - 1)
 					para += ", ";
+
 			}
+			
 			maxMethode = (meth.getSymbole() + " " + meth.getNom() + "(" + para + ")");
+			
 			if (maxMethode.length() > nomMethode.length())
 				nomMethode = maxMethode;
 
 			if( meth.getType() != null && ! type.equals( "void" ) )
-				if( typeMethode.length() < type.length() )
-				{
-					typeMethode = meth.getType();
-					
-					typeMethode += (meth.estLectureUnique() ? " {Gelé}" : "");
+				if( typeMethode.length() < 3 + type.length() )
+					typeMethode = " : " + type;
 
-					if(meth.estLectureUnique() && meth.estAbstraite() ) typeMethode += ", ";
+			typeMethode += (meth.estLectureUnique() ? " {Gelé}" : "");
+			typeMethode += (meth.estAbstraite() ? " {abstract}" : "");
 
-					typeMethode += (meth.estAbstraite() ? " {abstract}" : "");
-
-				}
-
-			if( ligne.length() < (nomMethode + " : " + typeMethode).length())
-				ligne = nomMethode + " : " + typeMethode;
+			if( meth.getType() != null && ! type.equals( "void" ) )
+				if( ligne.length() < (nomMethode + typeMethode).length())
+					ligne = nomMethode + typeMethode;
+			else
+				ligne = nomMethode;
+			
 		}
-
-		System.out.println(classe.getNom()+ " : " + ligne);
 		
 		return ligne;
 	}
@@ -251,7 +255,6 @@ public class Retroconception
 				this.lstClasses.add(this.chargerClasse(racine, classe));
 			}
 
-			this.initPosition();
 			this.creationAssociation();
 		}
 		catch (ParserConfigurationException | SAXException | IOException e)
@@ -382,7 +385,7 @@ public class Retroconception
 				Association candidate = lstAssociationTmp.get(j);
 
 				if (association1.getClasse1() == candidate.getClasse2()
-						&& association1.getClasse2() == candidate.getClasse1())
+					&& association1.getClasse2() == candidate.getClasse1())
 				{
 					association2 = candidate;
 					utilise[j] = true;
@@ -544,18 +547,18 @@ public class Retroconception
 
 			NodeList parametres = methodesXML.getElementsByTagName("parametre");
 
-			if(parametres != null)
-				for (int j = 0; j < parametres.getLength(); j++)
-				{
-					Element parametresXML = (Element) parametres.item(i);
-					
-					String  typeP = parametresXML.getElementsByTagName("typeP").item(0).getTextContent();
-					String  nomP  = parametresXML.getElementsByTagName("nomP" ).item(0).getTextContent();
-	
-					Parametre param = new Parametre(typeP, nomP);
-	
-					met.ajouterParametres(param);
-				}
+			//if(parametres != null)
+			for (int j = 0; j < parametres.getLength(); j++)
+			{
+				Element parametresXML = (Element) parametres.item(j);
+				
+				String  typeP = parametresXML.getElementsByTagName("typeP").item(0).getTextContent();
+				String  nomP  = parametresXML.getElementsByTagName("nomP" ).item(0).getTextContent();
+
+				Parametre param = new Parametre(typeP, nomP);
+
+				met.ajouterParametres(param);
+			}
 
 			classe.ajouterMethode(met);
 		}

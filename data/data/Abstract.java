@@ -8,6 +8,7 @@ public abstract class Abstract {
 	public String getNom() {
 		return nom;
 	}
+	public abstract double getPerimetre();
 
 	public final String abstrait()
 	{
@@ -15,7 +16,6 @@ public abstract class Abstract {
 	}
 
 	public abstract double getAire();
-	public abstract double getPerimetre();
 
 
 	// private final class Reel extends Abstract
