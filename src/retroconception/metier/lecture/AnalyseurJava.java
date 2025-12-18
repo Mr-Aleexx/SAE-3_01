@@ -41,6 +41,7 @@ public final class AnalyseurJava
 		String  stereotype;
 		String  nom;
 		String  type;
+		String  valeurConstante;
 
 		/* Variables Utilitaires */
 		Scanner sc;
@@ -50,12 +51,13 @@ public final class AnalyseurJava
 
 		for ( String ligne : NettoyerFichier.nettoyerFichier( fichier ) )
 		{
-			visibilite    = "package";
-			statique      = false;
-			lectureUnique = false;
-			abstraite     = false;
-			stereotype    = "";
-			nom           = "";
+			visibilite      = "package";
+			statique        = false;
+			lectureUnique   = false;
+			abstraite       = false;
+			stereotype      = "";
+			nom             = "";
+			valeurConstante = "";
 
 			sc = new Scanner(ligne);
 			sc.useDelimiter("\\s+");
@@ -107,10 +109,6 @@ public final class AnalyseurJava
 					{
 
 					}
-					default ->
-					{
-
-					}
 				}
 
 				if ( sc.hasNext() ) AnalyseurJava.gereExtendsImplements( classe, sc, ligne );
@@ -133,15 +131,21 @@ public final class AnalyseurJava
 					
 					if ( classe.getStereotype().equals( "interface" ) )
 					{
-						attribut = new Attribut( "public", true, true, type, nom );
+						// Recupere la valeur de l'attribut du static final
+						valeurConstante = ligne.substring( ligne.indexOf( "=" ) + 1 , ligne.indexOf( ";" ) ).trim();
+						
+						attribut = new Attribut( "public", true, true, type, nom, valeurConstante );
 					}
 					else
 					{
-						attribut = new Attribut( visibilite, statique, lectureUnique, type, nom );
+						// Recupere la valeur de l'attribut du static final si ce n'est pas une methode
+						if ( ligne.contains( "=" ) && ! ligne.contains("(") &&
+						     statique              && lectureUnique            )
+							valeurConstante = ligne.substring( ligne.indexOf( "=" ) + 1 , ligne.indexOf( ";" ) ).trim();
+						
+						attribut = new Attribut( visibilite, statique, lectureUnique, type, nom, valeurConstante );
 					}
-
 					classe.ajouterAttribut( attribut ) ;
-					
 				}
 				
 				// Le else est obliger pour eviter les initialisation d'attribut par l'appel de methode

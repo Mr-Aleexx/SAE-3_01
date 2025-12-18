@@ -14,6 +14,8 @@ public class BarreMenu extends JMenuBar implements ActionListener
 	private JMenuItem menuiQuitte;
 	private JMenuItem menuiCharge;
 	private JMenuItem menuiReset;
+	private JMenuItem menuiAjoutRoleAsso;
+
 
 	public BarreMenu(Controleur ctrl)
 	{
@@ -26,6 +28,7 @@ public class BarreMenu extends JMenuBar implements ActionListener
 	private void initMenu()
 	{
 		JMenu menuFichier = new JMenu("Fichier");
+		JMenu menuAffichage = new JMenu("Affichage");
 
 		this.menuiOuvrir = new JMenuItem("Ouvrir");
 		this.menuiCharge = new JMenuItem("Charger Sauvegarde");
@@ -33,6 +36,8 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		this.menuiExpImg = new JMenuItem("Exporter en Image");
 		this.menuiReset  = new JMenuItem("Réinitialiser");
 		this.menuiQuitte = new JMenuItem("Quitter");
+
+		this.menuiAjoutRoleAsso = new JMenuItem("Ajouter Role");
 
 		menuFichier.add(this.menuiOuvrir);
 		menuFichier.add(this.menuiCharge);
@@ -42,7 +47,10 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		menuFichier.add(this.menuiReset );
 		menuFichier.add(this.menuiQuitte);
 
+		menuAffichage.add(this.menuiAjoutRoleAsso);
+
 		this.add( menuFichier );
+		this.add(menuAffichage);
 	}
 
 	private void ajouterEcouteurs()
@@ -53,6 +61,8 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		this.menuiExpImg.addActionListener(this);
 		this.menuiReset .addActionListener(this);
 		this.menuiQuitte.addActionListener(this);
+
+		this.menuiAjoutRoleAsso.addActionListener(this);
 	}
 
 	public void actionPerformed(ActionEvent e)
@@ -64,24 +74,12 @@ public class BarreMenu extends JMenuBar implements ActionListener
 
 		if (e.getSource() == this.menuiCharge)
 		{
-			JFileChooser selection = new JFileChooser();
-			selection.setDialogTitle("Enregistrer");
-
-			int resultat = selection.showSaveDialog(null);
-
-			if (resultat == JFileChooser.APPROVE_OPTION)
-				this.ctrl.chargerSauvegarde(selection.getSelectedFile().getAbsoluteFile());
+			this.ctrl.lancerChargement();
 		}
 
 		if ( e.getSource() == this.menuiSauveg )
 		{
-			JFileChooser selection = new JFileChooser();
-			selection.setDialogTitle("Enregistrer");
-
-			int resultat = selection.showSaveDialog(null);
-
-			if (resultat == JFileChooser.APPROVE_OPTION)
-				this.ctrl.sauvegarderFichier(selection.getSelectedFile().getAbsoluteFile());
+			this.ctrl.lancerSauvegarde();
 		}
 
 		if ( e.getSource() == this.menuiExpImg )
@@ -91,12 +89,19 @@ public class BarreMenu extends JMenuBar implements ActionListener
 
 		if ( e.getSource() == this.menuiReset )
 		{
-			
+			this.ctrl.reset();
 		}
 
 		if ( e.getSource() == this.menuiQuitte )
 		{
 			System.exit(0);
 		}
+
+		if ( e.getSource() == this.menuiAjoutRoleAsso)
+		{
+			new FrameAjout(this.ctrl);
+		}
+
+		this.ctrl.majIHM();
 	}
 }

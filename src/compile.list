@@ -14,8 +14,10 @@ src/retroconception/metier/Retroconception.java
 src/retroconception/ihm/BarreMenu.java
 src/retroconception/ihm/FrameInfo.java
 src/retroconception/ihm/FrameUML.java
+src/retroconception/ihm/FrameAjout.java
 src/retroconception/ihm/IHMCUI.java
 src/retroconception/ihm/PanelClasses.java
+src/retroconception/ihm/PanelAjout.java
 src/retroconception/ihm/PanelInfo.java
 src/retroconception/ihm/PanelUML.java
 

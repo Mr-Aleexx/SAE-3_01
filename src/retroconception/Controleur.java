@@ -12,7 +12,7 @@ import retroconception.metier.Retroconception;
  * Controleur de la classe qui lance le CUI pour l'instant
  * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
- *         Martha, CONSTANTIN Alexis
+ *         Marta, CONSTANTIN Alexis
  * @version Etape 4
  * @since 08-12-2025
  */
@@ -48,16 +48,26 @@ public class Controleur
 	public void   chargerSauvegarde (File   fichier         ) { this.metier.chargerSauvegarde(fichier); }
 	public String getLigneMax       (Classe classe          ) { return this.metier.getLigneMax(classe); }
 
-	public String afficher()
+	public String afficher() { return this.ihmCUI.afficher(); }
+	public void   majIHM  () { this.ihm.majIHM(); }
+	public void   reset   ()
 	{
-		return this.ihmCUI.afficher();
+		this.metier.reset();
+		this.ihm.majIHM();
+	}
+	public void lancerSauvegarde() { this.ihm.lancerSauvegarde(); }
+	public void lancerChargement() { this.ihm.lancerChargement(); }
+
+	public void ajouterRoleAssociation(int index, String nomRole)
+	{
+		this.metier.getLstAssociations().get(index).setRole1(nomRole);
 	}
 
 	public static void main(String[] args)
 	{
 		Controleur ctr = new Controleur();
-		ctr.ouvrirDossier( "./data/testInter" );
-		System.out.println( ctr.afficher() );
+		//ctr.ouvrirDossier( "./data/testInter" );
+		//System.out.println( ctr.afficher() );
 	}
 	
 }

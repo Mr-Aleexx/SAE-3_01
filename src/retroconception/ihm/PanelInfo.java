@@ -53,7 +53,7 @@ public class PanelInfo extends JPanel
 
 			if( classe.estAbstraite())
 			{
-				doc.insertString( doc.getLength(), "«abstract»", bold );
+				doc.insertString( doc.getLength(), "«abstract»\n", bold );
 			}
 
 			// ligne <<stereotype>>
@@ -86,6 +86,9 @@ public class PanelInfo extends JPanel
 			{
 				String prefix = String.format("%s %s", attr.getSymbole(), attr.getNom());
 				int padding = maxNomLength - prefix.length() + 2; // +2 pour le symbole
+
+				// Gere les valeurs des attributs statiques
+				prefix += ( ! attr.getValeurConstante().equals("") ? " = " : "") + attr.getValeurConstante();
 
 				String line = prefix + " ".repeat(padding) + ": " + attr.getType() +
 				              (attr.estLectureUnique() ? " {Gelé}" : "") + "\n";

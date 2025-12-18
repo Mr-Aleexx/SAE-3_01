@@ -20,7 +20,8 @@ final class NettoyerFichier
 		List<String> fichierClean       = new ArrayList<String>();
 		boolean      estDansCommentaire = false;
 		boolean      estDansParametre   = false;
-		boolean      ignorerLigne;
+		boolean      ignorerLigne, estTableau;
+		int          niveauTableau      = 0;
 		int          niveauAcolade      = 0;
 		try
 		{
@@ -28,7 +29,8 @@ final class NettoyerFichier
 			while ( sc.hasNextLine() )
 			{
 				ligne = sc.nextLine().trim();
-
+				
+				estTableau = false;
 				/* ------------------------ */
 				/* Gestion des commentaires */
 				/* ------------------------ */
@@ -73,32 +75,53 @@ final class NettoyerFichier
 				if ( ligne.contains("package") ) ligne = ligne.substring( 0, ligne.indexOf("package")      ) +
 				                                         ligne.substring(    ligne.indexOf(";"      ) +  1 );
 
+				/* --------------------- */
+				/* Gestion des accolades */
+				/* --------------------- */
+
+				// Gere les tableaux d'attributs static final
+				if ( ligne.indexOf("=") != -1 && ligne.indexOf("{") != -1 &&
+				     ligne.indexOf("=") < ligne.indexOf("{"))
+				{
+					niveauTableau++;
+					estTableau = true;
+				}
+				else if( niveauTableau > 0 )
+				{
+					if ( ligne.contains( "}" ) ) niveauTableau--;
+					ligne = fichierClean.remove(fichierClean.size() - 1) + ligne;
+
+					estTableau = true;
+				}
 				/* ----------------------------- */
 				/* Gestion des corps de méthodes */
 				/* ----------------------------- */
-
-				// Enleve les methode écrite sur 1 ligne
-				if ( ligne.contains("{") && ligne.contains("}") )
-					ligne = ligne.substring( 0, ligne.indexOf("{")     ) +
-					        ligne.substring(    ligne.indexOf("}") + 1 );
-
-				// On déclare une liste de boolean pour gérer le niveau d'acolade, soit si il y a
-				// plusieurs classes ou une declaration de methode locale
-				// ou les bloc d'initialisations d'attributs
-				
-				// Vérifier si on doit ignorer cette ligne avant de modifier niveauAcolade
-				ignorerLigne = (niveauAcolade >= 2);
-
-				if ( ligne.contains("{") ) niveauAcolade++;
-
-				if ( ligne.contains("}") )
+				else
 				{
-					niveauAcolade--;
-					continue;
+					// Enleve les methode écrite sur 1 ligne
+					if ( ligne.contains("{") && ligne.contains("}") )
+						ligne = ligne.substring( 0, ligne.indexOf("{")     ) +
+								ligne.substring(    ligne.indexOf("}") + 1 );
+
+					// On déclare une liste de int pour gérer le niveau d'acolade, soit si il y a
+					// plusieurs classes ou une declaration de methode locale ou les bloc d'instances
+					
+					// Vérifier si on doit ignorer cette ligne avant de modifier niveauAcolade
+					ignorerLigne = (niveauAcolade >= 2);
+
+					if ( ligne.contains("{") ) niveauAcolade++;
+
+					if ( ligne.contains("}") )
+					{
+						niveauAcolade--;
+						continue;
+					}
+
+					// Pour le format R&K : ignorer les lignes dans les corps de méthode
+					if ( ignorerLigne ) continue;
 				}
 
-				// Pour le format R&K : ignorer les lignes dans les corps de méthode
-				if ( ignorerLigne ) continue;
+				
 
 				/* ------------------------------------------------------- */
 				/* Gestion des parametres de methodes sur plusieurs lignes */
@@ -120,7 +143,7 @@ final class NettoyerFichier
 				/* --------------- */
 
 				// Enleve les acolade en trop
-				ligne = ligne.replace("{", "");
+				if ( ! estTableau ) ligne = ligne.replace("{", "");
 
 				// Enleve les ";" des methode abstract pour faciliter la lecture
 				if ( ligne.contains( "abstract" ) && ligne.contains( ";" ))
@@ -138,6 +161,9 @@ final class NettoyerFichier
 			sc.close();
 		}
 		catch (FileNotFoundException e){}
+
+		// for ( String s : fichierClean )
+		// 	System.out.println( s );
 
 		return fichierClean;
 	}

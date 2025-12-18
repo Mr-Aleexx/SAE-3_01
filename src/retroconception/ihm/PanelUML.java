@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.event.*;
 import javax.swing.*;
+
 import retroconception.Controleur;
 import retroconception.metier.Association;
 import retroconception.metier.Attribut;
@@ -23,7 +24,7 @@ public class PanelUML extends JPanel
 	private static final String REINITIALISER = "\033[0m";
 
 	private Controleur ctrl;
-	private Integer selectedClassIndex;
+	private Integer    selectedClassIndex;
 
 	public PanelUML(Controleur ctrl)
 	{
@@ -126,10 +127,16 @@ public class PanelUML extends JPanel
 			// determiner longueur max attribut
 			int maxNomTaille = 0;
 			int tailleMax    = 0;
+			int typeMax      = 0;
 			for (Attribut attr : c.getAttributs()) 
 			{
-				tailleMax = (attr.getSymbole() + " " + attr.getNom()).length() + (attr.estLectureUnique() ? 7 : 0);
+				tailleMax = (attr.getSymbole() + " " + attr.getNom()).length();
+				if(!attr.getValeurConstante().equals("")) tailleMax += (" = " + attr.getValeurConstante()).length();
+
 				if (tailleMax > maxNomTaille) maxNomTaille = tailleMax;
+
+				if( typeMax < attr.getType().length() )
+					typeMax = attr.getType().length() + (attr.estLectureUnique() ? 7 : 0);
 			}
 			
 			// dessiner Attribut
@@ -138,8 +145,13 @@ public class PanelUML extends JPanel
 				Attribut att = c.getAttributs().get(cptAtt);
 
 				String attribut = att.getSymbole() + " " + att.getNom();
+			
+				if(!att.getValeurConstante().equals("")) attribut += " = " + att.getValeurConstante();
+
 				nbEspace = maxNomTaille - attribut.length();
-				attribut += " ".repeat(nbEspace+1) + ": " + att.getType() + (att.estLectureUnique() ? " {Gelé}" : "");
+				
+				attribut += " ".repeat(nbEspace+1) + ": " + att.getType() +
+				           (att.estLectureUnique() ? " {Gelé}" : "");
 				
 				textMembreX = posX      + largeurStr;
 				textMembreY = yAttribut + sautDeLigne;
@@ -151,13 +163,13 @@ public class PanelUML extends JPanel
 				}
 		
 				if( att.estStatique()) g2.drawLine(textMembreX, textMembreY+sautDeLigne/6, textMembreX + fm.stringWidth( attribut ), textMembreY+sautDeLigne/6);
+				
 				g2.drawString( attribut, textMembreX, textMembreY );
 
 				yAttribut += sautDeLigne;
 			}
 			
 			// determiner longueur max methode
-
 			maxNomTaille = 0;
 			tailleMax    = 0;
 			for (Methode meth : c.getMethodes())
@@ -179,8 +191,10 @@ public class PanelUML extends JPanel
 						if(meth.getParametre().indexOf(param) != meth.getParametre().size() - 1)
 							para += ", ";
 					}
+
 					tailleMax = (meth.getSymbole() + " " + meth.getNom() + "(" + para + ")").length() + 
 					            (meth.estLectureUnique() ? 7 : 0) + (meth.estAbstraite() ? 10 : 0);
+					
 					if (tailleMax > maxNomTaille) maxNomTaille = tailleMax;
 				}
 			}
@@ -203,8 +217,8 @@ public class PanelUML extends JPanel
 						break;
 					}
 					para += param.nom() + " : " + param.type();
-                	if(meth.getParametre().indexOf(param) != meth.getParametre().size() - 1)
-                   		para += ", ";
+					if(meth.getParametre().indexOf(param) != meth.getParametre().size() - 1)
+						para += ", ";
 				}
 				
 				methode  = meth.getSymbole() + " " + meth.getNom() + "(" + para + ")";
@@ -273,6 +287,16 @@ public class PanelUML extends JPanel
 
 			g2.drawString(String.valueOf(association.getMultiplicite1()), mult1X,  mult1Y );
 			g2.drawString(String.valueOf(association.getMultiplicite2()),  mult2X , mult2Y);
+
+			if (association.getRole1() != null)
+			{
+				g2.drawString(String.valueOf(association.getRole1()), mult1X, mult1Y + 15);
+			}
+
+			if (association.getRole2() != null)
+			{
+				g2.drawString(String.valueOf(association.getRole2()), mult2X, mult2Y + 15);
+			}
 		}
 
 		//Pour l'héritage
@@ -442,7 +466,7 @@ public class PanelUML extends JPanel
 
 		public void mouseDragged(MouseEvent e)
 		{
-			if ( this.numClasseActive != null )
+			if ( this.numClasseActive != null && e.getX() > 0 & e.getY() > 0 )
 				PanelUML.this.ctrl.deplacerClasse( this.numClasseActive, e.getX() - x, e.getY() - y );
 
 			this.x = e.getX();

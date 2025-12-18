@@ -138,12 +138,15 @@ public class Retroconception
 
 		for (Attribut attrib : classe.getAttributs())
 		{
-			maxAttribut = attrib.getSymbole() + " " + attrib.getNom() + (classe.estLectureUnique() ? " {Gelé}" : "");
+			maxAttribut = attrib.getSymbole() + " " + attrib.getNom();
+			
+			if(!attrib.getValeurConstante().equals("")) maxAttribut += " = " + attrib.getValeurConstante();
 			
 			if( nomAttribut.length() < maxAttribut.length())
 				nomAttribut = maxAttribut;
+
 			if( typeAttribut.length() < attrib.getType().length() )
-				typeAttribut = attrib.getType();
+				typeAttribut = attrib.getType() + (attrib.estLectureUnique() ? " {Gelé}" : "");
 
 			if( ligne.length() < (nomAttribut + " : " + typeAttribut).length())
 				ligne = nomAttribut + " : " + typeAttribut;
@@ -160,7 +163,7 @@ public class Retroconception
 
 				if( cptPara > 1 )
 				{
-					para += "… ";
+					para += " … ";
 					break;
 				}
 				para += param.nom() + " : " + param.type();
@@ -173,11 +176,22 @@ public class Retroconception
 
 			if( meth.getType() != null && ! type.equals( "void" ) )
 				if( typeMethode.length() < type.length() )
+				{
 					typeMethode = meth.getType();
+					
+					typeMethode += (meth.estLectureUnique() ? " {Gelé}" : "");
+
+					if(meth.estLectureUnique() && meth.estAbstraite() ) typeMethode += ", ";
+
+					typeMethode += (meth.estAbstraite() ? " {abstract}" : "");
+
+				}
 
 			if( ligne.length() < (nomMethode + " : " + typeMethode).length())
 				ligne = nomMethode + " : " + typeMethode;
 		}
+
+		System.out.println(classe.getNom()+ " : " + ligne);
 		
 		return ligne;
 	}
@@ -219,6 +233,9 @@ public class Retroconception
 	{
 		try
 		{
+			this.lstClasses.clear();
+			this.lstAssociations.clear();
+			
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 
@@ -229,8 +246,13 @@ public class Retroconception
 
 			for (int i = 0; i < noeuds.getLength(); i++)
 			{
+				Element classe = (Element) noeuds.item(i);
 				
+				this.lstClasses.add(this.chargerClasse(racine, classe));
 			}
+
+			this.initPosition();
+			this.creationAssociation();
 		}
 		catch (ParserConfigurationException | SAXException | IOException e)
 		{e.printStackTrace();}
@@ -399,11 +421,68 @@ public class Retroconception
 		bloc.appendChild(Retroconception.createElement(doc, "statique"     , String.valueOf(c.estStatique     ())));
 		bloc.appendChild(Retroconception.createElement(doc, "lectureUnique", String.valueOf(c.estLectureUnique())));
 		bloc.appendChild(Retroconception.createElement(doc, "abstraite"    , String.valueOf(c.estAbstraite    ())));
-		bloc.appendChild(Retroconception.createElement(doc, "nom"          , String.valueOf(c.getNom          ())));
-		bloc.appendChild(Retroconception.createElement(doc, "stereotype"   , String.valueOf(c.getStereotype   ())));
-		bloc.appendChild(Retroconception.createElement(doc, "mere"         , String.valueOf(c.getMere         ())));
+		bloc.appendChild(Retroconception.createElement(doc, "nom"          ,                c.getNom          () ));
+		bloc.appendChild(Retroconception.createElement(doc, "stereotype"   ,                c.getStereotype   () ));
+		bloc.appendChild(Retroconception.createElement(doc, "mere"         ,                c.getMere         () ));
 
-		bloc.appendChild(Retroconception.createElement(doc, "attributs", String.valueOf(c.getAttributs())));
+		for (Attribut a : c.getAttributs())
+		{
+			Element attribut = doc.createElement("attribut");
+			bloc.appendChild(attribut);
+			
+			attribut.appendChild(Retroconception.createElement(doc, "visibiliteA"   ,                a.getVisibilite     () ));
+			attribut.appendChild(Retroconception.createElement(doc, "statiqueA"     , String.valueOf(a.estStatique       ())));
+			attribut.appendChild(Retroconception.createElement(doc, "lectureUniqueA", String.valueOf(a.estLectureUnique  ())));
+			attribut.appendChild(Retroconception.createElement(doc, "typeA"         ,                a.getType           () ));
+			attribut.appendChild(Retroconception.createElement(doc, "nomA"          ,                a.getNom            () ));
+			attribut.appendChild(Retroconception.createElement(doc, "constante"     ,                a.getValeurConstante() ));
+		}
+
+		for (Methode m : c.getMethodes())
+		{
+			Element methode = doc.createElement("methode");
+			bloc.appendChild(methode);
+			
+			methode.appendChild(Retroconception.createElement(doc, "visibiliteM"   ,                m.getVisibilite   () ));
+			methode.appendChild(Retroconception.createElement(doc, "statiqueM"     , String.valueOf(m.estStatique     ())));
+			methode.appendChild(Retroconception.createElement(doc, "lectureUniqueM", String.valueOf(m.estLectureUnique())));
+			methode.appendChild(Retroconception.createElement(doc, "abstraiteM"    , String.valueOf(m.estAbstraite    ())));
+			methode.appendChild(Retroconception.createElement(doc, "stereotypeM"   ,                m.getStereotype   () ));
+			methode.appendChild(Retroconception.createElement(doc, "typeM"         ,                m.getType         () ));
+			methode.appendChild(Retroconception.createElement(doc, "nomM"          ,                m.getNom          () ));
+
+			for (Parametre p : m.getParametre())
+			{
+				Element param = doc.createElement("parametre");
+				methode.appendChild(param);
+
+				param.appendChild(Retroconception.createElement(doc, "typeP", p.type()));
+				param.appendChild(Retroconception.createElement(doc, "nomP" , p.nom ()));
+			}
+		}
+
+		//for (Classe ci : c.getClassesInterne())
+		//	sauvegardeClasse(ci, doc, bloc);
+
+		for (String imp : c.getLstImplementations())
+		{
+			Element implementation = doc.createElement("implementation");
+			bloc.appendChild(implementation);
+
+			implementation.appendChild(Retroconception.createElement(doc, "implementation" , imp));
+		}
+
+		Element position = doc.createElement("position");
+		bloc.appendChild(position);
+
+		position.appendChild(Retroconception.createElement(doc, "centreX"        , String.valueOf(c.getPos().getCentreX        ())));
+		position.appendChild(Retroconception.createElement(doc, "centreYClasse"  , String.valueOf(c.getPos().getCentreYClasse  ())));
+		position.appendChild(Retroconception.createElement(doc, "centreYAttribut", String.valueOf(c.getPos().getCentreYAttribut())));
+		position.appendChild(Retroconception.createElement(doc, "centreYMethode" , String.valueOf(c.getPos().getCentreYMethode ())));
+		position.appendChild(Retroconception.createElement(doc, "tailleX"        , String.valueOf(c.getPos().getTailleX        ())));
+		position.appendChild(Retroconception.createElement(doc, "tailleYClasse"  , String.valueOf(c.getPos().getTailleYClasse  ())));
+		position.appendChild(Retroconception.createElement(doc, "tailleYAttribut", String.valueOf(c.getPos().getTailleYAttribut())));
+		position.appendChild(Retroconception.createElement(doc, "tailleYMethode" , String.valueOf(c.getPos().getTailleYMethode ())));
 		
 		return doc;
 	}
@@ -413,6 +492,105 @@ public class Retroconception
 		Element element = doc.createElement(nom);
 		element.appendChild(doc.createTextNode(val));
 		return element;
+	}
+
+	private Classe chargerClasse(Element racine, Element classeXML)
+	{
+		System.out.println(classeXML.getElementsByTagName("visibilite"   ).item(0).getTextContent());
+		String  visibilite    =                      classeXML.getElementsByTagName("visibilite"   ).item(0).getTextContent() ;
+		boolean statique      = Boolean.parseBoolean(classeXML.getElementsByTagName("statique"     ).item(0).getTextContent());
+		boolean lectureUnique = Boolean.parseBoolean(classeXML.getElementsByTagName("lectureUnique").item(0).getTextContent());
+		boolean abstraite     = Boolean.parseBoolean(classeXML.getElementsByTagName("abstraite"    ).item(0).getTextContent());
+		String  nom           =                      classeXML.getElementsByTagName("nom"          ).item(0).getTextContent() ;
+		String  stereotype    =                      classeXML.getElementsByTagName("stereotype"   ).item(0).getTextContent() ;
+		String  mere          =                      classeXML.getElementsByTagName("mere"         ).item(0).getTextContent() ;
+
+		Classe classe = new Classe(visibilite, statique, lectureUnique, abstraite, stereotype, nom);
+		classe.setMere(mere);
+
+		NodeList attributs = classeXML.getElementsByTagName("attribut");
+		
+		for (int i = 0; i < attributs.getLength(); i++)
+		{
+			Element attributsXML = (Element) attributs.item(i);
+			
+			String  visibiliteA    =                      attributsXML.getElementsByTagName("visibiliteA"   ).item(0).getTextContent() ;
+			boolean statiqueA      = Boolean.parseBoolean(attributsXML.getElementsByTagName("statiqueA"     ).item(0).getTextContent());
+			boolean lectureUniqueA = Boolean.parseBoolean(attributsXML.getElementsByTagName("lectureUniqueA").item(0).getTextContent());
+			String  typeA          =                      attributsXML.getElementsByTagName("typeA"         ).item(0).getTextContent() ;
+			String  nomA           =                      attributsXML.getElementsByTagName("nomA"          ).item(0).getTextContent() ;
+			String  constante      =                      attributsXML.getElementsByTagName("constante"     ).item(0).getTextContent() ;
+
+			Attribut att = new Attribut(visibiliteA, statiqueA, lectureUniqueA, typeA, nomA, constante);
+
+			classe.ajouterAttribut(att);
+		}
+
+		NodeList methodes = classeXML.getElementsByTagName("methode");
+		
+		for (int i = 0; i < methodes.getLength(); i++)
+		{
+			Element methodesXML = (Element) methodes.item(i);
+			
+			String  visibiliteM    =                      methodesXML.getElementsByTagName("visibiliteM"   ).item(0).getTextContent() ;
+			boolean statiqueM      = Boolean.parseBoolean(methodesXML.getElementsByTagName("statiqueM"     ).item(0).getTextContent());
+			boolean lectureUniqueM = Boolean.parseBoolean(methodesXML.getElementsByTagName("lectureUniqueM").item(0).getTextContent());
+			boolean abstraiteM     = Boolean.parseBoolean(methodesXML.getElementsByTagName("abstraiteM"    ).item(0).getTextContent());
+			String  stereotypeM    =                      methodesXML.getElementsByTagName("stereotypeM"   ).item(0).getTextContent() ;
+			String  typeM          =                      methodesXML.getElementsByTagName("typeM"         ).item(0).getTextContent() ;
+			String  nomM           =                      methodesXML.getElementsByTagName("nomM"          ).item(0).getTextContent() ;
+
+			Methode met = new Methode(visibiliteM, statiqueM, lectureUniqueM, abstraiteM, stereotypeM, typeM, nomM);
+
+			NodeList parametres = methodesXML.getElementsByTagName("parametre");
+
+			if(parametres != null)
+				for (int j = 0; j < parametres.getLength(); j++)
+				{
+					Element parametresXML = (Element) parametres.item(i);
+					
+					String  typeP = parametresXML.getElementsByTagName("typeP").item(0).getTextContent();
+					String  nomP  = parametresXML.getElementsByTagName("nomP" ).item(0).getTextContent();
+	
+					Parametre param = new Parametre(typeP, nomP);
+	
+					met.ajouterParametres(param);
+				}
+
+			classe.ajouterMethode(met);
+		}
+
+		NodeList positions = classeXML.getElementsByTagName("position");
+
+		for (int i = 0; i < positions.getLength(); i++)
+		{
+			Element positionsXML = (Element) positions.item(i);
+
+			int centreX         = Integer.parseInt(positionsXML.getElementsByTagName("centreX"        ).item(0).getTextContent());
+			int centreYClasse   = Integer.parseInt(positionsXML.getElementsByTagName("centreYClasse"  ).item(0).getTextContent());
+			int centreYAttribut = Integer.parseInt(positionsXML.getElementsByTagName("centreYAttribut").item(0).getTextContent());
+			int centreYMethode  = Integer.parseInt(positionsXML.getElementsByTagName("centreYMethode" ).item(0).getTextContent());
+			int tailleX         = Integer.parseInt(positionsXML.getElementsByTagName("tailleX"        ).item(0).getTextContent());
+			int tailleYClasse   = Integer.parseInt(positionsXML.getElementsByTagName("tailleYClasse"  ).item(0).getTextContent());
+			int tailleYAttribut = Integer.parseInt(positionsXML.getElementsByTagName("tailleYAttribut").item(0).getTextContent());
+			int tailleYMethode  = Integer.parseInt(positionsXML.getElementsByTagName("tailleYMethode" ).item(0).getTextContent());
+
+			PositionClasse pos = new PositionClasse(centreX, centreYClasse, centreYAttribut, centreYMethode, tailleX, tailleYClasse, tailleYAttribut, tailleYMethode);
+
+			classe.setPosition(pos);
+		}
+
+		return classe;
+	}
+
+
+
+
+
+	public void reset()
+	{
+		this.lstClasses.clear();
+		this.lstAssociations.clear();
 	}
 
 }

@@ -51,7 +51,7 @@ final class GereStereotype
 			type = lstType.get(0);
 			nom = lstType.get(1).replace(",", "");
 
-			c.ajouterAttribut(new Attribut("private", false, true, type, nom));
+			c.ajouterAttribut(new Attribut("private", false, true, type, nom, ""));
 			lstParametres.add(new Parametre(type, nom));
 		}
 

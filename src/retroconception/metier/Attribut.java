@@ -14,27 +14,32 @@ public class Attribut
 	private boolean lectureUnique;
 	private String  type;
 	private String  nom;
+	private String  valeurConstante;
 
-	public Attribut( String visibilite, boolean statique, boolean lectureUnique, String type, String nom )
+	public Attribut( String visibilite, boolean statique, boolean lectureUnique, String type, String nom,
+	                 String valeurConstante )
 	{
-		this.visibilite    = visibilite;
-		this.statique      = statique;
-		this.lectureUnique = lectureUnique;
-		this.type          = type;
-		this.nom           = nom;
+		this.visibilite      = visibilite;
+		this.statique        = statique;
+		this.lectureUnique   = lectureUnique;
+		this.type            = type;
+		this.nom             = nom;
+		this.valeurConstante = valeurConstante;
 	}
 
-	public String  getVisibilite   () { return this.visibilite;    }
-	public boolean estStatique     () { return this.statique;      }
-	public boolean estLectureUnique() { return this.lectureUnique; }
-	public String  getType         () { return this.type;          }
-	public String  getNom          () { return this.nom;           }
+	public String  getVisibilite     () { return this.visibilite;      }
+	public boolean estStatique       () { return this.statique;        }
+	public boolean estLectureUnique  () { return this.lectureUnique;   }
+	public String  getType           () { return this.type;            }
+	public String  getNom            () { return this.nom;             }
+	public String  getValeurConstante() { return this.valeurConstante; }
 
-	public void setVisibilite   ( String visibilite     ) { this.visibilite    = visibilite;    }
-	public void setStatique     ( boolean statique      ) { this.statique      = statique;      }
-	public void setLectureUnique( boolean lectureUnique ) { this.lectureUnique = lectureUnique; }
-	public void setType         ( String type           ) { this.type          = type;          }
-	public void setNom          ( String nom            ) { this.nom           = nom;           }
+	public void setVisibilite     ( String visibilite      ) { this.visibilite      = visibilite;      }
+	public void setStatique       ( boolean statique       ) { this.statique        = statique;        }
+	public void setLectureUnique  ( boolean lectureUnique  ) { this.lectureUnique   = lectureUnique;   }
+	public void setType           ( String type            ) { this.type            = type;            }
+	public void setNom            ( String nom             ) { this.nom             = nom;             }
+	public void setValeurConstante( String valeurConstante ) { this.valeurConstante = valeurConstante; }
 
 	/**
 	 * Représentation de la visibilité d'une classe par un charactère

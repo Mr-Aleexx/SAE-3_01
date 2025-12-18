@@ -41,11 +41,11 @@ public class Commentaires {
 		this.b = b/*;/* */;
 	}
 
-	public static foo(int a, int b) {
+	public static void foo(int a, int b) {
 		return a;
 	}
 
-	public static foo2(int a, int b) {
+	public static void foo2(int a, int b) {
 		return a;
 	}
 

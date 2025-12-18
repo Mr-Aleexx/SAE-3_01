@@ -100,6 +100,39 @@ public class FrameUML extends JFrame
 		}
 	}
 
+	public void lancerSauvegarde()
+	{
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Enregistrer");
+
+		int resultat = fileChooser.showSaveDialog(null);
+
+		if (resultat == JFileChooser.APPROVE_OPTION)
+			this.ctrl.sauvegarderFichier(fileChooser.getSelectedFile().getAbsoluteFile());
+	}
+
+
+	public void lancerChargement()
+	{
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Charger");
+		fileChooser.setCurrentDirectory(new File("./data"));
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+
+		int result = fileChooser.showOpenDialog(this.getParent());
+
+		if (result == JFileChooser.APPROVE_OPTION)
+		{
+			File selectedFile = fileChooser.getSelectedFile();
+			if(selectedFile.getName().contains(".xml"))
+				this.ctrl.chargerSauvegarde(fileChooser.getSelectedFile().getAbsoluteFile());
+
+		}
+
+	}
+
+
+
 	public void majIHM()
 	{
 		this.panelUML.majIHM();
