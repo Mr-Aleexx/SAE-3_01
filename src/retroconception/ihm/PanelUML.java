@@ -70,7 +70,7 @@ public class PanelUML extends JPanel
 			
 			this.ctrl.definirDimension(c, fm.stringWidth(this.ctrl.getLigneMax(c)+"  "));
 
-			posX            = c.getPos().getCentreX()         - c.getPos().getTailleX() / 2;;
+			posX            = c.getPos().getCentreX()         - c.getPos().getTailleX() / 2;
 			tailleX         = c.getPos().getTailleX();
 
 
@@ -241,9 +241,6 @@ public class PanelUML extends JPanel
 
 	public void construireLiens(Graphics2D g2)
 	{
-		
-		
-		
 		//Pour les Associations
 		for (Association association : this.ctrl.getLstAssociations())
 		{

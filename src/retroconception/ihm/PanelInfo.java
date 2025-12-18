@@ -21,13 +21,6 @@ public class PanelInfo extends JPanel
 		
 		this.setLayout(new BorderLayout());
 		this.setBackground(new Color(228, 240, 232));
-		
-		/* ------------------ */
-		/* Titre de la classe */
-		/* ------------------ */
-		JLabel titre = new JLabel(classe.getNom());
-		titre.setFont(new Font("Arial", Font.BOLD, 16));
-		titre.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		/* ---------------- */
 		/* Zone de contenu  */
@@ -54,6 +47,27 @@ public class PanelInfo extends JPanel
 		
 		try
 		{
+			/* ------------------ */
+			/* Titre de la classe */
+			/* ------------------ */
+
+			if( classe.estAbstraite())
+			{
+				doc.insertString( doc.getLength(), "«abstract»", bold );
+			}
+
+			// ligne <<stereotype>>
+			if( ! classe.getStereotype().equals("") )
+			{
+				doc.insertString( doc.getLength(), "«" + classe.getStereotype() + "»\n", bold );
+			}
+			// Final ou non
+			String nomClasse = classe.getNom()+ ((classe.estLectureUnique()) ? " {Gelé}" : "");
+			//Nom de la classe
+			if( classe.estStatique()) doc.insertString(doc.getLength(), nomClasse + "\n\n", underline );
+			else                      doc.insertString(doc.getLength(), nomClasse + "\n\n", normal    );
+			
+
 			/* ----------- */
 			/* ATTRIBUTS   */
 			/* ----------- */
@@ -73,7 +87,8 @@ public class PanelInfo extends JPanel
 				String prefix = String.format("%s %s", attr.getSymbole(), attr.getNom());
 				int padding = maxNomLength - prefix.length() + 2; // +2 pour le symbole
 
-				String line = prefix + " ".repeat(padding) + ": " + attr.getType() + "\n";
+				String line = prefix + " ".repeat(padding) + ": " + attr.getType() +
+				              (attr.estLectureUnique() ? " {Gelé}" : "") + "\n";
 
 				if (attr.estStatique()) doc.insertString( doc.getLength(), line, underline );
 				else                    doc.insertString( doc.getLength(), line, normal    );
@@ -123,6 +138,8 @@ public class PanelInfo extends JPanel
 					int padding = maxMethodLength - signature.length() + 2;
 					signature += " ".repeat(padding) + ": " + method.getType();
 				}
+				signature += (method.estLectureUnique() ? " {Gelé}" : "") +
+				             (method.estAbstraite() ? " {abstract}" : "");
 
 				if (method.estStatique())
 					doc.insertString(doc.getLength(), signature + "\n", underline);

@@ -69,6 +69,7 @@ public class Retroconception
 		File[] lstFichier = dossier.listFiles();
 		
 		this.lstClasses.clear();
+		this.lstAssociations.clear();
 
 		for (File fichier : lstFichier)
 			if (fichier.getName().contains(".java") )
