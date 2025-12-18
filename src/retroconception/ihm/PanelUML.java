@@ -10,7 +10,6 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.event.*;
 import javax.swing.*;
-
 import retroconception.Controleur;
 import retroconception.metier.Association;
 import retroconception.metier.Attribut;
@@ -260,132 +259,201 @@ public class PanelUML extends JPanel
 		}
 	}
 
-	private int[] calculerPointsConnexion(Classe c1, Classe c2)
-	{
-		int c1CentreX = obtenirCentreX(c1);
-		int c1CentreY = obtenirCentreY(c1);
-		int c2CentreX = obtenirCentreX(c2);
-		int c2CentreY = obtenirCentreY(c2);
-
-		int c1Largeur = obtenirLargeur(c1);
-		int c1Hauteur = obtenirHauteur(c1);
-		int c2Largeur = obtenirLargeur(c2);
-		int c2Hauteur = obtenirHauteur(c2);
-
-		int[] point1 = calculerPointConnection(c1CentreX, c1CentreY, c1Largeur, c1Largeur, c2Largeur, c2Largeur);
-		int[] point2 = calculerPointConnection(c1CentreX, c1CentreY, c1Largeur, c1Largeur, c2Largeur, c2Largeur);
-
-		return new int[]{point1[0], point1[1], point2[0], point2[1]};
-	}
-
 	public void construireLiens(Graphics2D g2)
 	{
-		//Pour les Associations
+		// Pour les Associations
 		for (Association association : this.ctrl.getLstAssociations())
 		{
 			Classe classe1 = association.getClasse1();
 			Classe classe2 = association.getClasse2();
-
+			
 			int[] points = calculerPointsConnexion(classe1, classe2);
+			
+			g2.drawLine(points[0], points[1], points[2], points[3]);
 
-			int x1 = classe1.getPos().getCentreX() - classe1.getPos().getTailleX() / 2;
-			int y1 = classe1.getPos().getCentreYClasse() + 
-			         classe1.getPos().getTailleYClasse() / 2 +
-			         classe1.getPos().getTailleYAttribut() / 2;
-
-			int x2 = classe2.getPos().getCentreX() - classe2.getPos().getTailleX() / 2;
-			int y2 = classe2.getPos().getCentreYClasse() + 
-			         classe2.getPos().getTailleYClasse() / 2 +
-			         classe2.getPos().getTailleYAttribut() / 2;
-
-			g2.drawLine(x1, y1, x2, y2);
-
-			if (association.getTypeAsso() == "unidirectionnelle")
+			if (association.getTypeAsso().equals("unidirectionnelle"))
 			{
-				drawArrowHead(g2, x1, y1, x2, y2);
+				drawArrowHead(g2, points[0], points[1], points[2], points[3]);
 			}
 
-			int mult1X = x1 + (int)((x2 - x1) * 0.1);
-			int mult1Y = y1 + (int)((y2 - y1) * 0.1);
-
-			int mult2X = x2 - (int)((x2 - x1) * 0.1);
-			int mult2Y = y2 - (int)((y2 - y1) * 0.1);
-
-			g2.drawString(String.valueOf(association.getMultiplicite1()), mult1X,  mult1Y );
-			g2.drawString(String.valueOf(association.getMultiplicite2()),  mult2X , mult2Y);
-
-			if (association.getRole1() != null)
-			{
-				g2.drawString(String.valueOf(association.getRole1()), mult1X, mult1Y + 15);
-			}
-
-			if (association.getRole2() != null)
-			{
-				g2.drawString(String.valueOf(association.getRole2()), mult2X, mult2Y + 15);
-			}
+			// Positions des multiplicités et rôles
+			dessinerMultiplicitesEtRoles(g2, points, association);
 		}
 
-		//Pour l'héritage
+		// Pour l'héritage
 		for (Classe classe : this.ctrl.getLstClasses())
 		{
 			String mere = classe.getMere();
 			
 			if(mere != null)
 			{
-				for(Classe classe2 : this.ctrl.getLstClasses())
+				Classe classeMere = trouverClasseParNom(mere);
+				if (classeMere != null)
 				{
-					if(classe2.getNom().equals(mere))
-					{
-						int x1 = classe.getPos().getCentreX() - classe.getPos().getTailleX() / 2;
-						int y1 = classe.getPos().getCentreYClasse() + 
-						         classe.getPos().getTailleYClasse() / 2 +
-						         classe.getPos().getTailleYAttribut() / 2;
-
-						int x2 = classe2.getPos().getCentreX() - classe2.getPos().getTailleX() / 2;
-						int y2 = classe2.getPos().getCentreYClasse() + 
-						         classe2.getPos().getTailleYClasse() / 2 +
-						         classe2.getPos().getTailleYAttribut() / 2;
-
-						g2.drawLine(x1, y1, x2, y2);
-						drawArrowHeadFull(g2, x1, y1, x2, y2);
-					}
+					dessinerLienHeritage(g2, classe, classeMere);
 				}
 			}
 		}
 
-		//Pour les interfaces 
+		// Pour les interfaces 
 		for (Classe classe : this.ctrl.getLstClasses())
 		{
 			for (String interfaceName : classe.getLstImplementations())
 			{
-				for (Classe classe2 : this.ctrl.getLstClasses())
+				Classe classeInterface = trouverClasseParNom(interfaceName);
+				if (classeInterface != null)
 				{
-					if (classe2.getNom().equals(interfaceName))
-					{
-						int x1 = classe.getPos().getCentreX() - classe.getPos().getTailleX() / 2;
-						int y1 = classe.getPos().getCentreYClasse() + 
-								classe.getPos().getTailleYClasse() / 2 +
-								classe.getPos().getTailleYAttribut() / 2;
-
-						int x2 = classe2.getPos().getCentreX() - classe2.getPos().getTailleX() / 2;
-						int y2 = classe2.getPos().getCentreYClasse() + 
-								 classe2.getPos().getTailleYClasse() / 2 +
-								 classe2.getPos().getTailleYAttribut() / 2;
-
-						Stroke originalStroke = g2.getStroke();
-						
-						float[] dashPattern = {5.0f, 5.0f};
-						g2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dashPattern, 0.0f));
-						
-						g2.drawLine(x1, y1, x2, y2);
-						
-						g2.setStroke(originalStroke);
-						
-						drawArrowHeadFull(g2, x1, y1, x2, y2);
-					}
+					dessinerLienInterface(g2, classe, classeInterface);
 				}
 			}
 		}
+	}
+
+	/**
+	 * Dessine un lien d'héritage entre deux classes
+	 */
+	private void dessinerLienHeritage(Graphics2D g2, Classe enfant, Classe parent)
+	{
+		int[] points = calculerPointsConnexion(enfant, parent);
+		g2.drawLine(points[0], points[1], points[2], points[3]);
+		drawArrowHeadFull(g2, points[0], points[1], points[2], points[3]);
+	}
+
+	/**
+	 * Dessine un lien d'implémentation d'interface (ligne pointillée)
+	 */
+	private void dessinerLienInterface(Graphics2D g2, Classe classe, Classe interfaceClasse)
+	{
+		int[] points = calculerPointsConnexion(classe, interfaceClasse);
+		
+		Stroke originalStroke = g2.getStroke();
+		float[] dashPattern = {5.0f, 5.0f};
+		g2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dashPattern, 0.0f));
+		
+		g2.drawLine(points[0], points[1], points[2], points[3]);
+		
+		g2.setStroke(originalStroke);
+		drawArrowHeadFull(g2, points[0], points[1], points[2], points[3]);
+	}
+
+	/**
+	 * Dessine les multiplicités et rôles d'une association
+	 */
+	private void dessinerMultiplicitesEtRoles(Graphics2D g2, int[] points, Association association)
+	{
+		int x1 = points[0], y1 = points[1], x2 = points[2], y2 = points[3];
+		
+		int mult1X = x1 + (int)((x2 - x1) * 0.15);
+		int mult1Y = y1 + (int)((y2 - y1) * 0.15);
+		int mult2X = x2 - (int)((x2 - x1) * 0.15);
+		int mult2Y = y2 - (int)((y2 - y1) * 0.15);
+
+		g2.drawString(String.valueOf(association.getMultiplicite1()), mult1X, mult1Y);
+		g2.drawString(String.valueOf(association.getMultiplicite2()), mult2X, mult2Y);
+
+		if (association.getRole1() != null)
+		{
+			g2.drawString(String.valueOf(association.getRole1()), mult1X, mult1Y + 15);
+		}
+
+		if (association.getRole2() != null)
+		{
+			g2.drawString(String.valueOf(association.getRole2()), mult2X, mult2Y + 15);
+		}
+	}
+
+	/**
+	 * Calcule les points de connexion entre deux classes
+	 * @return [x1, y1, x2, y2]
+	 */
+	private int[] calculerPointsConnexion(Classe classe1, Classe classe2)
+	{
+		int c1CentreX = obtenirCentreX(classe1);
+		int c1CentreY = obtenirCentreY(classe1);
+		int c2CentreX = obtenirCentreX(classe2);
+		int c2CentreY = obtenirCentreY(classe2);
+
+		int c1Width = obtenirLargeur(classe1);
+		int c1Height = obtenirHauteur(classe1);
+		int c2Width = obtenirLargeur(classe2);
+		int c2Height = obtenirHauteur(classe2);
+
+		int[] point1 = calculerPointConnexion(c1CentreX, c1CentreY, c1Width, c1Height, c2CentreX, c2CentreY);
+		int[] point2 = calculerPointConnexion(c2CentreX, c2CentreY, c2Width, c2Height, c1CentreX, c1CentreY);
+
+		return new int[]{point1[0], point1[1], point2[0], point2[1]};
+	}
+
+	/**
+	 * Trouve une classe par son nom
+	 */
+	private Classe trouverClasseParNom(String nom)
+	{
+		for (Classe classe : this.ctrl.getLstClasses())
+		{
+			if (classe.getNom().equals(nom))
+			{
+				return classe;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Obtient le centre X d'une classe
+	 */
+	private int obtenirCentreX(Classe classe)
+	{
+		return classe.getPos().getCentreX();
+	}
+
+	private int obtenirCentreY(Classe classe)
+	{
+		return classe.getPos().getCentreYClasse() + 
+			classe.getPos().getTailleYClasse() / 2 +
+			classe.getPos().getTailleYAttribut() / 2;
+	}
+
+	private int obtenirLargeur(Classe classe)
+	{
+		return classe.getPos().getTailleX();
+	}
+
+	private int obtenirHauteur(Classe classe)
+	{
+		return classe.getPos().getTailleYClasse() + 
+			classe.getPos().getTailleYAttribut() + 
+			classe.getPos().getTailleYMethode();
+	}
+
+
+	private int[] calculerPointConnexion(int centreX, int centreY, int largeur, int hauteur, int versCentreX, int versCentreY) 
+	{
+		int dx = versCentreX - centreX;
+		int dy = versCentreY - centreY;
+
+		int demiLargeur = largeur / 2;
+		int demiHauteur = hauteur / 2;
+
+		int x = centreX;
+		int y = centreY;
+
+		if (Math.abs(dx) > Math.abs(dy)) {
+			
+			if (dx > 0) {
+				x = centreX + demiLargeur;
+			} else {
+				x = centreX - demiLargeur;
+			}
+		} else {
+			if (dy > 0) {
+				y = centreY + demiHauteur;
+			} else {
+				y = centreY - demiHauteur;
+			}
+		}
+
+		return new int[]{x, y};
 	}
 
 	private void drawArrowHead(Graphics2D g2, int x1, int y1, int x2, int y2)
@@ -428,65 +496,6 @@ public class PanelUML extends JPanel
 		int[] yPoints = {y2, y3, y4};
 
 		g2.fillPolygon(xPoints, yPoints, 3);
-	}
-
-
-	private int obtenirCentreX(Classe c)
-	{
-		return c.getPos().getCentreX();
-	}
-
-	private int obtenirCentreY(Classe c)
-	{
-		return c.getPos().getCentreYClasse() + 
-			   c.getPos().getTailleYClasse() / 2 +
-			   c.getPos().getTailleYAttribut() / 2;
-	}
-
-	private int obtenirLargeur(Classe c) 
-	{
-		return c.getPos().getTailleX();
-	}
-
-	private int obtenirHauteur(Classe c) 
-	{
-		return c.getPos().getTailleYClasse  () + 
-	    	   c.getPos().getTailleYAttribut() + 
-	       	   c.getPos().getTailleYMethode ();
-	}
-
-	private int[] calculerPointConnection(int centreX, int centreY, int largueur, int hauteur, int versCentreX, int versCentreY) 
-	{
-		double dDepuisCentre;
-	
-		int x;
-		int y;
-
-		// Un tableau non instancié sera retourné
-		double dx = versCentreX - centreX;
-		double dy = versCentreY - centreY;
-		if (largueur == 0) return new int[]{centreX, centreY};
-
-		// Theoreme de Pythagore pour avoir la taille du vecteur de la ligne
-		double hypothenuse = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-
-		// Normalisation des vecteur pour qu'il soit plus facile de calculer ensuite
-		dx /= hypothenuse;
-		dy /= hypothenuse;
-
-		// Calcule des demiLargeur et demiHauteur pour les points d'ancrages
-		double demiLargeur = largueur/2.0;
-		double demiHauteur = hauteur/2.0;
-
-		double pointHorizontale = demiLargeur/Math.abs(dx);
-		double pointVerticale   = demiHauteur/Math.abs(dy);
-
-		dDepuisCentre = Math.min(pointHorizontale, pointVerticale);
-
-		x = centreX + (int)(dx * dDepuisCentre);
-		y = centreY + (int)(dy * dDepuisCentre);
-
-		return new int[]{0,0};
 	}
 
 	public void majIHM()
