@@ -119,7 +119,7 @@ public final class AnalyseurJava
 			{
 				// Attributs
 				// System.out.println("ligne  :" + ligne);
-				if ( ligne.contains(";") )
+				if ( ligne.contains(";") && ! GereStereotype.estMethodeAbstraiteInterface( classe, ligne ) )
 				{
 					ligne = ligne.substring( ligne.indexOf( mot ) );
 
@@ -169,18 +169,18 @@ public final class AnalyseurJava
 							nom = mot.substring(0, index);
 					}
 
-					if ( visibilite.equals( "default" ) )
+					if ( visibilite.equals("default") )
 					{
 						visibilite = "public";
 						stereotype = "default";
 					}
-					
-					if ( classe.getStereotype().equals( "interface" ) )
+				
+					if ( classe.getStereotype().equals("interface") )
 					{
-						if ( visibilite.equals( "package" ) )
+						if ( visibilite.equals("package") )
 						{
 							visibilite = "public";
-							if ( ! statique ) abstraite = true;
+							if (!statique) abstraite = true;
 						}
 					}
 

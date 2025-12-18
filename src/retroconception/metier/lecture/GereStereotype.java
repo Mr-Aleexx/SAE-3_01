@@ -86,7 +86,13 @@ final class GereStereotype
 	public static boolean estMethodeStandardRecord(Classe c, String ligne)
 	{
 		return c.getNom().equals("record") && ( ligne.contains("equals"  ) ||
-		                                        ligne.contains("hashCode") || ligne.contains("toString") );
+		                                        ligne.contains("hashCode") ||
+		                                        ligne.contains("toString") );
+	}
+
+	public static boolean estMethodeAbstraiteInterface( Classe c, String ligne )
+	{
+		return c.getStereotype().equals("interface") && ligne.contains("(") && ! ligne.contains("=") ;
 	}
 }
 	
