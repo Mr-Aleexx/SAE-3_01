@@ -131,6 +131,19 @@ public class FrameUML extends JFrame
 
 	}
 
+	public void changerCouleur(String panel, int index)
+	{
+		if (panel.equals("classe"))
+		{
+			this.panelUML.changerCouleur(index);
+		}
+
+		if(panel.equals("uml"))
+		{
+			this.panelInfo.changerCouleur(index);
+		}
+	}
+
 
 
 	public void majIHM()

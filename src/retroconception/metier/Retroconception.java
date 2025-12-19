@@ -75,8 +75,8 @@ public class Retroconception
 			if (fichier.getName().contains(".java") )
 				this.lstClasses.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
 
-		this.initPosition();
 		this.creationAssociation();
+		this.initPosition();
 	}
 
 	public void ouvrirFichier(String fichier)
@@ -154,7 +154,6 @@ public class Retroconception
 				for ( int cptVal = 0; cptVal < 3 && cptVal < valeurs.size(); cptVal++ )
 					maxAttribut += valeurs.get(cptVal);
 				maxAttribut += (( valeurs.size() > 3 ) ? " ..." : "");
-				System.out.println("maxAttribut :"+maxAttribut+":" + maxAttribut.length());
 			}
 
 			if( nomAttribut.length() < maxAttribut.length())
@@ -192,6 +191,7 @@ public class Retroconception
 			specificite = "";
 			specificite += (meth.estLectureUnique() ? " {Gelé}" : "");
 			specificite += (meth.estAbstraite() ? " {abstract}" : "");
+			specificite += (!meth.getStereotype().equals("") ? " {" + meth.getStereotype()+ "}" : "");
 
 			if( type != null && ! type.equals( "void" ) )
 			{
@@ -229,10 +229,14 @@ public class Retroconception
 			Element racine = document.createElement("ihm");
 			document.appendChild(racine);
 
+			Element classes = document.createElement("classes");
+			racine.appendChild(classes);
+
 			for (Classe c : this.lstClasses)
-			{
-				document = this.sauvegardeClasse(c, document, racine);
-			}
+				document = this.sauvegardeClasse(c, document, classes);
+
+			for (Association a : this.lstAssociations)
+				document = this.sauvegarderAssociation(a, document, racine);
 
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
@@ -263,17 +267,40 @@ public class Retroconception
 
 			Document document = builder.parse(fichier);
 
-			Element racine = document.getDocumentElement();
-			NodeList noeuds = racine.getElementsByTagName("bloc");
+			Element  racine  = document.getDocumentElement();
+			NodeList classes = racine.getElementsByTagName("classes");
 
-			for (int i = 0; i < noeuds.getLength(); i++)
+			Element classesElem = (Element) classes.item(0);
+			NodeList bloc = classesElem.getElementsByTagName("bloc");
+
+			for (int i = 0; i < bloc.getLength(); i++)
 			{
-				Element classe = (Element) noeuds.item(i);
+				Element classe = (Element) bloc.item(i);
 				
-				this.lstClasses.add(this.chargerClasse(racine, classe));
+				this.lstClasses.add(this.chargerClasse(classe));
 			}
 
-			this.creationAssociation();
+			NodeList liens = racine.getElementsByTagName("lien");
+
+			for (int i = 0; i < liens.getLength(); i++)
+			{
+				Element asso = (Element) liens.item(i);
+				
+				this.lstAssociations.add(this.chargerAssociation(asso));
+			}
+
+			//for (Association asso : this.lstAssociations)
+			//{
+			//	System.out.println(asso.getTypeAsso());
+			//	System.out.println(asso.getClasse1 ());
+			//	System.out.println(asso.getClasse2 ());
+			//	System.out.println(asso.getMultiplicite1());
+			//	System.out.println(asso.getMultiplicite2());
+			//	System.out.println(asso.getRole1());
+			//	System.out.println(asso.getRole2());
+			//}
+
+
 		}
 		catch (ParserConfigurationException | SAXException | IOException e)
 		{e.printStackTrace();}
@@ -347,7 +374,7 @@ public class Retroconception
 			{
 				String type = attribut.getType();
 				
-				// Gere le cas où la multipliciter est multiple ( tableau et tous types de listes.. )
+				// Gere le cas où la multiplicité est multiple ( tableau et tous types de listes.. )
 				if (type.contains("<")) type = type.substring(type.indexOf("<") + 1, type.indexOf(">"));
 				if (type.contains("[")) type = type.substring(0, type.indexOf("["));
 				
@@ -390,7 +417,7 @@ public class Retroconception
 			{
 				utilise[i] = true;
 				this.lstAssociations.add(new Association(association1.getClasse1(), association1.getClasse2(),
-						"unidirectionnelle", association1.getMultiplicite(), "0..*"));
+						"unidirectionnelle", association1.getMultiplicite1(), "0..*"));
 				continue;
 			}
 
@@ -416,12 +443,12 @@ public class Retroconception
 			if (association2 != null)
 			{
 				this.lstAssociations.add(new Association(association1.getClasse1(), association1.getClasse2(),
-						"bidirectionnelle", association1.getMultiplicite(), association2.getMultiplicite()));
+						"bidirectionnelle", association1.getMultiplicite1(), association2.getMultiplicite1()));
 			}
 			else
 			{
 				this.lstAssociations.add(new Association(association1.getClasse1(), association1.getClasse2(),
-						"unidirectionnelle", association1.getMultiplicite(), "0..*"));
+						"unidirectionnelle", association1.getMultiplicite1(), "0..*"));
 			}
 		}
 	}
@@ -508,6 +535,26 @@ public class Retroconception
 		return doc;
 	}
 
+
+	public Document sauvegarderAssociation(Association a, Document doc, Element e)
+	{
+		Element liens = doc.createElement("lien");
+		e.appendChild(liens);
+
+		doc = sauvegardeClasse(a.getClasse1(), doc, liens);
+		doc = sauvegardeClasse(a.getClasse2(), doc, liens);
+
+		liens.appendChild(Retroconception.createElement(doc, "typeAsso"     , a.getTypeAsso     ()));
+		liens.appendChild(Retroconception.createElement(doc, "multiplicite1", a.getMultiplicite1()));
+		liens.appendChild(Retroconception.createElement(doc, "multiplicite2", a.getMultiplicite2()));
+		liens.appendChild(Retroconception.createElement(doc, "role1"        , a.getRole1        ()));
+		liens.appendChild(Retroconception.createElement(doc, "role2"        , a.getRole2        ()));
+
+		return doc;
+	}
+
+
+
 	private static Element createElement(Document doc, String nom, String val)
 	{
 		Element element = doc.createElement(nom);
@@ -515,9 +562,10 @@ public class Retroconception
 		return element;
 	}
 
-	private Classe chargerClasse(Element racine, Element classeXML)
+
+
+	private Classe chargerClasse(Element classeXML)
 	{
-		System.out.println(classeXML.getElementsByTagName("visibilite"   ).item(0).getTextContent());
 		String  visibilite    =                      classeXML.getElementsByTagName("visibilite"   ).item(0).getTextContent() ;
 		boolean statique      = Boolean.parseBoolean(classeXML.getElementsByTagName("statique"     ).item(0).getTextContent());
 		boolean lectureUnique = Boolean.parseBoolean(classeXML.getElementsByTagName("lectureUnique").item(0).getTextContent());
@@ -565,7 +613,6 @@ public class Retroconception
 
 			NodeList parametres = methodesXML.getElementsByTagName("parametre");
 
-			//if(parametres != null)
 			for (int j = 0; j < parametres.getLength(); j++)
 			{
 				Element parametresXML = (Element) parametres.item(j);
@@ -605,7 +652,38 @@ public class Retroconception
 	}
 
 
+	public Association chargerAssociation(Element assoXML)
+	{
 
+		NodeList blocs = assoXML.getElementsByTagName("bloc");
+		String nomClasse1 = ((Element)blocs.item(0)).getElementsByTagName("nom").item(0).getTextContent();
+		String nomClasse2 = ((Element)blocs.item(1)).getElementsByTagName("nom").item(0).getTextContent();
+		
+		Classe classe1 = trouverClasseParNom(nomClasse1);
+		Classe classe2 = trouverClasseParNom(nomClasse2);
+
+		String typeAsso      = assoXML.getElementsByTagName("typeAsso"     ).item(0).getTextContent() ;
+		String multiplicite1 = assoXML.getElementsByTagName("multiplicite1").item(0).getTextContent() ;
+		String multiplicite2 = assoXML.getElementsByTagName("multiplicite2").item(0).getTextContent() ;
+		String role1         = assoXML.getElementsByTagName("role1"        ).item(0).getTextContent() ;
+		String role2         = assoXML.getElementsByTagName("role2"        ).item(0).getTextContent() ;
+
+		Association asso = new Association(classe1, classe2, typeAsso, multiplicite1, multiplicite2);
+		
+		asso.setRole1(role1);
+		asso.setRole2(role2);
+
+		return asso;
+	}
+
+	private Classe trouverClasseParNom(String nom)
+	{
+		for (Classe classe : this.lstClasses)
+			if (classe.getNom().equals(nom))
+				return classe;
+
+		return null;
+	}
 
 
 	public void reset()
@@ -613,5 +691,4 @@ public class Retroconception
 		this.lstClasses.clear();
 		this.lstAssociations.clear();
 	}
-
 }

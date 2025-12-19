@@ -44,9 +44,9 @@ public final class AnalyseurJava
 		String  valeurConstante;
 
 		/* Variables Utilitaires */
-		Scanner sc;
-		boolean aGeneralization;
-		int     index;
+		Scanner      sc;
+		boolean      aGeneralization;
+		int          index;
 		List<String> lstAttribut;
 
 		for ( String ligne : NettoyerFichier.nettoyerFichier( fichier ) )
@@ -89,9 +89,9 @@ public final class AnalyseurJava
 				for (String ster : AnalyseurJava.ENS_STER)
 					if ( mot.equals( ster ) ) stereotype = ster;
 
-				// Gere si les parametre sont collé au record
 				mot = sc.next();
 
+				// Gere si les parametres sont collé au record
 				index =  mot.indexOf( "(" );
 				if ( index != -1 ) mot = mot.substring( 0, index );
 
@@ -99,24 +99,13 @@ public final class AnalyseurJava
 
 				classe = new Classe( visibilite, statique, lectureUnique, abstraite, stereotype, nom );
 
-				switch( stereotype )
-				{
-					case "record" ->
-					{
-						GereStereotype.gereRecord( classe, ligne );
-					}
-					case "enum" ->
-					{
-
-					}
-				}
+				if ( stereotype.equals( "record" ) ) GereStereotype.gereRecord( classe, ligne );
 
 				if ( sc.hasNext() ) AnalyseurJava.gereExtendsImplements( classe, sc, ligne );
 			}
 			else
 			{
 				// Attributs
-				// System.out.println("ligne  :" + ligne);
 				if ( ligne.contains(";") && ! GereStereotype.estMethodeAbstraiteInterface( classe, ligne ) )
 				{
 					ligne = ligne.substring( ligne.indexOf( mot ) );
@@ -156,7 +145,7 @@ public final class AnalyseurJava
 					if (index != -1)
 						mot = mot.substring(0, index);
 
-					// Si c'est le controleur
+					// Si c'est le constructeur
 					if ( classe.getNom().equals(mot))
 					{
 						type = null;
@@ -253,7 +242,7 @@ public final class AnalyseurJava
 		{
 			mere = sc.next();
 			c.setMere(mere);
-			mot = sc.next();
+			if ( sc.hasNext() ) mot = sc.next();
 		}
 
 		if (mot.equals("implements"))

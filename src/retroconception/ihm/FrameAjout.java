@@ -8,7 +8,6 @@ public class FrameAjout extends JFrame
 {
 	private Controleur ctrl;
 	private PanelAjout panel;
-
 	
 	public FrameAjout(Controleur ctrl)
 	{

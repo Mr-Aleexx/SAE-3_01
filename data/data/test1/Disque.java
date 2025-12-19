@@ -2,7 +2,7 @@ package ressources;
 
 public final class Disque
 { 
-	private Point  centreeeeeee;
+	private Point  centre;
 	private double rayon;
 
 	public Disque( Point centre, double rayon )

@@ -11,6 +11,7 @@ import java.awt.Stroke;
 import java.awt.event.*;
 import java.util.List;
 import javax.swing.*;
+
 import retroconception.Controleur;
 import retroconception.metier.Association;
 import retroconception.metier.Attribut;
@@ -46,17 +47,19 @@ public class PanelUML extends JPanel
 
 		int textClasseX, textMembreX;
 		int textClasseY, textMembreY;
-
-		int nbEspace;
-		String para;
 		int largeurStr;
 		int sautDeLigne;
+
+		int    nbEspace;
+		String para;
 
 		Graphics2D g2 = (Graphics2D) g;
 
 		super.paintComponent(g);
 
-		g2.setFont( new Font("Monospaced", Font.PLAIN, 12 ));
+
+		int taillePolice = 12;
+		g2.setFont( new Font("Monospaced", Font.BOLD, taillePolice ));
 		FontMetrics fm = g2.getFontMetrics();
 
 		largeurStr  = fm.stringWidth(" ");
@@ -83,18 +86,22 @@ public class PanelUML extends JPanel
 
 			if (cpt == this.selectedClassIndex)
 			{
-				g2.setColor(new Color(0, 107, 87));
+				g2.setColor(new Color(0, 108, 46));
 			}
 			else
 			{
 				g2.setColor(Color.BLACK);
 			}
 
-			// Construction de la Classe graphiquement:
+			Stroke traitOriginal = g2.getStroke();
+
+			g2.setStroke(new BasicStroke(3.0f));
+
 			g2.drawRect( posX, yClasse,   tailleX, tailleYClass    );
 			g2.drawRect( posX, yAttribut, tailleX, tailleYAttribut );
 			g2.drawRect( posX, yMethode,  tailleX, tailleYMethode  );
 			
+			g2.setStroke(traitOriginal);
 			
 			textClasseY = (int)( yClasse + sautDeLigne);
 
@@ -210,7 +217,9 @@ public class PanelUML extends JPanel
 					tailleMax = (meth.getSymbole() + " " + meth.getNom() + "(" + para + ")").length();
 
 					if (tailleMax > maxNomTaille) maxNomTaille = tailleMax;
-						tailleMax += (meth.estLectureUnique() ? 7 : 0) + (meth.estAbstraite() ? 10 : 0);
+						tailleMax += (meth.estLectureUnique() ? 7  : 0) +
+						             (meth.estAbstraite()     ? 10 : 0) +
+									 (!meth.getStereotype().equals("") ? (" {" + meth.getStereotype()+ "}").length() : 0);
 					
 				}
 			}
@@ -242,11 +251,12 @@ public class PanelUML extends JPanel
 				if( type != null && !type.equals("void") )
 				{
 					nbEspace = maxNomTaille - methode.length();
-					methode += " ".repeat(nbEspace+1) + ": " + meth.getType();
+					methode += " ".repeat(nbEspace+1) + ": " + type;
 				}
 
 				methode += (meth.estLectureUnique() ? " {Gelé}" : "");
 				methode += (meth.estAbstraite() ? " {abstract}" : "");
+				methode += (!meth.getStereotype().equals("") ? " {" + meth.getStereotype()+ "}" : "");
 				
 				textMembreX = posX     + largeurStr;
 				textMembreY = yMethode + sautDeLigne;
@@ -265,10 +275,11 @@ public class PanelUML extends JPanel
 					g2.drawString( "…", textMembreX, textMembreY );
 				}
 			}
-
-			// Construction des liens entre les tâches:
-			this.construireLiens( g2 );
+			
 		}
+
+		// Construction des liens entre les tâches:
+		this.construireLiens( g2 );
 	}
 
 	public void construireLiens(Graphics2D g2)
@@ -285,7 +296,7 @@ public class PanelUML extends JPanel
 
 			if (association.getTypeAsso().equals("unidirectionnelle"))
 			{
-				drawArrowHead(g2, points[0], points[1], points[2], points[3]);
+				dessinerTeteFleche(g2, points[0], points[1], points[2], points[3]);
 			}
 
 			// Positions des multiplicités et rôles
@@ -328,7 +339,7 @@ public class PanelUML extends JPanel
 	{
 		int[] points = calculerPointsConnexion(enfant, parent);
 		g2.drawLine(points[0], points[1], points[2], points[3]);
-		drawArrowHeadFull(g2, points[0], points[1], points[2], points[3]);
+		dessinerTeteFlechePleine(g2, points[0], points[1], points[2], points[3]);
 	}
 
 	/**
@@ -338,14 +349,14 @@ public class PanelUML extends JPanel
 	{
 		int[] points = calculerPointsConnexion(classe, interfaceClasse);
 		
-		Stroke originalStroke = g2.getStroke();
-		float[] dashPattern = {5.0f, 5.0f};
-		g2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dashPattern, 0.0f));
+		Stroke traitOriginal  = g2.getStroke();
+		float[] patterneTrait = {5.0f, 5.0f};
+		g2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, patterneTrait, 0.0f));
 		
 		g2.drawLine(points[0], points[1], points[2], points[3]);
 		
-		g2.setStroke(originalStroke);
-		drawArrowHeadFull(g2, points[0], points[1], points[2], points[3]);
+		g2.setStroke(traitOriginal);
+		dessinerTeteFlechePleine(g2, points[0], points[1], points[2], points[3]);
 	}
 
 	/**
@@ -355,10 +366,12 @@ public class PanelUML extends JPanel
 	{
 		int x1 = points[0], y1 = points[1], x2 = points[2], y2 = points[3];
 		
-		int mult1X = x1 + (int)((x2 - x1) * 0.15);
-		int mult1Y = y1 + (int)((y2 - y1) * 0.15);
-		int mult2X = x2 - (int)((x2 - x1) * 0.15);
-		int mult2Y = y2 - (int)((y2 - y1) * 0.15);
+		double distanceMultiplicite = 0.15;
+
+		int mult1X = x1 + (int)((x2 - x1) * distanceMultiplicite);
+		int mult1Y = y1 + (int)((y2 - y1) * distanceMultiplicite);
+		int mult2X = x2 - (int)((x2 - x1) * distanceMultiplicite);
+		int mult2Y = y2 - (int)((y2 - y1) * distanceMultiplicite);
 
 		g2.drawString(String.valueOf(association.getMultiplicite1()), mult1X, mult1Y);
 		g2.drawString(String.valueOf(association.getMultiplicite2()), mult2X, mult2Y);
@@ -385,20 +398,17 @@ public class PanelUML extends JPanel
 		int c2CentreX = obtenirCentreX(classe2);
 		int c2CentreY = obtenirCentreY(classe2);
 
-		int c1Width = obtenirLargeur(classe1);
-		int c1Height = obtenirHauteur(classe1);
-		int c2Width = obtenirLargeur(classe2);
-		int c2Height = obtenirHauteur(classe2);
+		int c1Largeur = obtenirLargeur(classe1);
+		int c1Hauteur = obtenirHauteur(classe1);
+		int c2Largeur = obtenirLargeur(classe2);
+		int c2Hauteur = obtenirHauteur(classe2);
 
-		int[] point1 = calculerPointConnexion(c1CentreX, c1CentreY, c1Width, c1Height, c2CentreX, c2CentreY);
-		int[] point2 = calculerPointConnexion(c2CentreX, c2CentreY, c2Width, c2Height, c1CentreX, c1CentreY);
+		int[] point1 = calculerPointConnexion(c1CentreX, c1CentreY, c1Largeur, c1Hauteur, c2CentreX, c2CentreY);
+		int[] point2 = calculerPointConnexion(c2CentreX, c2CentreY, c2Largeur, c2Hauteur, c1CentreX, c1CentreY);
 
 		return new int[]{point1[0], point1[1], point2[0], point2[1]};
 	}
 
-	/**
-	 * Trouve une classe par son nom
-	 */
 	private Classe trouverClasseParNom(String nom)
 	{
 		for (Classe classe : this.ctrl.getLstClasses())
@@ -411,9 +421,6 @@ public class PanelUML extends JPanel
 		return null;
 	}
 
-	/**
-	 * Obtient le centre X d'une classe
-	 */
 	private int obtenirCentreX(Classe classe)
 	{
 		return classe.getPos().getCentreX();
@@ -451,67 +458,50 @@ public class PanelUML extends JPanel
 		int y = centreY;
 
 		if (Math.abs(dx) > Math.abs(dy))
-		{
-			if (dx > 0)
-			{
-				x = centreX + demiLargeur;
-			}
-			else
-			{
-				x = centreX - demiLargeur;
-			}
-		}
+			x = (dx > 0) ? centreX + demiLargeur : centreX - demiLargeur;
 		else
-		{
-			if (dy > 0)
-			{
-				y = centreY + demiHauteur;
-			}
-			else
-			{
-				y = centreY - demiHauteur;
-			}
-		}
+			y = (dy > 0) ? centreY + demiHauteur : centreY - demiHauteur;
 
+		
 		return new int[]{x, y};
 	}
 
-	private void drawArrowHead(Graphics2D g2, int x1, int y1, int x2, int y2)
+	private void dessinerTeteFleche(Graphics2D g2, int x1, int y1, int x2, int y2)
 	{
 		double phi   = Math.toRadians(25);
 		double dy    = y2 - y1;
 		double dx    = x2 - x1;
 		double theta = Math.atan2(dy, dx);
 
-		int barb     = 10;
+		int longeurSegmentTete     = 10;
 		
 		for (int j = 0; j < 2; j++)
 		{
 			double rho = theta + (j == 0 ? phi : -phi);
 
-			int    x   = (int) (x2 - barb * Math.cos(rho));
-			int    y   = (int) (y2 - barb * Math.sin(rho));
+			int    x   = (int) (x2 - longeurSegmentTete * Math.cos(rho));
+			int    y   = (int) (y2 - longeurSegmentTete * Math.sin(rho));
 
 			g2.drawLine(x2, y2, x, y);
 		}
 	}
 
-	private void drawArrowHeadFull(Graphics2D g2, int x1, int y1, int x2, int y2)
+	private void dessinerTeteFlechePleine(Graphics2D g2, int x1, int y1, int x2, int y2)
 	{
 		double phi   = Math.toRadians(25);
 		double dy    = y2 - y1, dx = x2 - x1;
 		double theta = Math.atan2(dy, dx);
 
-		int barb     = 10;
+		int longeurSegmentTete     = 10;
 
 		double rho1 = theta + phi;
 		double rho2 = theta - phi;
 
-		int x3 = (int) (x2 - barb * Math.cos(rho1));
-		int y3 = (int) (y2 - barb * Math.sin(rho1));
+		int x3 = (int) (x2 - longeurSegmentTete * Math.cos(rho1));
+		int y3 = (int) (y2 - longeurSegmentTete * Math.sin(rho1));
 
-		int x4 = (int) (x2 - barb * Math.cos(rho2));
-		int y4 = (int) (y2 - barb * Math.sin(rho2));
+		int x4 = (int) (x2 - longeurSegmentTete * Math.cos(rho2));
+		int y4 = (int) (y2 - longeurSegmentTete * Math.sin(rho2));
 
 		int[] xPoints = {x2, x3, x4};
 		int[] yPoints = {y2, y3, y4};
@@ -519,18 +509,20 @@ public class PanelUML extends JPanel
 		g2.fillPolygon(xPoints, yPoints, 3);
 	}
 
+
 	public void majIHM()
 	{
 		int maxX = 0;
 		int maxY = 0;
 
-		for (int cpt = 0; cpt < this.ctrl.getNbClasse(); cpt++) {
+		for (int cpt = 0; cpt < this.ctrl.getNbClasse(); cpt++)
+		{
 			Classe c = this.ctrl.getClasse(cpt);
-			int rightEdge = c.getPos().getCentreX() + c.getPos().getTailleX() / 2;
-			int bottomEdge = c.getPos().getCentreYMethode() + c.getPos().getTailleYMethode() / 2;
+			int bordDroit = c.getPos().getCentreX()      + c.getPos().getTailleX() / 2;
+			int bordBas = c.getPos().getCentreYMethode() + c.getPos().getTailleYMethode() / 2;
 		
-			if (rightEdge > maxX) maxX = rightEdge;
-			if (bottomEdge > maxY) maxY = bottomEdge;
+			if (bordDroit > maxX)  maxX = bordDroit;
+			if (bordBas   > maxY) maxY = bordBas;
 		}
 
 		maxX += 50;
@@ -539,6 +531,12 @@ public class PanelUML extends JPanel
 		this.setPreferredSize(new Dimension(maxX, maxY));
 		this.revalidate();
 		
+		this.repaint();
+	}
+
+	public void changerCouleur(int index)
+	{
+		this.selectedClassIndex = index;
 		this.repaint();
 	}
 
@@ -564,6 +562,7 @@ public class PanelUML extends JPanel
 				if (e.getClickCount() == 1)
 				{
 					PanelUML.this.selectedClassIndex = this.numClasseActive;
+					PanelUML.this.ctrl.changerCouleur("uml", this.numClasseActive);
 					PanelUML.this.repaint();
 				}
 				

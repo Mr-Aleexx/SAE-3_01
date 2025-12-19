@@ -1,6 +1,6 @@
 @echo off
 
-javac -encoding UTF-8 @src\compile.list -d class
+javac @src\compile.list -d class
 if errorlevel 1 (
     echo La compilation a echoue.
     exit /b 1

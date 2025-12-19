@@ -27,7 +27,7 @@ public class BarreMenu extends JMenuBar implements ActionListener
 
 	private void initMenu()
 	{
-		JMenu menuFichier = new JMenu("Fichier");
+		JMenu menuFichier   = new JMenu("Fichier"  );
 		JMenu menuAffichage = new JMenu("Affichage");
 
 		this.menuiOuvrir = new JMenuItem("Ouvrir");
@@ -43,7 +43,9 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		menuFichier.add(this.menuiCharge);
 		menuFichier.add(this.menuiSauveg);
 		menuFichier.add(this.menuiExpImg);
+
 		menuFichier.addSeparator();
+		
 		menuFichier.add(this.menuiReset );
 		menuFichier.add(this.menuiQuitte);
 

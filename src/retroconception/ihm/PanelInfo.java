@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import javax.swing.*;
 import javax.swing.text.*;
+import java.util.List;
 import retroconception.Controleur;
 import retroconception.metier.Attribut;
 import retroconception.metier.Classe;
@@ -79,16 +80,32 @@ public class PanelInfo extends JPanel
 			for (Attribut attr : classe.getAttributs())
 			{
 				int length = (attr.getSymbole() + " " + attr.getNom()).length();
+
+				if(!attr.getValeurConstante().equals(""))
+				{
+					length += 3;
+					List<String> valeurs = Controleur.decomposeurType(attr.getValeurConstante(), ',');
+					for ( int cptVal = 0; cptVal < valeurs.size(); cptVal++ )
+						length += valeurs.get(cptVal).length();
+				}
+
 				if (length > maxNomLength) maxNomLength = length;
 			}
 
 			for (Attribut attr : classe.getAttributs())
 			{
 				String prefix = String.format("%s %s", attr.getSymbole(), attr.getNom());
-				int padding = maxNomLength - prefix.length() + 2; // +2 pour le symbole
 
 				// Gere les valeurs des attributs statiques
-				prefix += ( ! attr.getValeurConstante().equals("") ? " = " : "") + attr.getValeurConstante();
+				if(!attr.getValeurConstante().equals(""))
+				{
+					prefix += " = ";
+					List<String> valeurs = Controleur.decomposeurType(attr.getValeurConstante(), ',');
+					for ( int cptVal = 0; cptVal < valeurs.size(); cptVal++ )
+						prefix += valeurs.get(cptVal);
+				}
+
+				int padding = maxNomLength - prefix.length() + 2; // +2 pour le symbole
 
 				String line = prefix + " ".repeat(padding) + ": " + attr.getType() +
 				              (attr.estLectureUnique() ? " {Gelé}" : "") + "\n";
@@ -142,7 +159,8 @@ public class PanelInfo extends JPanel
 					signature += " ".repeat(padding) + ": " + method.getType();
 				}
 				signature += (method.estLectureUnique() ? " {Gelé}" : "") +
-				             (method.estAbstraite() ? " {abstract}" : "");
+				             (method.estAbstraite() ? " {abstract}" : "") +
+							 (!method.getStereotype().equals("") ? " {" + method.getStereotype()+ "}" : "");
 
 				if (method.estStatique())
 					doc.insertString(doc.getLength(), signature + "\n", underline);

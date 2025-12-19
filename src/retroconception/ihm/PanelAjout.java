@@ -19,13 +19,14 @@ public class PanelAjout extends JPanel implements ActionListener
 	private JTextField txtRoleName1;
 	private JTextField txtRoleName2;
 	private JLabel lblAssociation;
-	private JLabel lblRoleName;
 	private JButton btnValider;
 	private JButton btnAnnuler;
 	
 	public PanelAjout(Controleur ctrl)
 	{
 		this.ctrl = ctrl;
+
+		JLabel lblRoleName;
 		
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -43,19 +44,19 @@ public class PanelAjout extends JPanel implements ActionListener
 		gbc.gridy = 1;
 		this.add(cmbAssociations, gbc);
 		
-		this.lblRoleName = new JLabel("Nom du rôle 1 :");
+		lblRoleName = new JLabel("Nom du rôle 1 :");
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.gridwidth = 2;
-		this.add(this.lblRoleName, gbc);
+		this.add(lblRoleName, gbc);
 
 		this.txtRoleName1 = new JTextField(20);
 		gbc.gridy = 3;
 		this.add(this.txtRoleName1, gbc);
 
-		JLabel lblRoleName2 = new JLabel("Nom du rôle 2 :");
+		lblRoleName = new JLabel("Nom du rôle 2 :");
 		gbc.gridy = 4;
-		this.add(lblRoleName2, gbc);
+		this.add(lblRoleName, gbc);
 
 		this.txtRoleName2 = new JTextField(20);
 		gbc.gridy = 5;
@@ -114,6 +115,8 @@ public class PanelAjout extends JPanel implements ActionListener
 			this.txtRoleName2.setText("");
 			SwingUtilities.getWindowAncestor(this).setVisible(false);
 		}
+
+		this.ctrl.majIHM();
 	}
 	
 	private void annuler()
@@ -121,6 +124,30 @@ public class PanelAjout extends JPanel implements ActionListener
 		this.txtRoleName1.setText("");
 		this.txtRoleName2.setText("");
 		SwingUtilities.getWindowAncestor(this).setVisible(false);
+	}
+
+	private void uniOuBi()
+	{
+		int indiceSelect = cmbAssociations.getSelectedIndex();
+		if(indiceSelect >= 0 && indiceSelect < ctrl.getLstAssociations().size())
+		{
+			Association asso = ctrl.getLstAssociations().get(indiceSelect);
+			boolean estBidirectionnelle = asso.getTypeAsso().equals("bidirectionnelle");
+				
+			this.txtRoleName1.setEditable(true);
+			this.txtRoleName2.setEditable(estBidirectionnelle);
+
+			if(asso.getRole1() != null)
+			{
+				this.txtRoleName1.setText(asso.getRole1());
+			}
+
+			if(asso.getRole2() != null && estBidirectionnelle)
+			{
+				this.txtRoleName2.setText(asso.getRole2());
+			}
+
+		}
 	}
 
 	
@@ -136,17 +163,10 @@ public class PanelAjout extends JPanel implements ActionListener
 		{
 			this.annuler();
 		}
-
 		
 		if(e.getSource() == this.cmbAssociations)
 		{
-			int indiceSelect = cmbAssociations.getSelectedIndex();
-			if(indiceSelect >= 0 && indiceSelect < ctrl.getLstAssociations().size())
-			{
-				Association asso = ctrl.getLstAssociations().get(indiceSelect);
-				this.txtRoleName1.setEditable(true);
-				this.txtRoleName2.setEditable(asso.getTypeAsso().equals("bidirectionnelle"));
-			}
+			this.uniOuBi(); //trouver un meilleur nom
 		}
 	}
 }

@@ -6,15 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Permet de supprimer les indormations inutiles de chacuns des fichiers d'annalyse
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Marta, CONSTANTIN Alexis
+ * @version Etape 6
+ * @since 08-12-2025
+ */
+
 final class NettoyerFichier
 {
 	private NettoyerFichier() {}
 
 	public static List<String> nettoyerFichier( String fichier )
 	{
-		/*
-		 * Première Lecture : enleve les commentaire et les corps des méthodes
-		 */
 		Scanner      sc;
 		String       ligne;
 		List<String> fichierClean       = new ArrayList<String>();
@@ -88,6 +92,7 @@ final class NettoyerFichier
 				}
 				else if( niveauTableau > 0 )
 				{
+					// Gere les tableau de tableaux ecrit sur plusieurs lignes
 					if ( ligne.contains( "}" ) )
 						niveauTableau-= ligne.length() - ligne.replace("}", "").length();
 					if ( ligne.contains( "{" ) )
@@ -124,8 +129,6 @@ final class NettoyerFichier
 					// Pour le format R&K : ignorer les lignes dans les corps de méthode
 					if ( ignorerLigne ) continue;
 				}
-
-				
 
 				/* ------------------------------------------------------- */
 				/* Gestion des parametres de methodes sur plusieurs lignes */
@@ -165,9 +168,6 @@ final class NettoyerFichier
 			sc.close();
 		}
 		catch (FileNotFoundException e){}
-
-		// for ( String s : fichierClean )
-		// 	System.out.println( s );
 
 		return fichierClean;
 	}

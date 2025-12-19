@@ -38,7 +38,6 @@ public class Association
 	public String getTypeAsso     () { return this.typeAsso;     }
 	public Classe getClasse1      () { return this.classe1;      }
 	public Classe getClasse2      () { return this.classe2;      }
-	public String getMultiplicite () { return this.multiplicite1;}
 	public String getMultiplicite1() { return this.multiplicite1;}
 	public String getMultiplicite2() { return this.multiplicite2;}
 	public String getRole1        () { return this.role1;        }

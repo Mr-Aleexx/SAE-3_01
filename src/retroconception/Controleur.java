@@ -26,8 +26,8 @@ public class Controleur
 	public Controleur()
 	{
 		this.metier = new Retroconception();
-		this.ihmCUI    = new IHMCUI( this );
-		this.ihm = new FrameUML(this);
+		this.ihmCUI = new IHMCUI( this );
+		this.ihm    = new FrameUML(this);
 	}
 
 	public List<Classe>      getLstClasses     () { return this.metier.getLstClasses();      }
@@ -71,17 +71,19 @@ public class Controleur
 
 	public void ajouterRoleAssociation(int index, String nomRole1, String nomRole2)
 	{
-		if(!nomRole1.isEmpty())
-			this.metier.getLstAssociations().get(index).setRole1(nomRole1);
+		this.metier.getLstAssociations().get(index).setRole1(nomRole1);
+		this.metier.getLstAssociations().get(index).setRole2(nomRole2);
+	}
 
-		if(!nomRole2.isEmpty())
-			this.metier.getLstAssociations().get(index).setRole2(nomRole2);
+	public void changerCouleur(String panel, int index)
+	{
+		this.ihm.changerCouleur(panel, index);
 	}
 
 	public static void main(String[] args)
 	{
 		Controleur ctr = new Controleur();
-		//ctr.ouvrirDossier( "./data/testInter" );
+		//ctr.ouvrirDossier( "./data/data/record" );
 		//System.out.println( ctr.afficher() );
 	}
 	

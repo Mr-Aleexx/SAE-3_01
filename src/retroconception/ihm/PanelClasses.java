@@ -10,7 +10,7 @@ import javax.swing.*;
 import retroconception.Controleur;
 import retroconception.metier.Classe;
 
-public class PanelClasses extends JPanel implements ActionListener
+public class PanelClasses extends JPanel
 {
 	private Controleur    ctrl;
 	private FrameUML      frame;
@@ -55,7 +55,7 @@ public class PanelClasses extends JPanel implements ActionListener
 			btn.setMaximumSize( new Dimension(Integer.MAX_VALUE, btn.getPreferredSize().height));
 
 			btn.setAlignmentX(LEFT_ALIGNMENT);
-			btn.addActionListener(this);
+			btn.addMouseListener(new GereSouris());
 
 			this.add(btn);
 			this.add(Box.createVerticalStrut(10));
@@ -68,26 +68,45 @@ public class PanelClasses extends JPanel implements ActionListener
 		this.repaint();
 	}
 
-	public void actionPerformed(ActionEvent e) 
+	public void changerCouleur(int index)
 	{
-		for (JButton btn : this.lstButtons)
-		{
-			if(e.getSource() == btn)
-			{
-				this.resetBtnColor();
-				btn.setBackground(new Color(153, 213, 144));
-				new FrameInfo(ctrl, ctrl.getLstClasses().get(this.lstButtons.indexOf(btn)));
-			}
-		}
+		this.resetBtnColor();
+		this.lstButtons.get(index).setBackground(new Color(153, 213, 144));
 	}
 
 	private void resetBtnColor()
 	{
 		for (JButton btn : this.lstButtons)
 		{
-			if (btn.getBackground() != new Color(128, 170, 141))
+			btn.setBackground(new Color(128, 170, 141));
+		}
+	}
+
+	private class GereSouris extends MouseAdapter
+	{
+		public void mouseClicked(MouseEvent e)
+		{
+			if (SwingUtilities.isRightMouseButton(e))
 			{
-				btn.setBackground(new Color(128, 170, 141));
+				for (int i = 0; i < PanelClasses.this.lstButtons.size(); i++)
+				{
+					if(e.getSource() == PanelClasses.this.lstButtons.get(i))
+					{
+						new FrameInfo(PanelClasses.this.ctrl, PanelClasses.this.ctrl.getClasse(i));
+					}
+				}
+			}
+
+			if(SwingUtilities.isLeftMouseButton(e))
+			{
+				for (int i = 0; i < PanelClasses.this.lstButtons.size(); i++)
+				{
+					if(e.getSource() == PanelClasses.this.lstButtons.get(i))
+					{
+						PanelClasses.this.changerCouleur(i);
+						PanelClasses.this.ctrl.changerCouleur("classe", i);
+					}
+				}
 			}
 		}
 	}
