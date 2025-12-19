@@ -4,6 +4,15 @@ import javax.swing.*;
 import retroconception.Controleur;
 import retroconception.metier.Classe;
 
+/**
+ * Frame d'information sur les classes
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Marta, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
+
 public class FrameInfo extends JFrame
 {
 	private PanelInfo  panel;

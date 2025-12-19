@@ -4,6 +4,16 @@ import javax.swing.*;
 
 import retroconception.Controleur;
 
+
+/**
+ * Frame pour l'ajout des role d'association
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Marta, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
+
 public class FrameAjout extends JFrame
 {
 	private Controleur ctrl;

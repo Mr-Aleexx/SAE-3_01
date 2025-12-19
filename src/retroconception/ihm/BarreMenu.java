@@ -4,6 +4,15 @@ import java.awt.event.*;
 import javax.swing.*;
 import retroconception.Controleur;
 
+/**
+ * Barre menu en haut de l'ihm
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Marta, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
+
 public class BarreMenu extends JMenuBar implements ActionListener
 {
 	private Controleur ctrl;
@@ -17,7 +26,7 @@ public class BarreMenu extends JMenuBar implements ActionListener
 	private JMenuItem menuiAjoutRoleAsso;
 
 
-	public BarreMenu(Controleur ctrl)
+	public BarreMenu( Controleur ctrl )
 	{
 		this.ctrl = ctrl;
 
@@ -39,17 +48,17 @@ public class BarreMenu extends JMenuBar implements ActionListener
 
 		this.menuiAjoutRoleAsso = new JMenuItem("Ajouter Role");
 
-		menuFichier.add(this.menuiOuvrir);
-		menuFichier.add(this.menuiCharge);
-		menuFichier.add(this.menuiSauveg);
-		menuFichier.add(this.menuiExpImg);
+		menuFichier.add( this.menuiOuvrir );
+		menuFichier.add( this.menuiCharge );
+		menuFichier.add( this.menuiSauveg );
+		menuFichier.add( this.menuiExpImg );
 
 		menuFichier.addSeparator();
 		
-		menuFichier.add(this.menuiReset );
-		menuFichier.add(this.menuiQuitte);
+		menuFichier.add( this.menuiReset  );
+		menuFichier.add( this.menuiQuitte );
 
-		menuAffichage.add(this.menuiAjoutRoleAsso);
+		menuAffichage.add( this.menuiAjoutRoleAsso );
 
 		this.add( menuFichier );
 		this.add(menuAffichage);
@@ -67,14 +76,14 @@ public class BarreMenu extends JMenuBar implements ActionListener
 		this.menuiAjoutRoleAsso.addActionListener(this);
 	}
 
-	public void actionPerformed(ActionEvent e)
+	public void actionPerformed( ActionEvent e )
 	{
-		if (e.getSource() == this.menuiOuvrir)
+		if ( e.getSource() == this.menuiOuvrir )
 		{
 			this.ctrl.ouvrirDossier();
 		}
 
-		if (e.getSource() == this.menuiCharge)
+		if ( e.getSource() == this.menuiCharge )
 		{
 			this.ctrl.lancerChargement();
 		}
@@ -99,9 +108,9 @@ public class BarreMenu extends JMenuBar implements ActionListener
 			System.exit(0);
 		}
 
-		if ( e.getSource() == this.menuiAjoutRoleAsso)
+		if ( e.getSource() == this.menuiAjoutRoleAsso )
 		{
-			new FrameAjout(this.ctrl);
+			new FrameAjout( this.ctrl );
 		}
 
 		this.ctrl.majIHM();

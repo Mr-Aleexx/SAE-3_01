@@ -9,6 +9,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
 import retroconception.metier.lecture.AnalyseurJava;
 /**
  * Mets en place la rétroconception des associations
@@ -29,12 +30,18 @@ public class Retroconception
 		this.lstAssociations = new ArrayList<Association>();
 	}
 	
-	public Classe            getClasse     (int id) { return this.lstClasses.get(id); }
-	public int               getNbClasse   ()       { return this.lstClasses.size();  }
+	public Classe            getClasse  (int id) { return this.lstClasses.get(id); }
+	public int               getNbClasse()       { return this.lstClasses.size();  }
 
 	public List<Classe>      getLstClasses     () { return this.lstClasses;      }
 	public List<Association> getLstAssociations() { return this.lstAssociations; }
 	
+	/**
+	 * Récupère l'indice d'un classe à partir de ses coordonnées
+	 * @param x coordonnée x
+	 * @param y coordonnée y
+	 * @return
+	 */
 	public Integer getIndiceClasse(int x, int y)
 	{
 		for (int cpt = 0; cpt < this.lstClasses.size(); cpt++)
@@ -44,75 +51,91 @@ public class Retroconception
 		return null;
 	}
 
-	public void deplacerClasse(int idTache, int x, int y)
+	/**
+	 * Déplace une classe à partir de son id et de ses coordonnées
+	 * @param idClasse numero de la classe
+	 * @param x coordonnée x
+	 * @param y coordonnée y
+	 * @return
+	 */
+	public void deplacerClasse(int idClasse, int x, int y)
 	{
-		if (idTache >= 0 && idTache < this.lstClasses.size())
+		if (idClasse >= 0 && idClasse < this.lstClasses.size())
 		{
-			this.lstClasses.get(idTache).getPos().deplacerX(x);
-			this.lstClasses.get(idTache).getPos().deplacerY(y);
+			this.lstClasses.get(idClasse).getPos().deplacerX(x);
+			this.lstClasses.get(idClasse).getPos().deplacerY(y);
 		}
 	}
 
-	public void definirDimension(Classe c, int ligne)
+
+	/**
+	 * Déplace une classe à partir de son id et de ses coordonnées
+	 * @param c La classe à modifier
+	 * @param longueur nouvelle largeur de la classe
+	 * @return
+	 */
+	public void definirLargeur(Classe c, int longueur)
 	{
-		c.getPos().setTailleX(ligne);
+		c.getPos().setTailleX(longueur);
 	}
 
 	/**
 	 * Ouvre un dossier avec son chemin passé en paramètre
 	 * @param cheminDossier Chemoin vers le dossier
 	*/
-	public void ouvrirDossier(String cheminDossier)
+	public void ouvrirDossier( String cheminDossier )
 	{
-		File dossier = new File(cheminDossier);
+		File dossier = new File( cheminDossier );
 		
 		File[] lstFichier = dossier.listFiles();
 		
 		this.lstClasses.clear();
 		this.lstAssociations.clear();
 
-		for (File fichier : lstFichier)
-			if (fichier.getName().contains(".java") )
-				this.lstClasses.add(AnalyseurJava.analyserFichier(fichier.getAbsolutePath()));
+		// Ouvre chaque fichiers .java
+		for ( File fichier : lstFichier )
+			if ( fichier.getName().contains(".java") )
+				this.lstClasses.add( AnalyseurJava.analyserFichier(fichier.getAbsolutePath()) );
 
 		this.creationAssociation();
 		this.initPosition();
 	}
 
-	public void ouvrirFichier(String fichier)
-	{
-		AnalyseurJava.analyserFichier(fichier);
-	}
 
+	/**
+	 * Initialize la position d'une classe ( la taille, les coordonnees )
+	 * @return
+	 */
 	public void initPosition()
 	{
 		int posX,      tailleX;
-		int yClasse,   tailleYClasse;
+		int yClasse=0,   tailleYClasse;
 		int yAttribut, tailleYAttribut;
 		int yMethode,  tailleYMethode;
-
-		for (Classe classe : this.lstClasses)
+		
+		
+		for ( Classe classe : this.lstClasses )
 		{
-			posX    = 100;
+			posX    = 400;
 			tailleX = 0;
 
 			tailleYClasse = 18;
-			if( classe.estAbstraite()            ) tailleYClasse += 16;
-			if(!classe.getStereotype().equals("")) tailleYClasse += 16;
+			if(   classe.estAbstraite()             ) tailleYClasse += 16;
+			if( ! classe.getStereotype().equals("") ) tailleYClasse += 16;
 		
 			tailleYAttribut = 18;
-			if( !classe.getAttributs().isEmpty() ) tailleYAttribut += (classe.getAttributs().size()-1) * 16;
+			if( ! classe.getAttributs().isEmpty() ) tailleYAttribut += ( classe.getAttributs().size()-1 ) * 16;
 
 			tailleYMethode = 18;
-			if( !classe.getMethodes() .isEmpty() ) tailleYMethode += (classe.getMethodes ().size()-1) * 16;
+			if( ! classe.getMethodes() .isEmpty() ) tailleYMethode += ( classe.getMethodes ().size()-1 ) * 16;
 
-			if(classe.getAttributs().size() > 3)
-				tailleYAttribut -= (classe.getAttributs().size() - 4) * 16;
+			if( classe.getAttributs().size() > 3 )
+				tailleYAttribut -= ( classe.getAttributs().size() - 4 ) * 16;
 
 			if(classe.getMethodes().size() > 3)
 				tailleYMethode  -= (classe.getMethodes ().size() - 4) * 16;
 
-			yClasse   = 75;
+			yClasse   += tailleYClasse + tailleYAttribut + tailleYMethode + 25;
 			yAttribut = yClasse   + tailleYClasse   /2 + tailleYAttribut /2;
 			yMethode  = yAttribut + tailleYAttribut /2 + tailleYMethode  /2;
 
@@ -121,7 +144,12 @@ public class Retroconception
 		}
 	}
 
-	public String getLigneMax(Classe classe) 
+	/**
+	 * Recupère la taille maximale d'une ligne dans une classe
+	 * @param classe Numero classe
+	 * @return
+	 */
+	public String getLigneMax( Classe classe )
 	{
 		String ligne;
 		String maxAttribut  = "";
@@ -133,12 +161,13 @@ public class Retroconception
 		String methodeSansT = "";
 		String specificite  = classe.estLectureUnique() ? " {Gelé}" : "";
 
+		// Gere la taille du nom de la classe
 		ligne = classe.getNom() + specificite;
 
 		if( ligne.length() < classe.getStereotype().length()+2 && !classe.getStereotype().equals("") )
 			ligne += "«"+classe.getStereotype()+"»";
 
-
+		// Gere la taille des attributs
 		for (int cptAtt = 0; cptAtt < 3 && cptAtt < classe.getAttributs().size(); cptAtt++)
 		{
 			Attribut attrib = classe.getAttributs().get(cptAtt);
@@ -147,6 +176,7 @@ public class Retroconception
 
 			maxAttribut = attrib.getSymbole() + " " + attrib.getNom();
 
+			// Gere si la methode possede une valeur par defaut ( static et final )
 			if(!attrib.getValeurConstante().equals(""))
 			{
 				maxAttribut += " = ";
@@ -159,18 +189,23 @@ public class Retroconception
 			if( nomAttribut.length() < maxAttribut.length())
 				nomAttribut = maxAttribut;
 
+			// Gere la specificite d'une classe abstract, default, gelée
 			if( typeAttribut.length() < attrib.getType().length() + specificite.length() )
 				typeAttribut = attrib.getType() + specificite;
 
+			// Comparaison finale
 			if( ligne.length() < (nomAttribut + " : " + typeAttribut).length())
 				ligne = nomAttribut + " : " + typeAttribut;
 		}
+
+		// Gere la taille des methodes
 		for ( int cptMeth = 0; cptMeth < 3 && cptMeth < classe.getMethodes().size(); cptMeth++ )
 		{
 			Methode meth = classe.getMethodes().get(cptMeth);
 
 			String type = meth.getType();
 
+			// Parcours les 3 premiers parametre pour definir la longueur max car sinon ...
 			String para = "";
 			for (int cptPara = 0; cptPara < 3 && cptPara < meth.getParametre().size(); cptPara++)
 			{
@@ -188,11 +223,13 @@ public class Retroconception
 
 			maxMethode = (meth.getSymbole() + " " + meth.getNom() + "(" + para + ")");
 
+			// Gere la specificite d'une classe abstract, default, gelée
 			specificite = "";
 			specificite += (meth.estLectureUnique() ? " {Gelé}" : "");
 			specificite += (meth.estAbstraite() ? " {abstract}" : "");
 			specificite += (!meth.getStereotype().equals("") ? " {" + meth.getStereotype()+ "}" : "");
 
+			// Enleve l'affichage des methode renvoyant void ou étant un constructeur ( null )
 			if( type != null && ! type.equals( "void" ) )
 			{
 				if (maxMethode.length() > nomMethode.length())
@@ -205,6 +242,7 @@ public class Retroconception
 				if( methodeSansT.length() < (maxMethode + specificite).length())
 					methodeSansT = maxMethode + specificite;
 
+			// Comparaison finale
 			if( methodeSansT.length() < (nomMethode + typeMethode + specificite).length())
 			{
 				if( ligne.length() < (nomMethode + typeMethode + specificite).length())
@@ -218,13 +256,18 @@ public class Retroconception
 		return ligne;
 	}
 
+	/**
+	 * Permet de sauvegarder un fichier au format xml
+	 * @param fichier fichier de sauvegarde
+	 * @return
+	 */
 	public void sauvegarderFichier(File fichier)
 	{
 		try
 		{
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document document = builder.newDocument();
+			DocumentBuilderFactory factory  = DocumentBuilderFactory.newInstance();
+			DocumentBuilder        builder  = factory.newDocumentBuilder();
+			Document               document = builder.newDocument();
 		
 			Element racine = document.createElement("ihm");
 			document.appendChild(racine);
@@ -239,7 +282,7 @@ public class Retroconception
 				document = this.sauvegarderAssociation(a, document, racine);
 
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
+			Transformer        transformer        = transformerFactory.newTransformer();
 
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
@@ -254,7 +297,11 @@ public class Retroconception
 		
 	}
 
-
+	/**
+	 * Charge la sauvegarde d'un fichier xml dans l'IHM
+	 * @param fichier fichier de sauvergarde
+	 * @return
+	 */
 	public void chargerSauvegarde(File fichier)
 	{
 		try
@@ -289,25 +336,15 @@ public class Retroconception
 				this.lstAssociations.add(this.chargerAssociation(asso));
 			}
 
-			//for (Association asso : this.lstAssociations)
-			//{
-			//	System.out.println(asso.getTypeAsso());
-			//	System.out.println(asso.getClasse1 ());
-			//	System.out.println(asso.getClasse2 ());
-			//	System.out.println(asso.getMultiplicite1());
-			//	System.out.println(asso.getMultiplicite2());
-			//	System.out.println(asso.getRole1());
-			//	System.out.println(asso.getRole2());
-			//}
-
-
 		}
 		catch (ParserConfigurationException | SAXException | IOException e)
 		{e.printStackTrace();}
 
 	}
 
-	
+	/**
+	 * Créer les associations des différents codes du dossier
+	 */
 	public void creationAssociation()
 	{
 		List<Association> lstAssociationTmp = creationMultiplicite();
@@ -359,11 +396,14 @@ public class Retroconception
 				}
 			}
 		}
-
 		return lstAssociationTmp;
 	}
 
-
+	/**
+	 * Supprime les attributs d'une association entrée en parametre
+	 * @param lstAssociationTmp coordonnée x
+	 * @return
+	 */
 	private void suppressionAttributAsso( List<Association> lstAssociationTmp )
 	{
 		for (Classe classe : this.lstClasses)
@@ -400,6 +440,11 @@ public class Retroconception
 		}
 	}
 
+	/**
+	 * Création du type des associations
+	 * @param lstAssociationTmp liste des associations
+	 * @return
+	 */
 	private void creationTypeAsso( List<Association> lstAssociationTmp )
 	{
 		boolean[] utilise = new boolean[lstAssociationTmp.size()];
@@ -443,47 +488,47 @@ public class Retroconception
 			if (association2 != null)
 			{
 				this.lstAssociations.add(new Association(association1.getClasse1(), association1.getClasse2(),
-						"bidirectionnelle", association1.getMultiplicite1(), association2.getMultiplicite1()));
+				         "bidirectionnelle", association1.getMultiplicite1(), association2.getMultiplicite1()));
 			}
 			else
 			{
 				this.lstAssociations.add(new Association(association1.getClasse1(), association1.getClasse2(),
-						"unidirectionnelle", association1.getMultiplicite1(), "0..*"));
+				        "unidirectionnelle", association1.getMultiplicite1(), "0..*"));
 			}
 		}
 	}
 
-	public void printLstAssociation()
-	{
-		for (int i = 0 ; i < this.lstAssociations.size() ; i++) {
-			System.out.println(this.lstAssociations.get(i));
-		}
-	}
-
+	/**
+	 * Transforme chaque element de la classe en element xml
+	 * @param c Classe à enregistrer
+	 * @param doc Document d'enregistrement
+	 * @param e Element racine
+	 * @return Le Document avec la classe écrite dedans en xml
+	 */
 	private Document sauvegardeClasse(Classe c, Document doc, Element e)
 	{
 		Element bloc = doc.createElement("bloc");
 		e.appendChild(bloc);
 
-		bloc.appendChild(Retroconception.createElement(doc, "visibilite"   ,                c.getVisibilite   () ));
-		bloc.appendChild(Retroconception.createElement(doc, "statique"     , String.valueOf(c.estStatique     ())));
-		bloc.appendChild(Retroconception.createElement(doc, "lectureUnique", String.valueOf(c.estLectureUnique())));
-		bloc.appendChild(Retroconception.createElement(doc, "abstraite"    , String.valueOf(c.estAbstraite    ())));
-		bloc.appendChild(Retroconception.createElement(doc, "nom"          ,                c.getNom          () ));
-		bloc.appendChild(Retroconception.createElement(doc, "stereotype"   ,                c.getStereotype   () ));
-		bloc.appendChild(Retroconception.createElement(doc, "mere"         ,                c.getMere         () ));
+		bloc.appendChild(Retroconception.creationElement(doc, "visibilite"   ,                c.getVisibilite   () ));
+		bloc.appendChild(Retroconception.creationElement(doc, "statique"     , String.valueOf(c.estStatique     ())));
+		bloc.appendChild(Retroconception.creationElement(doc, "lectureUnique", String.valueOf(c.estLectureUnique())));
+		bloc.appendChild(Retroconception.creationElement(doc, "abstraite"    , String.valueOf(c.estAbstraite    ())));
+		bloc.appendChild(Retroconception.creationElement(doc, "nom"          ,                c.getNom          () ));
+		bloc.appendChild(Retroconception.creationElement(doc, "stereotype"   ,                c.getStereotype   () ));
+		bloc.appendChild(Retroconception.creationElement(doc, "mere"         ,                c.getMere         () ));
 
 		for (Attribut a : c.getAttributs())
 		{
 			Element attribut = doc.createElement("attribut");
 			bloc.appendChild(attribut);
 			
-			attribut.appendChild(Retroconception.createElement(doc, "visibiliteA"   ,                a.getVisibilite     () ));
-			attribut.appendChild(Retroconception.createElement(doc, "statiqueA"     , String.valueOf(a.estStatique       ())));
-			attribut.appendChild(Retroconception.createElement(doc, "lectureUniqueA", String.valueOf(a.estLectureUnique  ())));
-			attribut.appendChild(Retroconception.createElement(doc, "typeA"         ,                a.getType           () ));
-			attribut.appendChild(Retroconception.createElement(doc, "nomA"          ,                a.getNom            () ));
-			attribut.appendChild(Retroconception.createElement(doc, "constante"     ,                a.getValeurConstante() ));
+			attribut.appendChild(Retroconception.creationElement(doc, "visibiliteA"   ,                a.getVisibilite     () ));
+			attribut.appendChild(Retroconception.creationElement(doc, "statiqueA"     , String.valueOf(a.estStatique       ())));
+			attribut.appendChild(Retroconception.creationElement(doc, "lectureUniqueA", String.valueOf(a.estLectureUnique  ())));
+			attribut.appendChild(Retroconception.creationElement(doc, "typeA"         ,                a.getType           () ));
+			attribut.appendChild(Retroconception.creationElement(doc, "nomA"          ,                a.getNom            () ));
+			attribut.appendChild(Retroconception.creationElement(doc, "constante"     ,                a.getValeurConstante() ));
 		}
 
 		for (Methode m : c.getMethodes())
@@ -491,21 +536,21 @@ public class Retroconception
 			Element methode = doc.createElement("methode");
 			bloc.appendChild(methode);
 			
-			methode.appendChild(Retroconception.createElement(doc, "visibiliteM"   ,                m.getVisibilite   () ));
-			methode.appendChild(Retroconception.createElement(doc, "statiqueM"     , String.valueOf(m.estStatique     ())));
-			methode.appendChild(Retroconception.createElement(doc, "lectureUniqueM", String.valueOf(m.estLectureUnique())));
-			methode.appendChild(Retroconception.createElement(doc, "abstraiteM"    , String.valueOf(m.estAbstraite    ())));
-			methode.appendChild(Retroconception.createElement(doc, "stereotypeM"   ,                m.getStereotype   () ));
-			methode.appendChild(Retroconception.createElement(doc, "typeM"         ,                m.getType         () ));
-			methode.appendChild(Retroconception.createElement(doc, "nomM"          ,                m.getNom          () ));
+			methode.appendChild(Retroconception.creationElement(doc, "visibiliteM"   ,                m.getVisibilite   () ));
+			methode.appendChild(Retroconception.creationElement(doc, "statiqueM"     , String.valueOf(m.estStatique     ())));
+			methode.appendChild(Retroconception.creationElement(doc, "lectureUniqueM", String.valueOf(m.estLectureUnique())));
+			methode.appendChild(Retroconception.creationElement(doc, "abstraiteM"    , String.valueOf(m.estAbstraite    ())));
+			methode.appendChild(Retroconception.creationElement(doc, "stereotypeM"   ,                m.getStereotype   () ));
+			methode.appendChild(Retroconception.creationElement(doc, "typeM"         ,                m.getType         () ));
+			methode.appendChild(Retroconception.creationElement(doc, "nomM"          ,                m.getNom          () ));
 
 			for (Parametre p : m.getParametre())
 			{
 				Element param = doc.createElement("parametre");
 				methode.appendChild(param);
 
-				param.appendChild(Retroconception.createElement(doc, "typeP", p.type()));
-				param.appendChild(Retroconception.createElement(doc, "nomP" , p.nom ()));
+				param.appendChild(Retroconception.creationElement(doc, "typeP", p.type()));
+				param.appendChild(Retroconception.creationElement(doc, "nomP" , p.nom ()));
 			}
 		}
 
@@ -517,25 +562,31 @@ public class Retroconception
 			Element implementation = doc.createElement("implementation");
 			bloc.appendChild(implementation);
 
-			implementation.appendChild(Retroconception.createElement(doc, "implementation" , imp));
+			implementation.appendChild(Retroconception.creationElement(doc, "implementation" , imp));
 		}
 
 		Element position = doc.createElement("position");
 		bloc.appendChild(position);
 
-		position.appendChild(Retroconception.createElement(doc, "centreX"        , String.valueOf(c.getPos().getCentreX        ())));
-		position.appendChild(Retroconception.createElement(doc, "centreYClasse"  , String.valueOf(c.getPos().getCentreYClasse  ())));
-		position.appendChild(Retroconception.createElement(doc, "centreYAttribut", String.valueOf(c.getPos().getCentreYAttribut())));
-		position.appendChild(Retroconception.createElement(doc, "centreYMethode" , String.valueOf(c.getPos().getCentreYMethode ())));
-		position.appendChild(Retroconception.createElement(doc, "tailleX"        , String.valueOf(c.getPos().getTailleX        ())));
-		position.appendChild(Retroconception.createElement(doc, "tailleYClasse"  , String.valueOf(c.getPos().getTailleYClasse  ())));
-		position.appendChild(Retroconception.createElement(doc, "tailleYAttribut", String.valueOf(c.getPos().getTailleYAttribut())));
-		position.appendChild(Retroconception.createElement(doc, "tailleYMethode" , String.valueOf(c.getPos().getTailleYMethode ())));
+		position.appendChild(Retroconception.creationElement(doc, "centreX"        , String.valueOf(c.getPos().getCentreX        ())));
+		position.appendChild(Retroconception.creationElement(doc, "centreYClasse"  , String.valueOf(c.getPos().getCentreYClasse  ())));
+		position.appendChild(Retroconception.creationElement(doc, "centreYAttribut", String.valueOf(c.getPos().getCentreYAttribut())));
+		position.appendChild(Retroconception.creationElement(doc, "centreYMethode" , String.valueOf(c.getPos().getCentreYMethode ())));
+		position.appendChild(Retroconception.creationElement(doc, "tailleX"        , String.valueOf(c.getPos().getTailleX        ())));
+		position.appendChild(Retroconception.creationElement(doc, "tailleYClasse"  , String.valueOf(c.getPos().getTailleYClasse  ())));
+		position.appendChild(Retroconception.creationElement(doc, "tailleYAttribut", String.valueOf(c.getPos().getTailleYAttribut())));
+		position.appendChild(Retroconception.creationElement(doc, "tailleYMethode" , String.valueOf(c.getPos().getTailleYMethode ())));
 		
 		return doc;
 	}
 
-
+	/**
+	 * Transforme chaque element de l'association en element xml
+	 * @param a Association à enregistrer
+	 * @param doc Document d'enregistrement
+	 * @param e Element racine
+	 * @return Le Document avec l'association écrite dedans en xml
+	 */
 	public Document sauvegarderAssociation(Association a, Document doc, Element e)
 	{
 		Element liens = doc.createElement("lien");
@@ -544,18 +595,24 @@ public class Retroconception
 		doc = sauvegardeClasse(a.getClasse1(), doc, liens);
 		doc = sauvegardeClasse(a.getClasse2(), doc, liens);
 
-		liens.appendChild(Retroconception.createElement(doc, "typeAsso"     , a.getTypeAsso     ()));
-		liens.appendChild(Retroconception.createElement(doc, "multiplicite1", a.getMultiplicite1()));
-		liens.appendChild(Retroconception.createElement(doc, "multiplicite2", a.getMultiplicite2()));
-		liens.appendChild(Retroconception.createElement(doc, "role1"        , a.getRole1        ()));
-		liens.appendChild(Retroconception.createElement(doc, "role2"        , a.getRole2        ()));
+		liens.appendChild(Retroconception.creationElement(doc, "typeAsso"     , a.getTypeAsso     ()));
+		liens.appendChild(Retroconception.creationElement(doc, "multiplicite1", a.getMultiplicite1()));
+		liens.appendChild(Retroconception.creationElement(doc, "multiplicite2", a.getMultiplicite2()));
+		liens.appendChild(Retroconception.creationElement(doc, "role1"        , a.getRole1        ()));
+		liens.appendChild(Retroconception.creationElement(doc, "role2"        , a.getRole2        ()));
 
 		return doc;
 	}
 
 
-
-	private static Element createElement(Document doc, String nom, String val)
+	/**
+	 * Crée un nouvel élément dans le document
+	 * @param doc Document où créer l'élément
+	 * @param nom Nom donné à la borne créée
+	 * @param val Valeur mise entre les bornes
+	 * @return L'élément créé à ajouter au document
+	 */
+	private static Element creationElement(Document doc, String nom, String val)
 	{
 		Element element = doc.createElement(nom);
 		element.appendChild(doc.createTextNode(val));
@@ -563,7 +620,11 @@ public class Retroconception
 	}
 
 
-
+	/**
+	 * Crer les classes a partir du xml
+	 * @param classeXML Element racine
+	 * @return La Classe créée à partir des éléments du fichier xml
+	 */
 	private Classe chargerClasse(Element classeXML)
 	{
 		String  visibilite    =                      classeXML.getElementsByTagName("visibilite"   ).item(0).getTextContent() ;
@@ -651,7 +712,11 @@ public class Retroconception
 		return classe;
 	}
 
-
+	/**
+	 * Crée une les associations à partir du xml
+	 * @param assoXML Element racine
+	 * @return L'association créée à partir des éléments du fichier xml
+	 */
 	public Association chargerAssociation(Element assoXML)
 	{
 
@@ -684,7 +749,6 @@ public class Retroconception
 
 		return null;
 	}
-
 
 	public void reset()
 	{

@@ -10,6 +10,7 @@ import retroconception.metier.Parametre;
 
 /**
  * Permet d'analyser un fichier java et d'en extraire :  Le nom de la classe, les attributs de la classe, les méthodes de la classe
+ * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Marta, CONSTANTIN Alexis 
  * @version Etape 4
  * @since 08-12-2025
@@ -149,17 +150,15 @@ public final class AnalyseurJava
 					if ( classe.getNom().equals(mot))
 					{
 						type = null;
-						nom = mot;
+						nom  = mot;
 					}
 					else
 					{
 						type = mot;
-
-						mot = sc.next();
+						mot  = sc.next();
 
 						index = mot.indexOf("(");
-						if (index != -1)
-							nom = mot.substring(0, index);
+						if (index != -1) nom = mot.substring(0, index);
 					}
 
 					if ( visibilite.equals("default") )
@@ -176,11 +175,10 @@ public final class AnalyseurJava
 							if (!statique) abstraite = true;
 						}
 					}
+					methode = new Methode( visibilite, statique, lectureUnique, abstraite, stereotype, type, nom );
 
-					methode = new Methode(visibilite, statique, lectureUnique, abstraite, stereotype, type, nom );
-
-					AnalyseurJava.gereParametres(methode, ligne);
-					classe.ajouterMethode(methode);
+					AnalyseurJava.gereParametres( methode, ligne );
+					classe.ajouterMethode( methode );
 					
 				}
 				
@@ -191,72 +189,67 @@ public final class AnalyseurJava
 		return classe;
 	}
 
-	private static void gereParametres(Methode m, String ligne)
+	private static void gereParametres( Methode m, String ligne )
 	{
 		String       parametre;
 		String       type, nom;
 		List<String> lstType, lstParametre;
 
-		parametre = ligne.substring(ligne.indexOf("(") + 1, ligne.indexOf(")"));
+		parametre = ligne.substring( ligne.indexOf("(") + 1, ligne.indexOf(")") );
 
 		// Si sans paramètre
 		if ( parametre.equals("") ) return;
 
-		lstParametre = AnalyseurJava.decomposeurType(parametre, ',');
+		lstParametre = AnalyseurJava.decomposeurType( parametre, ',' );
 
 		// Cas ou 1 seul parametre
-		if (lstParametre.size() == 1)
+		if ( lstParametre.size() == 1 )
 		{
-
-			lstType = AnalyseurJava.decomposeurType(parametre, ' ');
+			lstType = AnalyseurJava.decomposeurType( parametre, ' ' );
 
 			type = lstType.get(0);
-			nom = lstType.get(1);
+			nom  = lstType.get(1);
 
-			m.ajouterParametres(new Parametre(type, nom));
-
+			m.ajouterParametres( new Parametre(type, nom) );
 			return;
 		}
 
 		// Cas ou plusieurs parametres
-		for (String s : lstParametre)
+		for ( String s : lstParametre )
 		{
 			s = s.trim();
 
 			lstType = AnalyseurJava.decomposeurType(s, ' ');
 
 			type = lstType.get(0);
-			nom = lstType.get(1).replace(",", "");
+			nom  = lstType.get(1).replace(",", "");
 
-			m.ajouterParametres(new Parametre(type, nom));
+			m.ajouterParametres( new Parametre(type, nom) );
 		}
 	}
 
-	private static void gereExtendsImplements(Classe c, Scanner sc, String ligne)
+	private static void gereExtendsImplements( Classe c, Scanner sc, String ligne )
 	{
 		String mot, mere;
 
 		mot = sc.next();
 
-		if (mot.equals("extends"))
+		if ( mot.equals("extends") )
 		{
 			mere = sc.next();
 			c.setMere(mere);
 			if ( sc.hasNext() ) mot = sc.next();
 		}
 
-		if (mot.equals("implements"))
+		if ( mot.equals("implements") )
 		{
-			int indexImplement = ligne.indexOf("implements") + "implements".length();
+			int indexImplement       = ligne.indexOf("implements") + "implements".length();
 			String detecteImplements = ligne.substring(indexImplement, ligne.length()).trim();
 
 			Scanner scImplements = new Scanner(detecteImplements);
 			scImplements.useDelimiter("\\,");
 
-			while (scImplements.hasNext())
-			{
-				c.ajouterImplementations(scImplements.next().trim());
-			}
+			while ( scImplements.hasNext() ) c.ajouterImplementations( scImplements.next().trim() );
 		}
 	}
 
@@ -267,33 +260,30 @@ public final class AnalyseurJava
 		int niveauChevron = 0;
 		String res = "";
 
-		for (int i = 0; i < ligne.length(); i++)
+		for ( int i = 0; i < ligne.length(); i++ )
 		{
 			// Caractère en cours
 			char c = ligne.charAt(i);
-			if (c == '<') niveauChevron++;
-			if (c == '>') niveauChevron--;
+			if ( c == '<' ) niveauChevron++;
+			if ( c == '>' ) niveauChevron--;
 
 			res += c;
 
-			if (niveauChevron == 0 && c == delimiteur)
+			if ( niveauChevron == 0 && c == delimiteur )
 			{
 				res = res.trim();
 
-				if (!res.equals(""))
+				if ( ! res.equals("") )
 				{
 					// Gere le cas ou il y a des espace entre le type et le "<"
-					if (res.charAt(0) == '<')
-						lstRet.add(lstRet.remove(lstRet.size() - 1) + res);
-					else
-						lstRet.add(res);
+					if ( res.charAt(0) == '<' ) lstRet.add( lstRet.remove(lstRet.size() - 1) + res );
+					else                        lstRet.add(res);
 				}
 				res = "";
 			}
 		}
 		// Ajoute la derniere iteration
-		if (!res.equals(""))
-			lstRet.add(res);
+		if ( ! res.equals("") ) lstRet.add(res);
 
 		return lstRet;
 	}

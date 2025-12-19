@@ -10,6 +10,15 @@ import javax.swing.*;
 import retroconception.Controleur;
 import retroconception.metier.Classe;
 
+/**
+ * Panel sur le cote avec toutes les classes
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Marta, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
+
 public class PanelClasses extends JPanel
 {
 	private Controleur    ctrl;
@@ -29,6 +38,10 @@ public class PanelClasses extends JPanel
 		this.actualiser();
 	}
 
+	/**
+	 * Crée un bouton pour chaque classe dans la liste du controleur
+	 * @return
+	 */
 	public void actualiser()
 	{
 		this.removeAll();
@@ -42,10 +55,10 @@ public class PanelClasses extends JPanel
 		{
 			JButton btn = new JButton(classe.getNom());
 
-			btn.setBorderPainted(false);
-			btn.setFocusPainted(false);
+			btn.setBorderPainted    (false);
+			btn.setFocusPainted     (false);
 			btn.setContentAreaFilled(false);
-			btn.setOpaque(true);
+			btn.setOpaque           (true );
 
 			btn.setBackground(new Color(128, 170, 141));
 			btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -68,6 +81,11 @@ public class PanelClasses extends JPanel
 		this.repaint();
 	}
 
+	/**
+	 * Change la couleur du bouton donné en paramettre
+	 * @param index numéro du bouton dans la liste de bouton
+	 * @return
+	 */
 	public void changerCouleur(int index)
 	{
 		this.resetBtnColor();
@@ -86,6 +104,7 @@ public class PanelClasses extends JPanel
 	{
 		public void mouseClicked(MouseEvent e)
 		{
+			//Ouverture de la page d'information de la classe avec un clique droit sur son bouton respectif
 			if (SwingUtilities.isRightMouseButton(e))
 			{
 				for (int i = 0; i < PanelClasses.this.lstButtons.size(); i++)
@@ -97,6 +116,7 @@ public class PanelClasses extends JPanel
 				}
 			}
 
+			//Changement de la couleur du bouton et de la boite de la classe correspondante
 			if(SwingUtilities.isLeftMouseButton(e))
 			{
 				for (int i = 0; i < PanelClasses.this.lstButtons.size(); i++)

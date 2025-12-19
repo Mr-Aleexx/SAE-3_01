@@ -7,7 +7,7 @@ import java.util.List;
  * Représentation d'une classe
  * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
- *         Martha, CONSTANTIN Alexis
+ *         Marta, CONSTANTIN Alexis
  * @version 1.0
  * @since 08-12-2025
  */
@@ -27,16 +27,6 @@ public class Classe
 	private List<String>   lstImplementations;
 
 	private PositionClasse position;
-	/**
-	 * Représentation d'une classe Java
-	 * En plus des paramètres, elle comprends les attributs de la classe, les méthodes, et les sous classes
-	 * @param visi Visibilité de la classe (public, private)
-	 * @param statique Si la classe est statique ou non 
-	 * @param lectureUnique Final ou non
-	 * @param abstraite Abstraite ou non
-	 * @param type Type de la classe
-	 * @param nom Nom de la classe
-	 */
 
 	public Classe( String visi, boolean statique, boolean lectureUnique, boolean abstraite, String stereotype,
 	               String nom )
@@ -91,6 +81,14 @@ public class Classe
 	public void ajouterClasseInterne    (Classe     ClasseInterne    ) { this.ClassesInterne    .add(ClasseInterne );}
 	public void ajouterImplementations  (String     implementation   ) { this.lstImplementations.add(implementation);}
 
+
+
+	/**
+	 * Permet de savoir si les coordonées sont dans l'objet classe
+	 * @param x coordonnée x
+	 * @param y coordonnée y
+	 * @return
+	 */
 	public boolean possede(int x, int y)
 	{
 		int milieuY = ((this.position.getCentreYClasse () - this.position.getTailleYClasse () / 2) +

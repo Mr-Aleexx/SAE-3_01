@@ -10,6 +10,15 @@ import java.awt.Insets;
 import retroconception.Controleur;
 import retroconception.metier.Association;
 
+/**
+ * Panel permettant l'ajout ou la modification des rôles d'une association.
+ * Affiche une interface avec une liste déroulante pour sélectionner une association
+ * et des champs de texte pour définir les noms des rôles.
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Marta, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
 
 public class PanelAjout extends JPanel implements ActionListener
 {
@@ -22,65 +31,76 @@ public class PanelAjout extends JPanel implements ActionListener
 	private JButton btnValider;
 	private JButton btnAnnuler;
 	
+
+	/**
+	 * Constructeur du panel d'ajout de rôles.
+	 * Initialise tous les composants graphiques et leur positionnement.
+	 * 
+	 * @param ctrl Le contrôleur de l'application
+	 */
 	public PanelAjout(Controleur ctrl)
 	{
 		this.ctrl = ctrl;
 
-		JLabel lblRoleName;
-		
+		/* Création des composants */
+		this.cmbAssociations = new JComboBox<>();
+		this.chargerAssociations();
+
+		this.txtRoleName1 = new JTextField(20);
+		this.txtRoleName1.setEditable(false);
+
+		this.txtRoleName2 = new JTextField(20);
+		this.txtRoleName2.setEditable(false);
+
+		this.btnValider = new JButton("Valider");
+		this.btnAnnuler = new JButton("Annuler");
+
+
+		/* Positionnement des composants */
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(10, 10, 10, 10);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		
-		this.lblAssociation = new JLabel("Sélectionner l'association :");
 		gbc.gridx = 0;
-		gbc.gridy = 0;
 		gbc.gridwidth = 2;
-		this.add(lblAssociation, gbc);
-		
-		this.cmbAssociations = new JComboBox<>();
-		this.chargerAssociations();
+
+		gbc.gridy = 0;
+		this.add(new JLabel("Sélectionner l'association :"), gbc);
+
 		gbc.gridy = 1;
 		this.add(cmbAssociations, gbc);
-		
-		lblRoleName = new JLabel("Nom du rôle 1 :");
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.gridwidth = 2;
-		this.add(lblRoleName, gbc);
 
-		this.txtRoleName1 = new JTextField(20);
+		gbc.gridy = 2;
+		this.add(new JLabel("Nom du rôle 1 :"), gbc);
+
 		gbc.gridy = 3;
 		this.add(this.txtRoleName1, gbc);
 
-		lblRoleName = new JLabel("Nom du rôle 2 :");
 		gbc.gridy = 4;
-		this.add(lblRoleName, gbc);
+		this.add(new JLabel("Nom du rôle 2 :"), gbc);
 
-		this.txtRoleName2 = new JTextField(20);
 		gbc.gridy = 5;
 		this.add(this.txtRoleName2, gbc);
-		
+
 		JPanel panelBoutons = new JPanel(new FlowLayout());
-		this.btnValider = new JButton("Valider");
-		this.btnAnnuler = new JButton("Annuler");
-		
 		panelBoutons.add(btnValider);
 		panelBoutons.add(btnAnnuler);
-		
-		gbc.gridy = 6;
-		gbc.gridwidth = 2;
-		this.add(panelBoutons, gbc);
 
-		this.txtRoleName1.setEditable(false);
-		this.txtRoleName2.setEditable(false);
+		gbc.gridy = 6;
+		this.add(panelBoutons, gbc);
 		
-		this.btnValider.addActionListener(this);
-		this.btnAnnuler.addActionListener(this);
+
+		/* Activation des écouteurs d'événements */
+		this.btnValider     .addActionListener(this);
+		this.btnAnnuler     .addActionListener(this);
 		this.cmbAssociations.addActionListener(this);
 	}
 	
+
+	/**
+	 * Charge toutes les associations disponibles dans la liste déroulante.
+	 * Affiche les associations bidirectionnelles avec <-> et les autres avec ->.
+	 */
 	private void chargerAssociations()
 	{
 		String desc;
@@ -88,6 +108,7 @@ public class PanelAjout extends JPanel implements ActionListener
 		cmbAssociations.removeAllItems();
 		for (Association asso : ctrl.getLstAssociations())
 		{
+			// Différencie l'affichage selon le type d'association
 			if(asso.getTypeAsso() != null && "bidirectionnelle".equals(asso.getTypeAsso()))
 			{
 				desc = asso.getClasse1().getNom() + " <-> " + asso.getClasse2().getNom();
@@ -101,6 +122,11 @@ public class PanelAjout extends JPanel implements ActionListener
 		}
 	}
 
+
+	/**
+	 * Valide et enregistre les noms de rôles saisis pour l'association sélectionnée.
+	 * Réinitialise les champs et ferme la fenêtre après validation.
+	 */
 	private void valider()
 	{
 		String roleName1 = this.txtRoleName1.getText().trim();
@@ -111,6 +137,7 @@ public class PanelAjout extends JPanel implements ActionListener
 		{
 			this.ctrl.ajouterRoleAssociation(selectedIndex, roleName1, roleName2);
 			
+			// Réinitialise les champs
 			this.txtRoleName1.setText("");
 			this.txtRoleName2.setText("");
 			SwingUtilities.getWindowAncestor(this).setVisible(false);
@@ -119,6 +146,10 @@ public class PanelAjout extends JPanel implements ActionListener
 		this.ctrl.majIHM();
 	}
 	
+	/**
+	 * Annule l'opération en cours.
+	 * Réinitialise les champs et ferme la fenêtre.
+	 */
 	private void annuler()
 	{
 		this.txtRoleName1.setText("");
@@ -126,17 +157,25 @@ public class PanelAjout extends JPanel implements ActionListener
 		SwingUtilities.getWindowAncestor(this).setVisible(false);
 	}
 
-	private void uniOuBi()
+
+	/**
+	 * Initialise les champs de texte selon l'association sélectionnée.
+	 * Active ou désactive le second champ selon que l'association est bidirectionnelle ou non.
+	 * Remplit les champs avec les rôles existants s'ils sont définis.
+	 */
+	private void initTextField()
 	{
 		int indiceSelect = cmbAssociations.getSelectedIndex();
 		if(indiceSelect >= 0 && indiceSelect < ctrl.getLstAssociations().size())
 		{
 			Association asso = ctrl.getLstAssociations().get(indiceSelect);
 			boolean estBidirectionnelle = asso.getTypeAsso().equals("bidirectionnelle");
-				
+
+			// Active le premier champ, le second uniquement si bidirectionnelle	
 			this.txtRoleName1.setEditable(true);
 			this.txtRoleName2.setEditable(estBidirectionnelle);
 
+			// Remplit les champs avec les rôles existants
 			if(asso.getRole1() != null)
 			{
 				this.txtRoleName1.setText(asso.getRole1());
@@ -149,7 +188,6 @@ public class PanelAjout extends JPanel implements ActionListener
 
 		}
 	}
-
 	
 	
 	public void actionPerformed(ActionEvent e)
@@ -166,7 +204,7 @@ public class PanelAjout extends JPanel implements ActionListener
 		
 		if(e.getSource() == this.cmbAssociations)
 		{
-			this.uniOuBi(); //trouver un meilleur nom
+			this.initTextField();
 		}
 	}
 }

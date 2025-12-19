@@ -3,7 +3,6 @@ package retroconception;
 import java.io.File;
 import java.util.List;
 import retroconception.ihm.FrameUML;
-import retroconception.ihm.IHMCUI;
 import retroconception.metier.Association;
 import retroconception.metier.Classe;
 import retroconception.metier.Retroconception;
@@ -20,22 +19,21 @@ import retroconception.metier.lecture.AnalyseurJava;
 public class Controleur
 {
 	private Retroconception metier;
-	private IHMCUI          ihmCUI;
 	private FrameUML         ihm;
 
 	public Controleur()
 	{
 		this.metier = new Retroconception();
-		this.ihmCUI = new IHMCUI( this );
 		this.ihm    = new FrameUML(this);
 	}
 
 	public List<Classe>      getLstClasses     () { return this.metier.getLstClasses();      }
 	public List<Association> getLstAssociations() { return this.metier.getLstAssociations(); }
 	
-	public Classe            getClasse      (int id)       { return this.metier.getClasse      (id);   }
-	public Integer           getIndiceClasse(int x, int y) { return this.metier.getIndiceClasse(x, y); }
-	public int               getNbClasse    ()             { return this.metier.getNbClasse    ();     }
+	public Classe            getClasse      (int id)         { return this.metier.getClasse      (id);     }
+	public Integer           getIndiceClasse(int x, int y)   { return this.metier.getIndiceClasse(x, y);   }
+	public int               getNbClasse    ()               { return this.metier.getNbClasse    ();       }
+	public String            getLigneMax    (Classe classe ) { return this.metier.getLigneMax    (classe); }
 
 
 	public static List<String> decomposeurType(String ligne, char separateur)
@@ -43,20 +41,17 @@ public class Controleur
 		return AnalyseurJava.decomposeurType( ligne, separateur );
 	}
 
-	public void   ouvrirDossier	    ()                        { this.ihm   .ouvrirDossier();          }
-	public void   exporterImage	    ()                        { this.ihm   .exporterImage();         }
+	public void   ouvrirDossier	    ()                        { this.ihm   .ouvrirDossier(); }
+	public void   exporterImage	    ()                        { this.ihm   .exporterImage(); }
 
-	public void   definirDimension  (Classe c , int ligne   ) { this.metier.definirDimension(c, ligne);}
-	public void   deplacerClasse    (int    id, int x, int y) { this.metier.deplacerClasse(id, x, y); }
+	public void   definirLargeur    (Classe c , int ligne   ) { this.metier.definirLargeur(c, ligne);     }
+	public void   deplacerClasse    (int    id, int x, int y) { this.metier.deplacerClasse(id, x, y);     }
 	public void   ouvrirDossier     (String cheminDossier   ) { this.metier.ouvrirDossier(cheminDossier); }
-	public void   ouvrirFichier     (String cheminFichier   ) { this.metier.ouvrirFichier(cheminFichier); }
-	public void   sauvegarderFichier(File   fichier         ) { this.metier.sauvegarderFichier(fichier); }
-	public void   chargerSauvegarde (File   fichier         ) { this.metier.chargerSauvegarde(fichier); }
-	public String getLigneMax       (Classe classe          ) { return this.metier.getLigneMax(classe); }
+	public void   sauvegarderFichier(File   fichier         ) { this.metier.sauvegarderFichier(fichier);  }
+	public void   chargerSauvegarde (File   fichier         ) { this.metier.chargerSauvegarde(fichier);   }
 
-	public String afficher() { return this.ihmCUI.afficher(); }
-	public void   majIHM  () { this.ihm.majIHM(); }
-	public void   reset   ()
+	public void majIHM() { this.ihm.majIHM(); }
+	public void reset ()
 	{
 		this.metier.reset();
 		this.ihm.majIHM();
@@ -82,9 +77,7 @@ public class Controleur
 
 	public static void main(String[] args)
 	{
-		Controleur ctr = new Controleur();
-		//ctr.ouvrirDossier( "./data/data/record" );
-		//System.out.println( ctr.afficher() );
+		new Controleur();
 	}
 	
 }

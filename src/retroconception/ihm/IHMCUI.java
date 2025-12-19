@@ -9,6 +9,7 @@ import retroconception.metier.Parametre;
 
 /**
  * Représentation dans le terminal en UML d'une ou plusieurs clases java
+ * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
  *         Martha, CONSTANTIN Alexis
  * @version Etape 4
@@ -26,6 +27,7 @@ public class IHMCUI
 		this.ctrl = ctrl;
 	}
 
+	
 	public String afficher()
 	{
 		String sRet = "";
@@ -193,18 +195,18 @@ public class IHMCUI
 
 	private String afficherAssociations(Association association)
 	{
-        if (association.getTypeAsso().equals("unidirectionnelle"))
+		if (association.getTypeAsso().equals("unidirectionnelle"))
 		{
-            return association.getTypeAsso() + " de " 
-                + association.getClasse1().getNom() + "(" + association.getMultiplicite2() + ") vers "
-                + association.getClasse2().getNom() + "(" + association.getMultiplicite1() + ")";
-        } 
+			return association.getTypeAsso() + " de " 
+			     + association.getClasse1().getNom() + "(" + association.getMultiplicite2() + ") vers "
+			     + association.getClasse2().getNom() + "(" + association.getMultiplicite1() + ")";
+		}
 		else
 		{
-            return association.getTypeAsso() + " entre " 
-                + association.getClasse1().getNom() + "(" + association.getMultiplicite1() + ") et "
-                + association.getClasse2().getNom() + "(" + association.getMultiplicite2() + ")";
-        }
+			return association.getTypeAsso() + " entre " 
+			     + association.getClasse1().getNom() + "(" + association.getMultiplicite1() + ") et "
+			     + association.getClasse2().getNom() + "(" + association.getMultiplicite2() + ")";
+		}
 		
 	}
 

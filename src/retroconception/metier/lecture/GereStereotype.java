@@ -14,6 +14,7 @@ final class GereStereotype
 	/**
 	 * Gère la création d'un record à partir d'une ligne de code. Extrait
 	 * les valeurs de l'énumération et les ajoute comme attributs à la classe.
+	 * 
 	 * @param c La classe représentant le record
 	 * @param ligne La ligne contenant la déclaration de l'énumération
 	 */

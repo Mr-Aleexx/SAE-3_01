@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 /**
  * Permet de supprimer les indormations inutiles de chacuns des fichiers d'annalyse
+ * 
  * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Marta, CONSTANTIN Alexis
  * @version Etape 6
  * @since 08-12-2025
@@ -27,6 +28,7 @@ final class NettoyerFichier
 		boolean      ignorerLigne, estTableau;
 		int          niveauTableau      = 0;
 		int          niveauAcolade      = 0;
+		
 		try
 		{
 			sc = new Scanner( new FileInputStream( fichier ), "UTF8" );
@@ -118,7 +120,7 @@ final class NettoyerFichier
 					// Vérifier si on doit ignorer cette ligne avant de modifier niveauAcolade
 					ignorerLigne = (niveauAcolade >= 2);
 
-					if ( ligne.contains("{") ) niveauAcolade++;
+					if ( ligne.contains("{") && ligne.contains( "" ) ) niveauAcolade++;
 
 					if ( ligne.contains("}") )
 					{

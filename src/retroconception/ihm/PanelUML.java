@@ -19,6 +19,15 @@ import retroconception.metier.Classe;
 import retroconception.metier.Methode;
 import retroconception.metier.Parametre;
 
+/**
+ * Panel pour l'affichage du diagramme UML
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Marta, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
+
 public class PanelUML extends JPanel
 {
 	private Controleur ctrl;
@@ -37,6 +46,11 @@ public class PanelUML extends JPanel
 		this.addMouseMotionListener(gs);
 	}
 
+	/**
+	 * Dessine l'ensemble des classes et leur contenue de manière condensé
+	 * @param g Zone de dessin
+	 * @return
+	 */
 	public void paintComponent(Graphics g)
 	{
 		Classe c;
@@ -65,15 +79,16 @@ public class PanelUML extends JPanel
 		largeurStr  = fm.stringWidth(" ");
 		sautDeLigne = (int)(fm.getAscent()*1.2);
 		
+		
 		for (int cpt = 0; cpt < this.ctrl.getNbClasse(); cpt++)
 		{
 			c = this.ctrl.getClasse(cpt);
 			
-			this.ctrl.definirDimension(c, fm.stringWidth(this.ctrl.getLigneMax(c)+"  "));
-
+			this.ctrl.definirLargeur(c, fm.stringWidth(this.ctrl.getLigneMax(c)+"  "));
+			
+	
 			posX            = c.getPos().getCentreX()         - c.getPos().getTailleX() / 2;
 			tailleX         = c.getPos().getTailleX();
-
 
 			// affectation des coordonnees
 			yClasse         = c.getPos().getCentreYClasse  () - c.getPos().getTailleYClasse  () / 2 ;
@@ -96,7 +111,8 @@ public class PanelUML extends JPanel
 			Stroke traitOriginal = g2.getStroke();
 
 			g2.setStroke(new BasicStroke(3.0f));
-
+			
+			// dessine les trois rectangles de la classe
 			g2.drawRect( posX, yClasse,   tailleX, tailleYClass    );
 			g2.drawRect( posX, yAttribut, tailleX, tailleYAttribut );
 			g2.drawRect( posX, yMethode,  tailleX, tailleYMethode  );
@@ -282,25 +298,35 @@ public class PanelUML extends JPanel
 		this.construireLiens( g2 );
 	}
 
+
+	/**
+	 * Dessine les liens pour les associations
+	 * @param g2 Zone de dessin
+	 * @return
+	 */
 	public void construireLiens(Graphics2D g2)
 	{
+		Stroke traitOriginal = g2.getStroke();
+		
 		// Pour les Associations
 		for (Association association : this.ctrl.getLstAssociations())
 		{
 			Classe classe1 = association.getClasse1();
 			Classe classe2 = association.getClasse2();
 			
-			int[] points = calculerPointsConnexion(classe1, classe2);
+			int[] points = this.calculerPointsConnexion(classe1, classe2);
 			
+			g2.setStroke(new BasicStroke(2.0f));
 			g2.drawLine(points[0], points[1], points[2], points[3]);
+			g2.setStroke(traitOriginal);
 
 			if (association.getTypeAsso().equals("unidirectionnelle"))
 			{
-				dessinerTeteFleche(g2, points[0], points[1], points[2], points[3]);
+				this.dessinerTeteFleche(g2, points[0], points[1], points[2], points[3]);
 			}
 
 			// Positions des multiplicités et rôles
-			dessinerMultiplicitesEtRoles(g2, points, association);
+			this.dessinerMultiplicitesEtRoles(g2, points, association);
 		}
 
 		// Pour l'héritage
@@ -310,10 +336,10 @@ public class PanelUML extends JPanel
 			
 			if(mere != null)
 			{
-				Classe classeMere = trouverClasseParNom(mere);
+				Classe classeMere = this.trouverClasseParNom(mere);
 				if (classeMere != null)
 				{
-					dessinerLienHeritage(g2, classe, classeMere);
+					this.dessinerLienHeritage(g2, classe, classeMere);
 				}
 			}
 		}
@@ -323,10 +349,10 @@ public class PanelUML extends JPanel
 		{
 			for (String interfaceName : classe.getLstImplementations())
 			{
-				Classe classeInterface = trouverClasseParNom(interfaceName);
+				Classe classeInterface = this.trouverClasseParNom(interfaceName);
 				if (classeInterface != null)
 				{
-					dessinerLienInterface(g2, classe, classeInterface);
+					this.dessinerLienInterface(g2, classe, classeInterface);
 				}
 			}
 		}
@@ -334,20 +360,32 @@ public class PanelUML extends JPanel
 
 	/**
 	 * Dessine un lien d'héritage entre deux classes
+	 * @param g2 Zone de dessin
+	 * @param enfant classe enfant d'un classe
+	 * @param parent classe parent d'une classe
+	 * @return
 	 */
 	private void dessinerLienHeritage(Graphics2D g2, Classe enfant, Classe parent)
 	{
-		int[] points = calculerPointsConnexion(enfant, parent);
+		Stroke traitOriginal = g2.getStroke();
+		
+		int[] points = this.calculerPointsConnexion(enfant, parent);
+		g2.setStroke(new BasicStroke(2.0f));
 		g2.drawLine(points[0], points[1], points[2], points[3]);
-		dessinerTeteFlechePleine(g2, points[0], points[1], points[2], points[3]);
+		g2.setStroke(traitOriginal);
+
+		this.dessinerTeteFlechePleine(g2, points[0], points[1], points[2], points[3]);
 	}
 
 	/**
 	 * Dessine un lien d'implémentation d'interface (ligne pointillée)
+	 * @param g2 Zone de dessin
+	 * @param classe classe liée à l'interfaceClasse
+	 * @param interfaceClasse Classe possedant une interface
 	 */
 	private void dessinerLienInterface(Graphics2D g2, Classe classe, Classe interfaceClasse)
 	{
-		int[] points = calculerPointsConnexion(classe, interfaceClasse);
+		int[] points = this.calculerPointsConnexion(classe, interfaceClasse);
 		
 		Stroke traitOriginal  = g2.getStroke();
 		float[] patterneTrait = {5.0f, 5.0f};
@@ -356,7 +394,7 @@ public class PanelUML extends JPanel
 		g2.drawLine(points[0], points[1], points[2], points[3]);
 		
 		g2.setStroke(traitOriginal);
-		dessinerTeteFlechePleine(g2, points[0], points[1], points[2], points[3]);
+		this.dessinerTeteFlechePleine(g2, points[0], points[1], points[2], points[3]);
 	}
 
 	/**
@@ -389,22 +427,24 @@ public class PanelUML extends JPanel
 
 	/**
 	 * Calcule les points de connexion entre deux classes
+	 * @param classe1
+	 * @param classe2
 	 * @return [x1, y1, x2, y2]
 	 */
 	private int[] calculerPointsConnexion(Classe classe1, Classe classe2)
 	{
-		int c1CentreX = obtenirCentreX(classe1);
-		int c1CentreY = obtenirCentreY(classe1);
-		int c2CentreX = obtenirCentreX(classe2);
-		int c2CentreY = obtenirCentreY(classe2);
+		int c1CentreX = this.obtenirCentreX(classe1);
+		int c1CentreY = this.obtenirCentreY(classe1);
+		int c2CentreX = this.obtenirCentreX(classe2);
+		int c2CentreY = this.obtenirCentreY(classe2);
 
-		int c1Largeur = obtenirLargeur(classe1);
-		int c1Hauteur = obtenirHauteur(classe1);
-		int c2Largeur = obtenirLargeur(classe2);
-		int c2Hauteur = obtenirHauteur(classe2);
+		int c1Largeur = this.obtenirLargeur(classe1);
+		int c1Hauteur = this.obtenirHauteur(classe1);
+		int c2Largeur = this.obtenirLargeur(classe2);
+		int c2Hauteur = this.obtenirHauteur(classe2);
 
-		int[] point1 = calculerPointConnexion(c1CentreX, c1CentreY, c1Largeur, c1Hauteur, c2CentreX, c2CentreY);
-		int[] point2 = calculerPointConnexion(c2CentreX, c2CentreY, c2Largeur, c2Hauteur, c1CentreX, c1CentreY);
+		int[] point1 = this.calculerPointConnexion(c1CentreX, c1CentreY, c1Largeur, c1Hauteur, c2CentreX, c2CentreY);
+		int[] point2 = this.calculerPointConnexion(c2CentreX, c2CentreY, c2Largeur, c2Hauteur, c1CentreX, c1CentreY);
 
 		return new int[]{point1[0], point1[1], point2[0], point2[1]};
 	}
@@ -412,12 +452,9 @@ public class PanelUML extends JPanel
 	private Classe trouverClasseParNom(String nom)
 	{
 		for (Classe classe : this.ctrl.getLstClasses())
-		{
 			if (classe.getNom().equals(nom))
-			{
 				return classe;
-			}
-		}
+
 		return null;
 	}
 
@@ -428,8 +465,8 @@ public class PanelUML extends JPanel
 
 	private int obtenirCentreY(Classe classe)
 	{
-		return classe.getPos().getCentreYClasse() + 
-		       classe.getPos().getTailleYMethode() / 2 +
+		return classe.getPos().getCentreYClasse  ()     + 
+		       classe.getPos().getTailleYMethode () / 2 +
 		       classe.getPos().getTailleYAttribut() / 2;
 	}
 
@@ -440,40 +477,66 @@ public class PanelUML extends JPanel
 
 	private int obtenirHauteur(Classe classe)
 	{
-		return classe.getPos().getTailleYClasse() + 
-			classe.getPos().getTailleYAttribut() + 
-			classe.getPos().getTailleYMethode();
+		return classe.getPos().getTailleYClasse  () + 
+		       classe.getPos().getTailleYAttribut() + 
+		       classe.getPos().getTailleYMethode ();
 	}
 
 
+	/**
+	 * Calcule le point de connexion sur le bord d’un rectangle,
+ 	 * en partant de son centre et en allant dans la direction
+ 	 * d’un autre point (versCentreX, versCentreY).
+	 * @param centreX centre x d'un coté de la premiere classe
+	 * @param centreY centre x d'un coté de la premiere classe
+	 * @param largeur largeur d'un coté de la classe
+	 * @param hateur hauteur d'un coté de la classe
+	 * @param versCentreX centre x d'un coté de la deuxieme classe
+	 * @param versCentreY centre x d'un coté de la deuxieme classe
+	 * @return
+	 */
 	private int[] calculerPointConnexion(int centreX, int centreY, int largeur, int hauteur, int versCentreX, int versCentreY) 
 	{
+		// Calcul du vecteur direction entre le centre du rectangle
+  		// et le point cible (autre centre, par exemple)
 		int dx = versCentreX - centreX;
 		int dy = versCentreY - centreY;
+
+		// Demi-dimensions du rectangle
 
 		int demiLargeur = largeur / 2;
 		int demiHauteur = hauteur / 2;
 
+		// Par défaut, le point de connexion est le centre
 		int x = centreX;
 		int y = centreY;
 
+		// On compare les valeurs absolues pour savoir
+		// si la direction est plutôt horizontale ou verticale
 		if (Math.abs(dx) > Math.abs(dy))
+			// Direction principalement horizontale :
+			// on se place sur le bord gauche ou droit du rectangle
 			x = (dx > 0) ? centreX + demiLargeur : centreX - demiLargeur;
 		else
+			// Direction principalement verticale :
+			// on se place sur le bord haut ou bas du rectangle
+
 			y = (dy > 0) ? centreY + demiHauteur : centreY - demiHauteur;
 
-		
+		// Retourne le point de connexion calculé
 		return new int[]{x, y};
 	}
 
+
 	private void dessinerTeteFleche(Graphics2D g2, int x1, int y1, int x2, int y2)
 	{
+		Stroke traitOriginal = g2.getStroke();
 		double phi   = Math.toRadians(25);
 		double dy    = y2 - y1;
 		double dx    = x2 - x1;
 		double theta = Math.atan2(dy, dx);
 
-		int longeurSegmentTete     = 10;
+		int longeurSegmentTete = 10;
 		
 		for (int j = 0; j < 2; j++)
 		{
@@ -482,7 +545,9 @@ public class PanelUML extends JPanel
 			int    x   = (int) (x2 - longeurSegmentTete * Math.cos(rho));
 			int    y   = (int) (y2 - longeurSegmentTete * Math.sin(rho));
 
+			g2.setStroke(new BasicStroke(2.0f));
 			g2.drawLine(x2, y2, x, y);
+			g2.setStroke(traitOriginal);
 		}
 	}
 
@@ -492,7 +557,7 @@ public class PanelUML extends JPanel
 		double dy    = y2 - y1, dx = x2 - x1;
 		double theta = Math.atan2(dy, dx);
 
-		int longeurSegmentTete     = 10;
+		int longeurSegmentTete     = 15;
 
 		double rho1 = theta + phi;
 		double rho2 = theta - phi;
@@ -518,10 +583,10 @@ public class PanelUML extends JPanel
 		for (int cpt = 0; cpt < this.ctrl.getNbClasse(); cpt++)
 		{
 			Classe c = this.ctrl.getClasse(cpt);
-			int bordDroit = c.getPos().getCentreX()      + c.getPos().getTailleX() / 2;
-			int bordBas = c.getPos().getCentreYMethode() + c.getPos().getTailleYMethode() / 2;
+			int bordDroit = c.getPos().getCentreX()        + c.getPos().getTailleX()        / 2;
+			int bordBas   = c.getPos().getCentreYMethode() + c.getPos().getTailleYMethode() / 2;
 		
-			if (bordDroit > maxX)  maxX = bordDroit;
+			if (bordDroit > maxX) maxX = bordDroit;
 			if (bordBas   > maxY) maxY = bordBas;
 		}
 
@@ -540,7 +605,7 @@ public class PanelUML extends JPanel
 		this.repaint();
 	}
 
-
+	
 	private class GereSouris extends MouseAdapter
 	{
 		Integer numClasseActive = 0;
@@ -565,16 +630,6 @@ public class PanelUML extends JPanel
 					PanelUML.this.ctrl.changerCouleur("uml", this.numClasseActive);
 					PanelUML.this.repaint();
 				}
-				
-				// affiche des info sur la Class
-				//if (e.getClickCount() == 2)
-				//	if ( this.numStereoActive != 0 && this.numStereoActive != PanelUML.this.ctrl.getNbClasse() - 1 )
-				//		PanelUML.this.frameMere.majLabel(PanelUML.this.ctrl.getClasse(this.numStereoActive));
-
-				// Frame de modification
-				//if (SwingUtilities.isRightMouseButton(e))
-				//	if ( this.numStereoActive != 0 && this.numStereoActive != PanelUML.this.ctrl.getNbClasse() - 1 )
-				//		PanelUML.this.ctrl.creerFrameTache(PanelUML.this.ctrl.getClasse(this.numStereoActive) );
 			}
 		}
 

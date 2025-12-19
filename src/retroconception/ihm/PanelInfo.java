@@ -12,6 +12,14 @@ import retroconception.metier.Classe;
 import retroconception.metier.Methode;
 import retroconception.metier.Parametre;
 
+/**
+ * Panel avec l'affichage complet de la classe
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Marta, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
+
 public class PanelInfo extends JPanel
 {
 	private Controleur ctrl;

@@ -1,5 +1,14 @@
 package retroconception.metier;
 
+
+/**
+ * Position d'une classe dans un plan
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO
+ *         Marta, CONSTANTIN Alexis
+ * @version 1.0
+ * @since 08-12-2025
+ */
 public class PositionClasse
 {
 	private int centreX;
