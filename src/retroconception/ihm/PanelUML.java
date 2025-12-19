@@ -188,8 +188,6 @@ public class PanelUML extends JPanel
 				textMembreX = posX      + largeurStr;
 				textMembreY = yAttribut + sautDeLigne;
 
-				
-		
 				if( att.estStatique()) g2.drawLine(textMembreX, textMembreY+sautDeLigne/6, textMembreX + fm.stringWidth( attribut ), textMembreY+sautDeLigne/6);
 				
 				g2.drawString( attribut, textMembreX, textMembreY );
@@ -291,10 +289,9 @@ public class PanelUML extends JPanel
 					g2.drawString( "…", textMembreX, textMembreY );
 				}
 			}
-			
 		}
 
-		// Construction des liens entre les tâches:
+		// Ajout des liens entre les tâches:
 		this.construireLiens( g2 );
 	}
 
