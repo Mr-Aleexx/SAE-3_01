@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.event.*;
+import java.util.List;
 import javax.swing.*;
 import retroconception.Controleur;
 import retroconception.metier.Association;
@@ -128,8 +129,13 @@ public class PanelUML extends JPanel
 				tailleMax = (att.getSymbole() + " " + att.getNom()).length();
 				
 				if(!att.getValeurConstante().equals(""))
-					tailleMax += (" = " + att.getValeurConstante()).length();
-
+				{
+					tailleMax += 3;
+					List<String> valeurs = Controleur.decomposeurType(att.getValeurConstante(), ',');
+					for ( int cptVal = 0; cptVal < 3 && cptVal < valeurs.size(); cptVal++ )
+						tailleMax += valeurs.get(cptVal).length();
+					tailleMax += ( valeurs.size() > 3 ) ? 4 : 0;
+				}
 		
 				if (tailleMax > maxNomTaille) maxNomTaille = tailleMax;
 
@@ -143,7 +149,13 @@ public class PanelUML extends JPanel
 				String attribut = att.getSymbole() + " " + att.getNom();
 
 				if(!att.getValeurConstante().equals(""))
-					attribut += " = " + att.getValeurConstante();
+				{
+					attribut += " = ";
+					List<String> valeurs = Controleur.decomposeurType(att.getValeurConstante(), ',');
+					for ( int cptVal = 0; cptVal < 3 && cptVal < valeurs.size(); cptVal++ )
+						attribut += valeurs.get(cptVal);
+					attribut += ( valeurs.size() > 3 ) ? " ..." : "";
+				}
 
 				nbEspace = maxNomTaille - attribut.length();
 

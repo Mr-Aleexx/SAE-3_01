@@ -11,9 +11,9 @@ public interface InterfaceComplete extends Comparable, AutoCloseable {
     // public static final implicite
     int CONST_INT = 10;
     String CONST_STRING = "HELLO";
-	String[] TAB = { "blabla",
-	                 "bleble",
-	                 "blublu"};
+	String[][] TAB = { {"blabla", "test1" },
+	                   {"bleble", "test2" },
+	                   {"blublu", "test3" }};
 
     // ----------------
     // METHODES ABSTRAITES

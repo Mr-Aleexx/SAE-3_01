@@ -7,6 +7,7 @@ import retroconception.ihm.IHMCUI;
 import retroconception.metier.Association;
 import retroconception.metier.Classe;
 import retroconception.metier.Retroconception;
+import retroconception.metier.lecture.AnalyseurJava;
 
 /**
  * Controleur de la classe qui lance le CUI pour l'instant
@@ -36,6 +37,11 @@ public class Controleur
 	public Integer           getIndiceClasse(int x, int y) { return this.metier.getIndiceClasse(x, y); }
 	public int               getNbClasse    ()             { return this.metier.getNbClasse    ();     }
 
+
+	public static List<String> decomposeurType(String ligne, char separateur)
+	{
+		return AnalyseurJava.decomposeurType( ligne, separateur );
+	}
 
 	public void   ouvrirDossier	    ()                        { this.ihm   .ouvrirDossier();          }
 	public void   exporterImage	    ()                        { this.ihm   .exporterImage();         }

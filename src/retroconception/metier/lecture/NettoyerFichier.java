@@ -88,7 +88,11 @@ final class NettoyerFichier
 				}
 				else if( niveauTableau > 0 )
 				{
-					if ( ligne.contains( "}" ) ) niveauTableau--;
+					if ( ligne.contains( "}" ) )
+						niveauTableau-= ligne.length() - ligne.replace("}", "").length();
+					if ( ligne.contains( "{" ) )
+						niveauTableau+= ligne.length() - ligne.replace("{", "").length();
+					
 					ligne = fichierClean.remove(fichierClean.size() - 1) + ligne;
 
 					estTableau = true;

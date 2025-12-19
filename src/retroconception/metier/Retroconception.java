@@ -147,7 +147,15 @@ public class Retroconception
 
 			maxAttribut = attrib.getSymbole() + " " + attrib.getNom();
 
-			if(!attrib.getValeurConstante().equals("")) maxAttribut += " = " + attrib.getValeurConstante();
+			if(!attrib.getValeurConstante().equals(""))
+			{
+				maxAttribut += " = ";
+				List<String> valeurs = AnalyseurJava.decomposeurType(attrib.getValeurConstante(), ',');
+				for ( int cptVal = 0; cptVal < 3 && cptVal < valeurs.size(); cptVal++ )
+					maxAttribut += valeurs.get(cptVal);
+				maxAttribut += (( valeurs.size() > 3 ) ? " ..." : "");
+				System.out.println("maxAttribut :"+maxAttribut+":" + maxAttribut.length());
+			}
 
 			if( nomAttribut.length() < maxAttribut.length())
 				nomAttribut = maxAttribut;
