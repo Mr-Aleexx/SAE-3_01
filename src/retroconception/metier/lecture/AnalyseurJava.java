@@ -48,7 +48,7 @@ public final class AnalyseurJava
 		Scanner      sc;
 		boolean      aGeneralization;
 		int          index;
-		List<String> lstAttribut;
+		List<String> lstAttribut, lstMethode;
 
 		for ( String ligne : NettoyerFichier.nettoyerFichier( fichier ) )
 		{
@@ -141,6 +141,10 @@ public final class AnalyseurJava
 				// Le else est obliger pour eviter les initialisation d'attribut par l'appel de methode
 				else if ( ligne.contains("(") && ! GereStereotype.estMethodeStandardRecord(classe, ligne) )
 				{
+					lstMethode = AnalyseurJava.decomposeurType( ligne.substring( ligne.indexOf( mot ) ), ' ' );
+
+					mot = lstMethode.get( 0 );
+
 					// Recuperation du nom de la methode
 					index = mot.indexOf("(");
 					if (index != -1)
@@ -155,7 +159,7 @@ public final class AnalyseurJava
 					else
 					{
 						type = mot;
-						mot  = sc.next();
+						mot  = lstMethode.get( 1 );
 
 						index = mot.indexOf("(");
 						if (index != -1) nom = mot.substring(0, index);
@@ -253,7 +257,7 @@ public final class AnalyseurJava
 		}
 	}
 
-	// Permet de gerer les types Hash avec plusieurs parametres dedanss
+	// Permet de gerer les types Hash avec plusieurs parametres dedans
 	public static List<String> decomposeurType(String ligne, char delimiteur)
 	{
 		List<String> lstRet = new ArrayList<String>();
