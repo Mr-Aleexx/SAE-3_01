@@ -141,6 +141,7 @@ public final class AnalyseurJava
 				// Le else est obliger pour eviter les initialisation d'attribut par l'appel de methode
 				else if ( ligne.contains("(") && ! GereStereotype.estMethodeStandardRecord(classe, ligne) )
 				{
+					// Gere les type de retours de HashMap
 					lstMethode = AnalyseurJava.decomposeurType( ligne.substring( ligne.indexOf( mot ) ), ' ' );
 
 					mot = lstMethode.get( 0 );
@@ -162,7 +163,9 @@ public final class AnalyseurJava
 						mot  = lstMethode.get( 1 );
 
 						index = mot.indexOf("(");
-						if (index != -1) nom = mot.substring(0, index);
+						if (index != -1) mot = mot.substring(0, index);
+
+						nom = mot;
 					}
 
 					if ( visibilite.equals("default") )
