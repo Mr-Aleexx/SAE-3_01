@@ -98,6 +98,8 @@ public final class AnalyseurJava
 
 				nom = mot;
 
+				if ( stereotype.equals( "record" ) ) lectureUnique = true;
+
 				classe = new Classe( visibilite, statique, lectureUnique, abstraite, stereotype, nom );
 
 				if ( stereotype.equals( "record" ) ) GereStereotype.gereRecord( classe, ligne );
