@@ -92,18 +92,24 @@ final class NettoyerFichier
 				if ( ligne.indexOf("=") != -1 && ligne.indexOf("{") != -1 &&
 				     ligne.indexOf("=") < ligne.indexOf("{") )
 				{
-					int nbAcoladeOuvrante = ligne.length() - ligne.replace("{", "").length();
-					int nbAcoladeFermante = ligne.length() - ligne.replace("}", "").length();
-
-					// Si le tableau est complet sur une seule ligne (contient } aussi)
-					if ( nbAcoladeOuvrante - nbAcoladeFermante > 0 )
+					if ( ! ligne.contains( "(" ) )
 					{
-						niveauTableau++;
-						estTableau = true;
+						int nbAcoladeOuvrante = ligne.length() - ligne.replace("{", "").length();
+						int nbAcoladeFermante = ligne.length() - ligne.replace("}", "").length();
+
+						if ( nbAcoladeOuvrante - nbAcoladeFermante > 0 )
+						{
+							niveauTableau++;
+							estTableau = true;
+						}
+						else
+						{
+							estTableau = true;
+						}
 					}
 					else
 					{
-						estTableau = true;
+						continue;
 					}
 				}
 				else if( niveauTableau > 0 )
