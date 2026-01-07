@@ -71,6 +71,9 @@ final class NettoyerFichier
 				// en partant du principe qu'elle n'est pas sur la même ligne que le code
 				if ( ligne.contains("@") ) continue;
 
+				// Enleve les possible espace entre le code et les commentaires sur la meme ligne
+				ligne = ligne.trim();
+
 				/* ------------------------------- */
 				/* Gestion des imports et packages */
 				/* ------------------------------- */
@@ -87,10 +90,21 @@ final class NettoyerFichier
 
 				// Gere les tableaux d'attributs static final
 				if ( ligne.indexOf("=") != -1 && ligne.indexOf("{") != -1 &&
-				     ligne.indexOf("=") < ligne.indexOf("{"))
+				     ligne.indexOf("=") < ligne.indexOf("{") )
 				{
-					niveauTableau++;
-					estTableau = true;
+					int nbAcoladeOuvrante = ligne.length() - ligne.replace("{", "").length();
+					int nbAcoladeFermante = ligne.length() - ligne.replace("}", "").length();
+
+					// Si le tableau est complet sur une seule ligne (contient } aussi)
+					if ( nbAcoladeOuvrante - nbAcoladeFermante > 0 )
+					{
+						niveauTableau++;
+						estTableau = true;
+					}
+					else
+					{
+						estTableau = true;
+					}
 				}
 				else if( niveauTableau > 0 )
 				{
@@ -111,18 +125,18 @@ final class NettoyerFichier
 				{
 					// Enleve les methode écrite sur 1 ligne
 					if ( ligne.contains("{") && ligne.contains("}") )
-						ligne = ligne.substring( 0, ligne.indexOf("{")     ) +
-								ligne.substring(    ligne.indexOf("}") + 1 );
+						ligne = ligne.substring( 0, ligne.indexOf    ("{")     ) +
+								ligne.substring(    ligne.lastIndexOf("}") + 1 );
 
 					// On déclare une liste de int pour gérer le niveau d'acolade, soit si il y a
-					// plusieurs classes ou une declaration de methode locale ou les bloc d'instances
+					// plusieurs classes ou une declaration de methode locale, les bloc d'instances ou les tableaux
 					
 					// Vérifier si on doit ignorer cette ligne avant de modifier niveauAcolade
 					ignorerLigne = (niveauAcolade >= 2);
 
-					if ( ligne.contains("{") && ligne.contains( "" ) ) niveauAcolade++;
+					if ( ligne.length() > 0 && ligne.charAt( ligne.length() - 1) == '{' ) niveauAcolade++;
 
-					if ( ligne.contains("}") )
+					if ( ligne.length() > 0 && ligne.charAt( ligne.length() - 1) == '}' )
 					{
 						niveauAcolade--;
 						continue;
@@ -170,6 +184,9 @@ final class NettoyerFichier
 			sc.close();
 		}
 		catch (FileNotFoundException e){}
+
+		for ( String s : fichierClean )
+			System.out.println( s );
 
 		return fichierClean;
 	}

@@ -43,6 +43,8 @@ public final class Classe
 
 	// Test final static et abstract
 
-	public static final void meth5( int a ) {}
+	public static final void meth5( int a ) {
+		
+	}
 
 }
