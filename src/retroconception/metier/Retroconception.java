@@ -320,6 +320,7 @@ public class Retroconception
 			Element classesElem = (Element) classes.item(0);
 			NodeList bloc = classesElem.getElementsByTagName("bloc");
 
+
 			for (int i = 0; i < bloc.getLength(); i++)
 			{
 				Element classe = (Element) bloc.item(i);
@@ -541,7 +542,10 @@ public class Retroconception
 			methode.appendChild(Retroconception.creationElement(doc, "lectureUniqueM", String.valueOf(m.estLectureUnique())));
 			methode.appendChild(Retroconception.creationElement(doc, "abstraiteM"    , String.valueOf(m.estAbstraite    ())));
 			methode.appendChild(Retroconception.creationElement(doc, "stereotypeM"   ,                m.getStereotype   () ));
-			methode.appendChild(Retroconception.creationElement(doc, "typeM"         ,                m.getType         () ));
+			
+			String typeM = m.getType() != null ? m.getType() : "";
+			
+			methode.appendChild(Retroconception.creationElement(doc, "typeM"         ,                typeM                ));
 			methode.appendChild(Retroconception.creationElement(doc, "nomM"          ,                m.getNom          () ));
 
 			for (Parametre p : m.getParametre())
@@ -668,6 +672,9 @@ public class Retroconception
 			boolean abstraiteM     = Boolean.parseBoolean(methodesXML.getElementsByTagName("abstraiteM"    ).item(0).getTextContent());
 			String  stereotypeM    =                      methodesXML.getElementsByTagName("stereotypeM"   ).item(0).getTextContent() ;
 			String  typeM          =                      methodesXML.getElementsByTagName("typeM"         ).item(0).getTextContent() ;
+			
+			typeM = typeM.isEmpty() ? null : typeM;
+			
 			String  nomM           =                      methodesXML.getElementsByTagName("nomM"          ).item(0).getTextContent() ;
 
 			Methode met = new Methode(visibiliteM, statiqueM, lectureUniqueM, abstraiteM, stereotypeM, typeM, nomM);
@@ -687,6 +694,20 @@ public class Retroconception
 			}
 
 			classe.ajouterMethode(met);
+		}
+
+		NodeList implementations = classeXML.getElementsByTagName("implementation");
+		
+		for (int i = 0; i < implementations.getLength(); i++)
+		{
+			Element implementationXML = (Element) implementations.item(i);
+			NodeList impElements = implementationXML.getElementsByTagName("implementation");
+			
+			if (impElements.getLength() > 0 && impElements.item(0) != null)
+			{
+				String imp = impElements.item(0).getTextContent();
+				classe.ajouterImplementations(imp);
+			}
 		}
 
 		NodeList positions = classeXML.getElementsByTagName("position");
