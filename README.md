@@ -28,7 +28,7 @@ Le **Générateur UML** est une application Java Swing qui analyse automatiqueme
 ### Prérequis
 
 - Java JDK 11 ou supérieur
-- IDE Java (Eclipse, IntelliJ, NetBeans) ou ligne de commande
+- IDE Java ou ligne de commande
 
 ### Installation
 
@@ -42,6 +42,7 @@ cd SAE-3_01
 
 Sur Linux
 ```bash
+chmod u+x start.sh
 ./start.sh
 ```
 Sur windows
@@ -166,7 +167,7 @@ Les projets sont sauvegardés en XML :
 
 ---
 
-## 🐛 Limitations connues
+## Limitations connues
 
 - **Classes internes** : Affichées comme classes séparées
 - **Génériques complexes** : Certains types génériques très imbriqués peuvent ne pas être analysés correctement
@@ -183,7 +184,7 @@ Les projets sont sauvegardés en XML :
 - Regroupement par packages
 
 
-## 👥 Auteurs
+## Auteurs
 
 - **HAZET Alex**
 - **LUCAS Alexandre**
