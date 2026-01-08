@@ -110,13 +110,21 @@ public class FrameUML extends JFrame
 			File selectedFile = fileChooser.getSelectedFile();
 			if (selectedFile.isDirectory()) 
 			{
-				this.ctrl.ouvrirDossier(selectedFile.getAbsolutePath());
-				this.majIHM();
+				try
+				{
+					this.ctrl.ouvrirDossier(selectedFile.getAbsolutePath());
+					this.majIHM();
+				}
+				catch (IllegalArgumentException e)
+				{
+					JOptionPane.showMessageDialog(this, "Aucun fichier .java trouvé dans le dossier", 
+												"Dossier invalide", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 			else 
 			{
 				JOptionPane.showMessageDialog( this.getParent(), "Veuillez sélectionner un dossier",
-				                               "Sélection invalide", JOptionPane.ERROR_MESSAGE );
+												"Sélection invalide", JOptionPane.ERROR_MESSAGE );
 			}
 		}
 	}

@@ -92,11 +92,21 @@ public class Retroconception
 		this.lstClasses.clear();
 		this.lstAssociations.clear();
 
+		int nbFichiersJava = 0;
+
 		// Ouvre chaque fichiers .java
 		for ( File fichier : lstFichier )
 			if ( fichier.getName().contains(".java") )
+			{
 				this.lstClasses.add( AnalyseurJava.analyserFichier(fichier.getAbsolutePath()) );
+				nbFichiersJava++;
+			}
 
+		if ( nbFichiersJava == 0 )
+		{
+			throw new IllegalArgumentException("Aucun fichier .java trouvé dans le dossier");
+		}
+		
 		this.creationAssociation();
 		this.initPosition();
 	}
