@@ -1,1 +1,1 @@
-javadoc @compile.list -d javaDoc
+javadoc @src/compile.list -d javaDoc
