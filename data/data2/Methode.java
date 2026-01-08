@@ -1,1 +1,0 @@
-public record Mouvement (int date, String nom, String prenom, int montant ){}

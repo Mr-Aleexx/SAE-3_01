@@ -1,0 +1,196 @@
+package retroconception.metier.lecture;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ * Permet de supprimer les indormations inutiles de chacuns des fichiers d'annalyse
+ * 
+ * @author HAZET Alex, LUCAS Alexandre, FRERET Alexandre, AZENHA NASCIMENTO Marta, CONSTANTIN Alexis
+ * @version Etape 6
+ * @since 08-12-2025
+ */
+
+final class NettoyerFichier
+{
+	private NettoyerFichier() {}
+
+	public static List<String> nettoyerFichier( String fichier )
+	{
+		Scanner      sc;
+		String       ligne;
+		List<String> fichierClean       = new ArrayList<String>();
+		boolean      estDansCommentaire = false;
+		boolean      estDansParametre   = false;
+		boolean      ignorerLigne, estTableau;
+		int          niveauTableau      = 0;
+		int          niveauAcolade      = 0;
+		
+		try
+		{
+			sc = new Scanner( new FileInputStream( fichier ), "UTF8" );
+			while ( sc.hasNextLine() )
+			{
+				ligne = sc.nextLine().trim();
+				
+				estTableau = false;
+				/* ------------------------ */
+				/* Gestion des commentaires */
+				/* ------------------------ */
+
+				// Le commentaire //
+				if ( ligne.contains("//") ) ligne = ligne.substring( 0, ligne.indexOf("//") );
+
+				// Verif de si on est a la fin commentaire */
+				if ( estDansCommentaire && ligne.contains("*/") )
+				{
+					ligne = ligne.substring( ligne.indexOf("*/") + 2 ) ;
+					estDansCommentaire = false;
+				}
+
+				// Verif si on est dans un commentaire /* */ et on passe a la
+				// prochaine itération
+				if ( estDansCommentaire ) continue;
+
+				// Le commentaire /* */ sur la même ligne
+				if ( ligne.contains("/*") && ligne.contains("*/") )
+					ligne = ligne.substring( 0, ligne.indexOf("/*")     ) +
+					        ligne.substring(    ligne.indexOf("*/") + 2 );
+
+				// Verif de si on commence un commentaire /*
+				if ( ligne.contains("/*") )
+				{
+					ligne = ligne.substring( 0, ligne.indexOf("/*") );
+					estDansCommentaire = true;
+				}
+
+				// Enleve la documentation Java doc avec les overides...
+				// en partant du principe qu'elle n'est pas sur la même ligne que le code
+				if ( ligne.contains("@") ) continue;
+
+				// Enleve les possible espace entre le code et les commentaires sur la meme ligne
+				ligne = ligne.trim();
+
+				/* ------------------------------- */
+				/* Gestion des imports et packages */
+				/* ------------------------------- */
+
+				if ( ligne.contains("import") ) ligne = ligne.substring( 0, ligne.indexOf("import")      ) +
+				                                        ligne.substring(    ligne.indexOf(";"     ) + 1  );
+
+				if ( ligne.contains("package") ) ligne = ligne.substring( 0, ligne.indexOf("package")      ) +
+				                                         ligne.substring(    ligne.indexOf(";"      ) +  1 );
+
+				/* --------------------- */
+				/* Gestion des accolades */
+				/* --------------------- */
+
+				// Gere les tableaux d'attributs static final
+				if ( ligne.indexOf("=") != -1 && ligne.indexOf("{") != -1 &&
+				     ligne.indexOf("=") < ligne.indexOf("{") )
+				{
+					if ( ! ligne.contains( "(" ) )
+					{
+						int nbAcoladeOuvrante = ligne.length() - ligne.replace("{", "").length();
+						int nbAcoladeFermante = ligne.length() - ligne.replace("}", "").length();
+
+						if ( nbAcoladeOuvrante - nbAcoladeFermante > 0 )
+						{
+							niveauTableau++;
+							estTableau = true;
+						}
+						else
+						{
+							estTableau = true;
+						}
+					}
+					else
+					{
+						continue;
+					}
+				}
+				else if( niveauTableau > 0 )
+				{
+					// Gere les tableau de tableaux ecrit sur plusieurs lignes
+					if ( ligne.contains( "}" ) )
+						niveauTableau-= ligne.length() - ligne.replace("}", "").length();
+					if ( ligne.contains( "{" ) )
+						niveauTableau+= ligne.length() - ligne.replace("{", "").length();
+					
+					ligne = fichierClean.remove(fichierClean.size() - 1) + ligne;
+
+					estTableau = true;
+				}
+				/* ----------------------------- */
+				/* Gestion des corps de méthodes */
+				/* ----------------------------- */
+				else
+				{
+					// Enleve les methode écrite sur 1 ligne
+					if ( ligne.contains("{") && ligne.contains("}") )
+						ligne = ligne.substring( 0, ligne.indexOf    ("{")     ) +
+								ligne.substring(    ligne.lastIndexOf("}") + 1 );
+
+					// On déclare une liste de int pour gérer le niveau d'acolade, soit si il y a
+					// plusieurs classes ou une declaration de methode locale, les bloc d'instances ou les tableaux
+					
+					// Vérifier si on doit ignorer cette ligne avant de modifier niveauAcolade
+					ignorerLigne = (niveauAcolade >= 2);
+
+					if ( ligne.length() > 0 && ligne.charAt( ligne.length() - 1) == '{' ) niveauAcolade++;
+
+					if ( ligne.length() > 0 && ligne.charAt( ligne.length() - 1) == '}' )
+					{
+						niveauAcolade--;
+						continue;
+					}
+
+					// Pour le format R&K : ignorer les lignes dans les corps de méthode
+					if ( ignorerLigne ) continue;
+				}
+
+				/* ------------------------------------------------------- */
+				/* Gestion des parametres de methodes sur plusieurs lignes */
+				/* ------------------------------------------------------- */
+
+				if (estDansParametre)
+				{
+					if (ligne.contains(")"))
+						estDansParametre = false;
+
+					ligne = fichierClean.remove(fichierClean.size() - 1) + ligne;
+				}
+
+				if ( ligne.contains("(") && !ligne.contains(")") )
+					estDansParametre = true;
+
+				/* --------------- */
+				/* Autres Gestions */
+				/* --------------- */
+
+				// Enleve les acolade en trop
+				if ( ! estTableau ) ligne = ligne.replace("{", "");
+
+				// Enleve les ";" des methode abstract pour faciliter la lecture
+				if ( ligne.contains( "abstract" ) && ligne.contains( ";" ))
+					ligne = ligne.replace( ";" , "" );
+
+				// Enleve les lignes vides
+				if ( ligne.trim().equals("") ) continue;
+
+				/* ----------------- */
+				/* Ajout de la ligne */
+				/* ----------------- */
+				
+				fichierClean.add(ligne);
+			}
+			sc.close();
+		}
+		catch (FileNotFoundException e){}
+		
+		return fichierClean;
+	}
+}

@@ -129,7 +129,6 @@ public class FrameUML extends JFrame
 	{
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Enregistrer");
-		fileChooser.setCurrentDirectory(new File("./sauvegarde"));
 
 		int resultat = fileChooser.showSaveDialog(null);
 
