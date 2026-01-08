@@ -304,6 +304,8 @@ public class PanelUML extends JPanel
 	public void construireLiens(Graphics2D g2)
 	{
 		Stroke traitOriginal = g2.getStroke();
+
+		g2.setColor(Color.BLACK);
 		
 		// Pour les Associations
 		for (Association association : this.ctrl.getLstAssociations())

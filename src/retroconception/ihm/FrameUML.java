@@ -80,6 +80,7 @@ public class FrameUML extends JFrame
 		try
 		{
 			JFileChooser selection = new JFileChooser();
+			selection.setCurrentDirectory(new File("./imageExporter"));
 			selection.setDialogTitle("Enregistrer en Image");
 
 			int resultat = selection.showSaveDialog(null);
