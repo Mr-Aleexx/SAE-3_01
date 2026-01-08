@@ -145,7 +145,7 @@ public class FrameUML extends JFrame
 	{
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle("Charger");
-		fileChooser.setCurrentDirectory(new File("./data"));
+		fileChooser.setCurrentDirectory(new File("./sauvegarde"));
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
 		int result = fileChooser.showOpenDialog(this.getParent());
